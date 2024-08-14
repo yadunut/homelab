@@ -1,6 +1,6 @@
 {  config, lib, pkgs, meta, ...}:
 {
-  imports = [./users.nix];
+  imports = [../common/users.nix];
 
   nix = {
     settings.experimental-features = ["nix-command" "flakes"];
