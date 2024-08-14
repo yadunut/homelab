@@ -18,7 +18,7 @@
     };
   };
 
-  outputs = { flake-utils,nixpkgs, disko, agenix, nixos-generators, ... }: let
+  outputs = { flake-utils,nixpkgs, nixos-generators, ... }: let
     nodes = ["premhome-falcon-1" "premhome-falcon-2"];
   in {
     packages = builtins.listToAttrs(map (system: {
@@ -28,7 +28,7 @@
           format = "iso";
           system = "x86_64-linux";
           modules = [
-            ./proxmox/iso.nix # base configuration of the image
+            ./nixos/proxmox/iso.nix # base configuration of the image
           ];
         };
       };
@@ -39,7 +39,7 @@
         create-vm = let
           pkgs = import nixpkgs { system = "x86_64-linux"; };
           script-name = "create-vm";
-          src = builtins.readFile ./proxmox/create-vm.sh;
+          src = builtins.readFile ./nixos/proxmox/create-vm.sh;
           script = (pkgs.writeScriptBin script-name src).overrideAttrs(old: {
             buildCommand = "${old.buildCommand}\n patchShebangs $out";
           });
