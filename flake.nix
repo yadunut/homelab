@@ -34,6 +34,13 @@
           nativeBuildInputs = with pkgs; [makeWrapper];
           postBuild = "wrapProgram $out/bin/${script-name} --prefix PATH : $out/bin";
       };
+      generate-iso = nixos-generators.nixosGenerate {
+        format = "iso";
+        system = "x86_64-linux";
+        modules = [
+          ./nixos/proxmox/iso.nix # base configuration of the image
+        ];
+      };
     };
   } // flake-utils.lib.eachDefaultSystem (system:
     let pkgs = import nixpkgs {
@@ -45,15 +52,6 @@
         buildInputs = with pkgs; [
           colmena
           shellcheck
-        ];
-      };
-    };
-    packages = {
-      generate-iso = nixos-generators.nixosGenerate {
-        format = "iso";
-        system = "x86_64-linux";
-        modules = [
-          ./nixos/proxmox/iso.nix # base configuration of the image
         ];
       };
     };
