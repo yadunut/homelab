@@ -20,9 +20,12 @@ in {
     wget
   ];
 
+  environment.etc."tailscale/preAuthKey".text = tailscale_key;
+
   services.tailscale = {
     enable = true;
-    extraUpFlags = [ "--login-server" "http://ts.yadunut.com:444" "--authkey" tailscale_key];
+    extraUpFlags = [ "--login-server" "http://ts.yadunut.com:444"];
+    authKeyFile = "/etc/tailscale/preAuthKey";
   };
 
   system.stateVersion = "24.05";
