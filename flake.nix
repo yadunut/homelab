@@ -18,11 +18,8 @@
     };
   };
 
-  outputs = { flake-utils,nixpkgs, nixos-generators, disko, ... }: let
-    nodes = ["premhome-falcon-1" "premhome-falcon-2"];
-  in {
-    packages = {
-      x86_64-linux = {
+  outputs = { flake-utils,nixpkgs, nixos-generators, disko, ... }: {
+    packages.x86_64-linux = {
       create-vm = let
         pkgs = import nixpkgs { system = "x86_64-linux"; };
         script-name = "create-vm";
@@ -36,7 +33,6 @@
           paths = [ script ] ++ buildInputs;
           nativeBuildInputs = with pkgs; [makeWrapper];
           postBuild = "wrapProgram $out/bin/${script-name} --prefix PATH : $out/bin";
-        };
       };
     };
   } // flake-utils.lib.eachDefaultSystem (system:
@@ -52,7 +48,7 @@
         ];
       };
     };
-    packages.${system} = {
+    packages = {
       generate-iso = nixos-generators.nixosGenerate {
         format = "iso";
         system = "x86_64-linux";

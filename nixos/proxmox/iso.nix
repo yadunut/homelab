@@ -1,5 +1,6 @@
 {  config, lib, pkgs, meta, ...}:
-{
+let tailscale_key = builtins.getEnv "TAILSCALE_AUTH_KEY";
+in {
   imports = [../common/users.nix];
 
   nix = {
@@ -18,6 +19,11 @@
     neovim
     wget
   ];
+
+  services.tailscale = {
+    enable = true;
+    extraUpFlags = [ "--login-server" "http://ts.yadunut.com:444" "--authkey" tailscale_key];
+  };
 
   system.stateVersion = "24.05";
 }
