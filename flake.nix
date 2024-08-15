@@ -18,7 +18,7 @@
     };
   };
 
-  outputs = { flake-utils,nixpkgs, nixos-generators, disko, ... }: {
+  outputs = { flake-utils,nixpkgs, nixos-generators, disko, agenix, ... }: {
     packages.x86_64-linux = {
       create-vm = let
         pkgs = import nixpkgs { system = "x86_64-linux"; };
@@ -49,9 +49,10 @@
     {
       devShells = {
         default = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          colmena
-          shellcheck
+        buildInputs = [
+          pkgs.colmena
+          pkgs.shellcheck
+          agenix.packages.${system}.default
         ];
       };
     };

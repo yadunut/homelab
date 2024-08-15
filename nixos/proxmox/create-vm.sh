@@ -14,8 +14,8 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 function main() {
   VMID="$(sudo pvesh get /cluster/nextid)"
 
-  # NODE="$(sudo pvesh get /nodes --output-format json | jq -r '.[].node' | gum choose --select-if-one --cursor="Select Node > ")"
-  NODE="falcon"
+  NODE="$(sudo pvesh get /nodes --output-format json | jq -r '.[].node' | gum choose --select-if-one --cursor="Select Node > ")"
+  # NODE="falcon"
   echo "Selected ${NODE}"
 
   STORAGE="$(sudo pvesh get /nodes/${NODE}/storage --output-format json --human-readable true | jq -r '.[] | select((.enabled == 1) and (.content | contains("images"))).storage' | gum choose --select-if-one)"
@@ -52,7 +52,7 @@ function main() {
   echo "Attempting to retrieve IP Address"
   start_time=$(date +%s)
   while true; do
-    if IP_ADDRESS="$(sudo qm agent "${VMID}" network-get-interfaces 2>/dev/null | jq -r '.[] | select(.name != "lo") | .["ip-addresses"][] | select(.["ip-address-type"] == "ipv4")')"; then
+    if IP_ADDRESS="$(sudo qm agent "${VMID}" network-get-interfaces 2>/dev/null | jq -r '.[] | select(.name == "tailscale0") | .["ip-addresses"][] | select(.["ip-address-type"] == "ipv4")')"; then
       if [ -n "${IP_ADDRESS}" ]; then
         echo "Retrieved IP Address: ${IP_ADDRESS}"
         break
