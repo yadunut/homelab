@@ -9,7 +9,7 @@ A quick guide on setting up new VMs / Servers in the Homelab with proxmox.
 This is to be run on the proxmox node. 
 
 ```bash
-TAILSCALE_AUTH_KEY=<preauthkey> nix build --refresh --verbose --impure "git+https://gitea.ts.yadunut.com/yadunut/homelab.git#generate-iso"
+nix build --refresh "git+https://gitea.ts.yadunut.com/yadunut/homelab.git#generate-iso"
 ```
 Copy ISO Over to the VM
 ```bash

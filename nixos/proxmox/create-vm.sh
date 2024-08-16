@@ -52,7 +52,7 @@ function main() {
   echo "Attempting to retrieve IP Address"
   start_time=$(date +%s)
   while true; do
-    if IP_ADDRESS="$(sudo qm agent "${VMID}" network-get-interfaces 2>/dev/null | jq -r '.[] | select(.name == "tailscale0") | .["ip-addresses"][] | select(.["ip-address-type"] == "ipv4")')"; then
+    if IP_ADDRESS="$(sudo qm agent "${VMID}" network-get-interfaces 2>/dev/null | jq -r '.[] | select(.name != "lo") | .["ip-addresses"][] | select(.["ip-address-type"] == "ipv4")')"; then
       if [ -n "${IP_ADDRESS}" ]; then
         echo "Retrieved IP Address: ${IP_ADDRESS}"
         break

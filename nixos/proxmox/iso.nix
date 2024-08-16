@@ -1,6 +1,5 @@
-{  config, lib, pkgs, meta, ...}:
-let tailscale_key = builtins.getEnv "TAILSCALE_AUTH_KEY";
-in {
+{ config, lib, pkgs, ...}:
+{
   imports = [../common/users.nix];
 
   nix = {
@@ -19,14 +18,7 @@ in {
     neovim
     wget
   ];
-
-  environment.etc."tailscale/preAuthKey".text = tailscale_key;
-
-  services.tailscale = {
-    enable = true;
-    extraUpFlags = [ "--login-server" "http://ts.yadunut.com:444"];
-    authKeyFile = "/etc/tailscale/preAuthKey";
-  };
+  boot.loader.timeout = lib.mkForce 0;
 
   system.stateVersion = "24.05";
 }
