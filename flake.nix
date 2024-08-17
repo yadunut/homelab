@@ -18,7 +18,7 @@
     };
   };
 
-  outputs = { flake-utils,nixpkgs, nixos-generators, disko, agenix, ... }: {
+  outputs = { self, flake-utils,nixpkgs, nixos-generators, disko, agenix, ... }: {
     packages.x86_64-linux = {
       create-vm = let
         pkgs = import nixpkgs { system = "x86_64-linux"; };
@@ -64,7 +64,7 @@
     };
 
     nixosConfigurations = let
-    nodes = ["premhome-falcon-1" "premhome-falcon-2"];
+    nodes = ["premhome-falcon-1" "premhome-falcon-2" "premhome-falcon-3"];
     in builtins.listToAttrs (map (name: {
       name = name;
       value = nixpkgs.lib.nixosSystem {
@@ -78,7 +78,17 @@
         ];
       };
     }) nodes);
-
+    colmena = let
+      configs = self.nixosConfigurations;
+    in {
+       meta = {
+          description = "My personal machines";
+          nixpkgs = import nixpkgs { system = "x86_64-linux"; };
+          nodeNixpkgs = builtins.mapAttrs (name: value: value.pkgs) configs;
+          nodeSpecialArgs = builtins.mapAttrs (name: value: value._module.specialArgs) configs;
+        };
+    } // builtins.mapAttrs (name: value: { imports = value._module.args.modules;
+    }) configs;
   } // flake-utils.lib.eachDefaultSystem (system:
     let pkgs = import nixpkgs {
       inherit system;
@@ -87,6 +97,7 @@
       devShells = {
         default = pkgs.mkShell {
         buildInputs = [
+          pkgs.nix
           pkgs.colmena
           pkgs.shellcheck
           agenix.packages.${system}.default

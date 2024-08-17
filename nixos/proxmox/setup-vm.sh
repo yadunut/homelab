@@ -43,11 +43,8 @@ function main() {
   sed -i -e "\$i${LINE}" "./keys.nix"
   agenix --rekey  
   popd
-  echo "${tmp_dir}"
-  echo "Run the command: nix run github:nix-community/nixos-anywhere -- --flake ".#${MACHINE_NAME}" --extra-files "${tmp_dir}" --print-build-logs root@${MACHINE_IP}"
-  read -n 1
   # Deploy the systems!
-  # nix run github:nix-community/nixos-anywhere -- --flake ".#${MACHINE_NAME}" --extra-files "${tmp_dir}" --print-build-logs yadunut@${MACHINE_IP}
+  nix run github:nix-community/nixos-anywhere -- --flake ".#${MACHINE_NAME}" --extra-files "${tmp_dir}" --print-build-logs yadunut@${MACHINE_IP}
 }
 
 main "$@"
