@@ -19,9 +19,20 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  boot.tmp.cleanOnBoot = true;
 
   services.openssh.enable = true;
   services.qemuGuest.enable = true;
+
+  # For longhorn
+  services.openiscsi = {
+    enable = true;
+    name = "iqn.2016-04.com.open-iscsi:${meta.hostname}";
+  };
+  systemd.tmpfiles.rules = [
+    "L+ /usr/local/bin - - - - /run/current-system/sw/bin/"
+  ];
+
 
   environment.systemPackages = with pkgs; [
     git
@@ -31,10 +42,12 @@
 
   services.k3s = {
     enable = true;
+    # role = if builtins.elem meta.hostname servers then "server" else "agent";
     role = "server";
     tokenFile = config.age.secrets.k3s.path;
     clusterInit = meta.hostname == "premhome-falcon-1";
-    serverAddr = if meta.hostname == "premhome-falcon-1" then "" else "https://premhome-falcon-1:6443";
+    serverAddr = if meta.hostname == "premhome-falcon-1" then "" else "https://premhome-falcon-1:6444";
+    extraFlags = "--disable=servicelb --disable=traefik";
   };
 
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
