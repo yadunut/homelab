@@ -64,7 +64,7 @@
     };
 
     nixosConfigurations = let
-    nodes = ["premhome-falcon-1" "premhome-falcon-2" "premhome-falcon-3"];
+    nodes = ["premhome-falcon-1" "premhome-falcon-2" "premhome-falcon-3" "premhome-eagle-1" "premhome-eagle-2"];
     in builtins.listToAttrs (map (name: {
       name = name;
       value = nixpkgs.lib.nixosSystem {
@@ -87,8 +87,7 @@
           nodeNixpkgs = builtins.mapAttrs (name: value: value.pkgs) configs;
           nodeSpecialArgs = builtins.mapAttrs (name: value: value._module.specialArgs) configs;
         };
-    } // builtins.mapAttrs (name: value: { imports = value._module.args.modules;
-    }) configs;
+    } // builtins.mapAttrs (name: value: { imports = value._module.args.modules; }) configs;
   } // flake-utils.lib.eachDefaultSystem (system:
     let pkgs = import nixpkgs {
       inherit system;
@@ -101,6 +100,10 @@
           pkgs.colmena
           pkgs.shellcheck
           agenix.packages.${system}.default
+          pkgs.ansible
+          pkgs.kubernetes-helm
+          pkgs.helmfile
+          pkgs.fluxcd
         ];
       };
     };
