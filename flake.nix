@@ -104,6 +104,7 @@
           pkgs.kubernetes-helm
           pkgs.helmfile
           pkgs.fluxcd
+          pkgs.kustomize
         ];
       };
     };
