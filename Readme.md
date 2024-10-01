@@ -22,7 +22,7 @@ This command is to be run on the proxmox Node / via SSH. Follow the guide to set
 
 TODO: This currently only works on falcon, to support other nodes, I need to create new VMs via the API with `pvesh` instead of the `qm` tool. 
 ```bash
-nix run --refresh --verbose "git+https://gitea.ts.yadunut.com/yadunut/homelab.git.#create-vm"
+nix run --refresh --verbose "git+https://gitea.ts.yadunut.com/yadunut/homelab.git?ref=main#create-vm"
 ```
 Copy the IP address 
 
@@ -49,3 +49,17 @@ Now that I have VMs booted into the ISO, I need to setup the VMs. This would fir
 1. Generating the host keys
 2. Tailscale encrypt with age, and transfer to the VM
 3. Encrypting
+
+## Flux
+```bash
+flux bootstrap gitea --owner=yadunut --repository=homelab --hostname=gitea.ts.yadunut.com --path flux
+```
+
+## Give Ups
+1. Gave up on attempting SDN with DHCP on proxmox
+2. 
+
+# Notes
+
+Why the fuck are there 2 kustomizations
+https://fluxcd.io/flux/faq/#are-there-two-kustomization-types
