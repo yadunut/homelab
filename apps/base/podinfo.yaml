@@ -42,6 +42,8 @@ metadata:
 data:
   values.yaml: |-
     replicaCount: 2
+    service:
+      type: LoadBalancer
     resources:
       limits:
         memory: 256Mi
