@@ -1,0 +1,39 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: traefik-repo
+  namespace: traefik-system
+spec:
+  interval: 1m0s
+  url: https://helm.traefik.io/traefik
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: traefik-release
+  namespace: traefik-system
+spec:
+  chart:
+    spec:
+      chart: traefik
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: traefik-repo
+      version: v3.1.5
+  interval: 1m0s
+  valuesFrom:
+  - kind: ConfigMap
+    name: traefik-value-overrides
+    valuesKey: values.yaml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: traefik-value-overrides
+  namespace: traefik-ssytem
+data:
+  values.yaml: |-
+    replicas: 1
+    nodeSelector:
+      kubernetes.io/hostname: infranut-sgp1
