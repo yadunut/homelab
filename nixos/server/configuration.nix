@@ -1,4 +1,4 @@
-{ config, meta, pkgs, ... }:
+{ config, meta, pkgs, lib, ... }:
 {
   imports = [../common/users.nix];
   nix = {
@@ -13,7 +13,8 @@
   services.tailscale = {
     enable = true;
     authKeyFile = config.age.secrets.tailscale.path;
-    extraUpFlags = [ "--login-server" "http://ts.yadunut.com:444" ];
+    useRoutingFeatures = "both";
+    extraUpFlags = [ "--advertise-routes=10.0.1.0/24" "--login-server=http://ts.yadunut.com:444" "--accept-routes"  ];
     interfaceName = "tailscale0";
   };
 
@@ -47,7 +48,7 @@
     tokenFile = config.age.secrets.k3s.path;
     clusterInit = meta.hostname == "premhome-falcon-1";
     serverAddr = if meta.hostname == "premhome-falcon-1" then "" else "https://premhome-falcon-1:6444";
-    extraFlags = "--disable=servicelb --disable=traefik";
+    extraFlags = ["--disable=servicelb" "--disable=traefik" ];
   };
 
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
