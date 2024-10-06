@@ -16,7 +16,7 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: traefik-release
+  name: traefik
   namespace: traefik-system
 spec:
   chart:
@@ -28,18 +28,33 @@ spec:
         name: traefik-repo
       version: v32.1.0
   interval: 1m0s
-  valuesFrom:
-  - kind: ConfigMap
-    name: traefik-value-overrides
-    valuesKey: values.yaml
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: traefik-value-overrides
-  namespace: traefik-system
-data:
-  values.yaml: |-
+  values:
     replicas: 1
     nodeSelector:
-      kubernetes.io/hostname: infranut-sgp1
+      ingress: 'true'
+    service:
+      type: ClusterIP
+    ingressRoute:
+      dashboard:
+        enabled: true
+---
+# Done with the help of claude
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-external
+  namespace: traefik-system
+spec:
+  type: ClusterIP
+  externalIPs:
+    - "128.199.163.115"
+  ports:
+    - name: web
+      port: 80
+      targetPort: 8000
+    - name: websecure
+      port: 443
+      targetPort: 8443
+  selector:
+    app.kubernetes.io/name: traefik
+    app.kubernetes.io/instance: traefik
