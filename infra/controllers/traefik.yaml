@@ -32,6 +32,11 @@ spec:
     replicas: 1
     nodeSelector:
       ingress: 'true'
+    tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "ingress"
+      effect: "NoSchedule"
     service:
       type: ClusterIP
     ingressRoute:
