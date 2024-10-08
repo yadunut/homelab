@@ -47,8 +47,8 @@
     role = "server";
     tokenFile = config.age.secrets.k3s.path;
     clusterInit = meta.hostname == "premhome-falcon-1";
-    serverAddr = if meta.hostname == "premhome-falcon-1" then "" else "https://premhome-falcon-1:6444";
-    extraFlags = ["--disable=servicelb" "--disable=traefik" ];
+    serverAddr = if meta.hostname == "premhome-falcon-1" then "" else "https://premhome-falcon-1:6443";
+    extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip" meta.ip ];
   };
 
   networking.firewall.trustedInterfaces = [ "tailscale0" ];
