@@ -1,4 +1,4 @@
-{ config, meta, pkgs, lib, ... }:
+{ config, meta, pkgs, ... }:
 {
   imports = [../common/users.nix];
   nix = {

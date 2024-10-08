@@ -64,11 +64,9 @@
     };
 
     nixosConfigurations = let
-    nodes = ["premhome-falcon-1" "premhome-falcon-2" "premhome-falcon-3" "premhome-eagle-1" "premhome-eagle-2"];
-    in builtins.listToAttrs (map (name: {
-      name = name;
-      value = nixpkgs.lib.nixosSystem {
-        specialArgs = { meta = { hostname = name; }; };
+      nodes = import ./nixos/server/nodes.nix;
+    in builtins.mapAttrs (name: data: nixpkgs.lib.nixosSystem {
+        specialArgs = { meta = { hostname = name; ip = data.ip; }; };
         modules = [
         disko.nixosModules.disko
         agenix.nixosModules.default
@@ -76,8 +74,7 @@
         ./nixos/server/configuration.nix
         ./nixos/server/hardware-configuration.nix
         ];
-      };
-    }) nodes);
+      }) nodes;
     colmena = let
       configs = self.nixosConfigurations;
     in {
