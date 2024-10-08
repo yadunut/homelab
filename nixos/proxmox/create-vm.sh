@@ -43,6 +43,8 @@ function main() {
     --net0 "virtio,bridge=vmbr0" \
     --ostype "l26" \
     --scsi0 "${STORAGE}:50,iothread=on" \
+    --onboot "1" \
+    --pool "premhome-cluster" \
     --scsihw "virtio-scsi-single"
 
   echo "Created VM, starting..."
