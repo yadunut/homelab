@@ -11,8 +11,8 @@
 
   networking.hostName = meta.hostname;
 
-  age.secrets.tailscale.file = ../secrets/tailscale.age;
-  age.secrets.k3s.file = ../secrets/k3s.age;
+  age.secrets.tailscale.file = ../../secrets/tailscale.age;
+  age.secrets.k3s.file = ../../secrets/k3s.age;
 
   services.tailscale = {
     enable = true;
