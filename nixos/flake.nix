@@ -18,31 +18,63 @@
     };
   };
 
-  outputs = { self, flake-utils,nixpkgs, nixos-generators, disko, agenix, ... }: {
+  outputs = {
+    self,
+    nixpkgs,
+    disko,
+    agenix,
+    ...
+  }: {
+    formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.alejandra;
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.alejandra;
     nixosConfigurations = let
       nodes = import ./server/nodes.nix;
-    in builtins.mapAttrs (name: data: nixpkgs.lib.nixosSystem {
-        specialArgs = { meta = { hostname = name; ip = data.ip; private-ip = data.private-ip; }; };
-        modules = [
-          disko.nixosModules.disko
-          agenix.nixosModules.default
-          ./server/proxmox/disko-config.nix
-          ./server/proxmox/configuration.nix
-          ./server/proxmox/hardware-configuration.nix
-        ];
-      }) nodes;
+    in
+      builtins.mapAttrs (name: data:
+        nixpkgs.lib.nixosSystem {
+          specialArgs = {
+            meta = {
+              hostname = name;
+              ip = data.ip;
+              private-ip = data.private-ip;
+            };
+          };
+          modules = [
+            disko.nixosModules.disko
+            agenix.nixosModules.default
+            ./server/proxmox/disko-config.nix
+            ./server/proxmox/configuration.nix
+            ./server/proxmox/hardware-configuration.nix
+          ];
+        })
+      nodes
+      // {
+        premhome-gc1 = nixpkgs.lib.nixosSystem {
+          modules = [
+            disko.nixosModules.disko
+            agenix.nixosModules.default
+            ./server/premhome-gc1/disko-config.nix
+            ./server/premhome-gc1/configuration.nix
+            ./server/premhome-gc1/hardware-configuration.nix
+          ];
+        };
+      };
 
     colmena = let
       configs = self.nixosConfigurations;
-    in {
+    in
+      {
         meta = {
           description = "My personal machines";
-          nixpkgs = import nixpkgs { system = "x86_64-linux"; };
+          nixpkgs = import nixpkgs {system = "x86_64-linux";};
           nodeNixpkgs = builtins.mapAttrs (name: value: value.pkgs) configs;
           nodeSpecialArgs = builtins.mapAttrs (name: value: value._module.specialArgs) configs;
         };
-      } // builtins.mapAttrs (name: value: { 
-      imports = value._module.args.modules; 
-      deployment.targetHost = value._module.specialArgs.meta.private-ip; }) configs;
+      }
+      // builtins.mapAttrs (name: value: {
+        imports = value._module.args.modules;
+        deployment.targetHost = value._module.specialArgs.meta.private-ip;
+      })
+      configs;
   };
 }
