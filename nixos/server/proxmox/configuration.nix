@@ -43,12 +43,11 @@
 
   services.k3s = {
     enable = true;
-    # role = if builtins.elem meta.hostname servers then "server" else "agent";
     role = "server";
     tokenFile = config.age.secrets.k3s.path;
     clusterInit = meta.hostname == "premhome-falcon-1";
     serverAddr = if meta.hostname == "premhome-falcon-1" then "" else "https://premhome-falcon-1:6443";
-    extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip" meta.ip ];
+    extraFlags = ["--disable=servicelb" "--disable=traefik" ];
   };
 
   networking.firewall.trustedInterfaces = [ "tailscale0" ];

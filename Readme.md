@@ -26,11 +26,6 @@ nix run --refresh --verbose "git+https://gitea.ts.yadunut.com/yadunut/homelab.gi
 ```
 Copy the IP address 
 
-3. Use nixos-anywhere to bootstrap virtual machines
-
-```bash
-nix run ".#bootstrap"`
-```
 
 # Process to creating a New Machine
 1. Create an ISO and transfer it over to Proxmox if it doesn't already exist
@@ -63,3 +58,11 @@ flux bootstrap gitea --owner=yadunut --repository=homelab --hostname=gitea.ts.ya
 
 Why the fuck are there 2 kustomizations
 https://fluxcd.io/flux/faq/#are-there-two-kustomization-types
+
+## Uninstalling k3s on nix
+sudo su - root
+KUBELET_PATH=$(mount | grep kubelet | cut -d' ' -f3);
+${KUBELET_PATH:+umount $KUBELET_PATH}
+
+rm -rf /etc/rancher/{k3s,node};
+rm -rf /var/lib/{rancher/k3s,kubelet,longhorn,etcd,cni}
