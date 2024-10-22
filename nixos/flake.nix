@@ -35,8 +35,8 @@
           specialArgs = {
             meta = {
               hostname = name;
-              ip = data.ip;
               private-ip = data.private-ip;
+              server-addr = (import ./server/nodes.nix).premhome-gc1.zt-ip;
             };
           };
           modules = [
@@ -50,6 +50,7 @@
       nodes
       // {
         premhome-gc1 = nixpkgs.lib.nixosSystem {
+          specialArgs.meta = (import ./server/nodes.nix).premhome-gc1;
           modules = [
             disko.nixosModules.disko
             agenix.nixosModules.default

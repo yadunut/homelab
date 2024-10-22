@@ -1,26 +1,16 @@
 {
-  config,
   meta,
   pkgs,
   ...
 }: {
-  imports = [../../common/users.nix];
+  imports = [../../common/users.nix ../../common/zerotier.nix];
   nix = {
     settings.experimental-features = ["nix-command" "flakes"];
   };
 
   networking.hostName = meta.hostname;
 
-  age.secrets.tailscale.file = ../../secrets/tailscale.age;
   age.secrets.k3s.file = ../../secrets/k3s.age;
-
-  services.tailscale = {
-    enable = true;
-    authKeyFile = config.age.secrets.tailscale.path;
-    useRoutingFeatures = "both";
-    extraUpFlags = ["--advertise-routes=10.0.1.0/24" "--login-server=http://ts.yadunut.com:444" "--accept-routes"];
-    interfaceName = "tailscale0";
-  };
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -44,20 +34,23 @@
     wget
   ];
 
-  services.k3s = {
-    enable = true;
-    role = "server";
-    tokenFile = config.age.secrets.k3s.path;
-    clusterInit = meta.hostname == "premhome-falcon-1";
-    serverAddr =
-      if meta.hostname == "premhome-falcon-1"
-      then ""
-      else "https://premhome-falcon-1:6443";
-    extraFlags = ["--disable=servicelb" "--disable=traefik"];
+  networking = {
+    nftables.enable = true;
+    firewall = {
+      enable = true;
+      allowedTCPPorts = [22];
+      trustedInterfaces = ["zts23oi5io"];
+    };
   };
 
-  networking.firewall.trustedInterfaces = ["tailscale0"];
-  networking.firewall.enable = false;
+  # services.k3s = {
+  #   enable = true;
+  #   role = "server";
+  #   tokenFile = config.age.secrets.k3s.path;
+  #   clusterInit = false;
+  #   serverAddr = "https://${meta.server-addr}:6443";
+  #   extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip ${meta.zt-ip}" "--flannel-iface zts23oi5io"];
+  # };
 
   system.stateVersion = "24.11";
 }
