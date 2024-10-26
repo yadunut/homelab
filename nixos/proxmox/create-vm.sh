@@ -42,7 +42,7 @@ function main() {
     --name "${NAME}" \
     --net0 "virtio,bridge=vmbr0" \
     --ostype "l26" \
-    --scsi0 "${STORAGE}:50,iothread=on" \
+    --scsi0 "${STORAGE}:200,iothread=on" \
     --onboot "1" \
     --pool "premhome-cluster" \
     --scsihw "virtio-scsi-single"

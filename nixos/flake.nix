@@ -27,6 +27,26 @@
   }: {
     formatter.aarch64-darwin = nixpkgs.legacyPackages.aarch64-darwin.alejandra;
     formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.alejandra;
+    packages.aarch64-darwin = {
+      setup-vm = let
+        pkgs = import nixpkgs {system = "aarch64-darwin";};
+        script-name = "setup-vm";
+        src = builtins.readFile ./proxmox/setup-vm.sh;
+        script = (pkgs.writeScriptBin script-name src).overrideAttrs (old: {
+          buildCommand = "${old.buildCommand}\n patchShebangs $out";
+        });
+        buildInputs = with pkgs; [
+          gum
+          agenix.packages.aarch64-darwin.default
+        ];
+      in
+        pkgs.symlinkJoin {
+          name = script-name;
+          paths = [script] ++ buildInputs;
+          nativeBuildInputs = with pkgs; [makeWrapper];
+          postBuild = "wrapProgram $out/bin/${script-name} --prefix PATH : $out/bin";
+        };
+    };
     nixosConfigurations = let
       nodes = import ./server/nodes.nix;
     in
@@ -37,6 +57,7 @@
               hostname = name;
               private-ip = data.private-ip;
               server-addr = (import ./server/nodes.nix).premhome-gc1.zt-ip;
+              role = data.role;
             };
           };
           modules = [

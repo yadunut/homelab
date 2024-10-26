@@ -37,7 +37,7 @@ function main() {
   chmod 600 "${KEY_PATH}"
 
   # Append public key to the secrets file and rekey agenix
-  pushd "./nixos/secrets"
+  pushd "./secrets"
   LINE="  ${MACHINE_NAME} = \"$(cat "${KEY_PATH}".pub)\";"
   echo "appending to file ${PWD}./keys.nix"
   sed -i -e "\$i${LINE}" "./keys.nix"
