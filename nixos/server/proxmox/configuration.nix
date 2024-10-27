@@ -1,4 +1,5 @@
 {
+  config,
   meta,
   pkgs,
   ...
@@ -7,6 +8,8 @@
   nix = {
     settings.experimental-features = ["nix-command" "flakes"];
   };
+
+  nixpkgs.config.allowUnfree = true;
 
   networking.hostName = meta.hostname;
 
@@ -43,14 +46,14 @@
     };
   };
 
-  # services.k3s = {
-  #   enable = true;
-  #   role = "server";
-  #   tokenFile = config.age.secrets.k3s.path;
-  #   clusterInit = false;
-  #   serverAddr = "https://${meta.server-addr}:6443";
-  #   extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip ${meta.zt-ip}" "--flannel-iface zts23oi5io"];
-  # };
+  services.k3s = {
+    enable = true;
+    role = meta.role;
+    tokenFile = config.age.secrets.k3s.path;
+    clusterInit = false;
+    serverAddr = "https://${meta.server-addr}:6443";
+    extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip ${meta.zt-ip}" "--flannel-iface zts23oi5io"];
+  };
 
   system.stateVersion = "24.11";
 }

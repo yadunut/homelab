@@ -56,6 +56,7 @@
             meta = {
               hostname = name;
               private-ip = data.private-ip;
+              zt-ip = data.zt-ip;
               server-addr = (import ./server/nodes.nix).premhome-gc1.zt-ip;
               role = data.role;
             };
