@@ -38,21 +38,19 @@
   ];
 
   networking = {
-    nftables.enable = true;
     firewall = {
       enable = true;
       allowedTCPPorts = [22];
-      trustedInterfaces = ["zts23oi5io"];
     };
   };
 
   services.k3s = {
-    enable = true;
+    enable = false;
     role = meta.role;
     tokenFile = config.age.secrets.k3s.path;
     clusterInit = false;
     serverAddr = "https://${meta.server-addr}:6443";
-    extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip ${meta.zt-ip}" "--flannel-iface zts23oi5io"];
+    extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip ${meta.zt-ip}" "--flannel-iface ztxh6lvd6t" "--tls-san ${meta.zt-ip}"];
   };
 
   system.stateVersion = "24.11";
