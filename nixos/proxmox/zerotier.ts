@@ -77,10 +77,14 @@ async function _getNetwork(id: string) {
 }
 
 async function authorizeNode(networkId: string, nodeId: string) {
-  const data = await post(`/controller/network/${networkId}/member/${nodeId}`, {
-    authorized: true,
-  });
-  return data;
+  try {
+    const data = await post(`/controller/network/${networkId}/member/${nodeId}`, {
+      authorized: true,
+    });
+    return data;
+  } catch (e) {
+    console.error("ERROR", e);
+  }
 }
 
 async function get(url: string) {

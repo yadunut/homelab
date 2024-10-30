@@ -45,7 +45,7 @@
   };
 
   services.k3s = {
-    enable = false;
+    enable = true;
     role = meta.role;
     tokenFile = config.age.secrets.k3s.path;
     clusterInit = false;
