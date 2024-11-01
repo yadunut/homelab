@@ -1,24 +1,27 @@
 premhome-gc1, 11GB Ram, 6 Cores, Public IP
 
-falcon-server-1, with X GB Ram, X Cores, No public IP, only private IP. 
-eagle-server-1, with X GB Ram, X Cores, No public IP, only private IP. 
+falcon-server-1, with X GB Ram, X Cores, No public IP, only private IP.
+eagle-server-1, with X GB Ram, X Cores, No public IP, only private IP.
 
 1. Why not use the flannel's wg interface?
 
-This requires the ndoes to have public IPs. But this wouldn't be the case for my system as the nodes at home only have private IPs. 
+This requires the ndoes to have public IPs. But this wouldn't be the case for my system as the nodes at home only have private IPs.
 
-Steps: 
+Steps:
+
 1. Install k3s on gc1
 2. Install flux on gc1
 3. Deploy zerotier controller on gc1
 4. Setup a zerotier interface on gc1
 5. Migrate flannel iface to zerotier interface
-6. Setup zerotier on the 
+6. Setup zerotier on the
 
 # Steps taken
+
 1. Setup a zerotier controller: https://docs.zerotier.com/controller
 
-On premhome-gc1, 
+On premhome-gc1,
+
 ```sh
 TOKEN=$(sudo cat /var/lib/zerotier-one/authtoken.secret)
 NODEID=$(sudo zerotier-cli info | cut -d " " -f 3)
@@ -37,4 +40,11 @@ curl -X POST "http://localhost:9993/controller/network/${NWID}/member/${NODEID}"
 
 Yay! you now have an interface, and an IP address to broadcast on :D
 
+# What I have
 
+1. premhome-gc1
+   IP: 167.253.159.47
+2. premhome-falcon-1
+   IP: 10.0.0.55
+3. premhome-eagle-1
+   IP: 10.0.0.248

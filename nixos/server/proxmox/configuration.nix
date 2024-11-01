@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: {
-  imports = [../../common/users.nix ../../common/zerotier.nix];
+  imports = [../../common/users.nix ../../common/zerotier.nix ../../common/k3s.nix];
   nix = {
     settings.experimental-features = ["nix-command" "flakes"];
   };
@@ -42,15 +42,6 @@
       enable = true;
       allowedTCPPorts = [22];
     };
-  };
-
-  services.k3s = {
-    enable = true;
-    role = meta.role;
-    tokenFile = config.age.secrets.k3s.path;
-    clusterInit = false;
-    serverAddr = "https://${meta.server-addr}:6443";
-    extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip ${meta.zt-ip}" "--flannel-iface ztxh6lvd6t" "--tls-san ${meta.zt-ip}"];
   };
 
   system.stateVersion = "24.11";

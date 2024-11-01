@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: {
-  imports = [../../common/users.nix ../../common/zerotier.nix];
+  imports = [../../common/users.nix ../../common/zerotier.nix ../../common/k3s.nix];
   nix = {
     settings.experimental-features = ["nix-command" "flakes"];
   };
@@ -50,14 +50,6 @@
   systemd.tmpfiles.rules = [
     "L+ /usr/local/bin - - - - /run/current-system/sw/bin/"
   ];
-
-  services.k3s = {
-    enable = true;
-    role = "server";
-    tokenFile = config.age.secrets.k3s.path;
-    clusterInit = true;
-    extraFlags = ["--disable=servicelb" "--disable=traefik" "--node-ip ${meta.zt-ip}" "--flannel-iface ztxh6lvd6t" "--tls-san ${meta.zt-ip}"];
-  };
 
   system.stateVersion = "24.11";
 }
