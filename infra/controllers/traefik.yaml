@@ -48,6 +48,8 @@ kind: Service
 metadata:
   name: traefik-external
   namespace: traefik-system
+  annotations:
+    metallb.universe.tf/address-pool: premhome-gc1
 spec:
   type: LoadBalancer
   ports:

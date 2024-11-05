@@ -11,7 +11,7 @@
   };
   premhome-gc1 = {
     role = "server";
+    private-ip = "167.253.159.47";
     zt-ip = "10.222.0.13";
   };
 }
-
