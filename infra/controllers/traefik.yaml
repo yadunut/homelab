@@ -38,28 +38,26 @@ spec:
       value: "ingress"
       effect: "NoSchedule"
     service:
-      type: ClusterIP
+      type: LoadBalancer
     ingressRoute:
       dashboard:
         enabled: true
----
-# Done with the help of claude
-apiVersion: v1
-kind: Service
-metadata:
-  name: traefik-external
-  namespace: traefik-system
-spec:
-  type: ClusterIP
-  externalIPs:
-    - "128.199.163.115"
-  ports:
-    - name: web
-      port: 80
-      targetPort: 8000
-    - name: websecure
-      port: 443
-      targetPort: 8443
-  selector:
-    app.kubernetes.io/name: traefik
-    app.kubernetes.io/instance: traefik
+# ---
+# # Done with the help of claude
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: traefik-external
+#   namespace: traefik-system
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - name: web
+#       port: 80
+#       targetPort: web
+#     - name: websecure
+#       port: 443
+#       targetPort: websecure
+#   selector:
+#     app.kubernetes.io/name: traefik
+#     app.kubernetes.io/instance: traefik
