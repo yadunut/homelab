@@ -4,3 +4,4 @@ resources:
   - metallb.yaml
   - longhorn.yaml
   - traefik.yaml
+  - 1password.yaml
