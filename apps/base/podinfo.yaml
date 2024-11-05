@@ -44,10 +44,4 @@ data:
     replicaCount: 1
     service:
       type: LoadBalancer
-    resources:
-      limits:
-        memory: 256Mi
-      requests:
-        cpu: 100m
-        memory: 64Mi
-    
+      externalPort: 80
