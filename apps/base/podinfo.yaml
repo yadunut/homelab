@@ -41,7 +41,7 @@ metadata:
   namespace: podinfo
 data:
   values.yaml: |-
-    replicaCount: 1
+    replicaCount: 3
     service:
       type: LoadBalancer
       externalPort: 80
