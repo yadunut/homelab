@@ -1,6 +1,5 @@
 {
   config,
-  meta,
   pkgs,
   ...
 }: {

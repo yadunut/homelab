@@ -72,7 +72,7 @@
       nodes
       // {
         premhome-gc1 = nixpkgs.lib.nixosSystem {
-          specialArgs.meta = (import ./server/nodes.nix).premhome-gc1 // { server-addr = (import ./server/nodes.nix).premhome-gc1.zt-ip; };
+          specialArgs.meta = (import ./server/nodes.nix).premhome-gc1 // {server-addr = (import ./server/nodes.nix).premhome-gc1.zt-ip;};
           modules = [
             disko.nixosModules.disko
             agenix.nixosModules.default
