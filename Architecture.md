@@ -51,8 +51,11 @@ Yay! you now have an interface, and an IP address to broadcast on :D
 
 ## Deploying secrets
 
-```sh
-kubectl create secret generic 1password-credentials -n 1password-system --from-literal=1password-credentials.json="$(cat 1password-credentials.json|base64 )"
 
-kubectl create secret generic 1password-token --namespace 1password-system --from-literal password=<token>
+```sh
+op connect server create cluster --vaults cluster
+op connect token create cluster --server <Server ID> --vault cluster
+
+kubectl create secret generic -n 1password-system 1password-credentials  --from-literal=password="$(op read ''op://cluster/1password-credentials.json/1password-credentials.json.base64)"
+kubectl create secret generic -n 1password-system 1password-token  --from-literal password="$(op read 'op://cluster/op-token/op-token')"
 ```
