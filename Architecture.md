@@ -48,3 +48,11 @@ Yay! you now have an interface, and an IP address to broadcast on :D
    IP: 10.0.0.55
 3. premhome-eagle-1
    IP: 10.0.0.248
+
+## Deploying secrets
+
+```sh
+kubectl create secret generic 1password-credentials --from-file=1password-credentials.json --namespace 1password-system
+
+kubectl create secret generic 1password-token --namespace 1password-system --from-literal token=<token>
+```
