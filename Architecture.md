@@ -52,7 +52,7 @@ Yay! you now have an interface, and an IP address to broadcast on :D
 ## Deploying secrets
 
 ```sh
-kubectl create secret generic 1password-credentials --from-file=1password-credentials.json --namespace 1password-system
+kubectl create secret generic 1password-credentials -n 1password-system --from-literal=1password-credentials.json="$(cat 1password-credentials.json|base64 )"
 
-kubectl create secret generic 1password-token --namespace 1password-system --from-literal token=<token>
+kubectl create secret generic 1password-token --namespace 1password-system --from-literal password=<token>
 ```
