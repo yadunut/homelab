@@ -42,22 +42,35 @@ spec:
     ingressRoute:
       dashboard:
         enabled: true
-# ---
-# # Done with the help of claude
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: traefik-external
-#   namespace: traefik-system
-# spec:
-#   type: LoadBalancer
-#   ports:
-#     - name: web
-#       port: 80
-#       targetPort: web
-#     - name: websecure
-#       port: 443
-#       targetPort: websecure
-#   selector:
-#     app.kubernetes.io/name: traefik
-#     app.kubernetes.io/instance: traefik
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-external
+  namespace: traefik-system
+spec:
+  type: LoadBalancer
+  ports:
+    - name: web
+      port: 80
+      targetPort: web
+    - name: websecure
+      port: 443
+      targetPort: websecure
+  selector:
+    app.kubernetes.io/name: traefik
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-internal
+  namespace: traefik-system
+spec:
+  type: LoadBalancer
+  ports:
+    - name: traefik
+      port: 80
+      targetPort: traefik
+  selector:
+    app.kubernetes.io/name: traefik
