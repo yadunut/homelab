@@ -10,7 +10,7 @@ metadata:
   name: metallb-repo
   namespace: metallb-system
 spec:
-  interval: 1m0s
+  interval: 15m0s
   url: https://metallb.github.io/metallb
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
