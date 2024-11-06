@@ -1,4 +1,12 @@
 ---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: cloudflare-api-key
+  namespace: external-dns-system
+spec:
+  itemPath: "vaults/cluster/items/cloudflare-token"
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -8,7 +16,7 @@ spec:
   interval: 15m0s
   url: https://kubernetes-sigs.github.io/external-dns/
 ---
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: external-dns
@@ -17,16 +25,20 @@ spec:
   chart:
     spec:
       chart: external-dns
-      version: 1.15.0
+      reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
-        name: external-dns
-        namespace: external-dns-system
-  interval: 15m
+        name: external-dns-repo
+      version: 1.15.0
+  interval: 1m
   timeout: 5m
-  releaseName: external-dns
   values:
-    crd:
-      create: true
-    sources:
+    provider:
+      name: cloudflare
+    env:
+      - name: CF_API_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: cloudflare-token
+            key: password
 
