@@ -29,19 +29,15 @@ spec:
         namespace: flux-system
   interval: 1m0s
   releaseName: podinfo
-  valuesFrom:
-  - kind: ConfigMap
-    name: podinfo-value-overrides
-    valuesKey: values.yaml
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: podinfo-value-overrides
-  namespace: podinfo
-data:
-  values.yaml: |-
-    replicaCount: 3
+  values:
+    replicaCount: 1
     service:
       type: LoadBalancer
       externalPort: 80
+    ingress:
+      enabled: true
+      hosts:
+        - host: podinfo.yadunut.dev
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
