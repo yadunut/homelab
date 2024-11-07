@@ -16,3 +16,22 @@ spec:
     name: flux-system
   timeout: 5m0s
   wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-cert-manager-configs
+  namespace: flux-system
+spec:
+  interval: 1h0m0s
+  path: ./infra/configs/cert-manager
+  dependsOn:
+  - name: infra-cert-manager
+  - name: infra-1password
+  prune: true
+  retryInterval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  timeout: 5m0s
+  wait: true
