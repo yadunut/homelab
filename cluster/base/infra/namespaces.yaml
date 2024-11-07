@@ -1,16 +1,40 @@
 ---
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: infra-namespaces
-  namespace: flux-system
-spec:
-  interval: 1h0m0s
-  path: ./infra/namespaces
-  prune: true
-  retryInterval: 1m0s
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  timeout: 5m0s
-  wait: true
+  name: traefik-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metallb-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-dns-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: 1password-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager-system
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager-certs
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: reflector-system

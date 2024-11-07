@@ -7,8 +7,6 @@ metadata:
 spec:
   interval: 1h0m0s
   path: ./infra/controllers/reflector
-  dependsOn:
-  - name: infra-metallb-config
   prune: true
   retryInterval: 1m0s
   sourceRef:

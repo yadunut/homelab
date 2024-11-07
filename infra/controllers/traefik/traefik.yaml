@@ -45,7 +45,7 @@ metadata:
   namespace: traefik-system
   annotations:
     metallb.universe.tf/address-pool: premhome-gc1
-    external-dns.alpha.kubernetes.io/hostname: "*.yadunut.dev"
+    external-dns.alpha.kubernetes.io/hostname: "*.yadunut.dev,yadunut.dev"
 spec:
   type: LoadBalancer
   ports:
