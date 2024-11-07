@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-cert-yadunut.dev-staging
+  namespace: cert-manager-certs
+spec:
+  # Secret names are always required.
+  secretName: wildcard-cert-yadunut.dev-staging
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  dnsNames:
+    - "yadunut.dev"
+    - "*.yadunut.dev"
