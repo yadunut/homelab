@@ -1,0 +1,25 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: reflector-repo
+  namespace: reflector-system
+spec:
+  interval: 15m0s
+  url: https://emberstack.github.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: reflector
+  namespace: reflector-system
+spec:
+  chart:
+    spec:
+      chart: reflector
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: reflector-repo
+      version: 7.1.288
+  interval: 1m0s
