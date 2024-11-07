@@ -41,3 +41,7 @@ spec:
           paths:
             - path: /
               pathType: ImplementationSpecific
+      tls:
+        - secretName: wildcard-cert-yadunut.dev-prod
+          hosts:
+            - podinfo.yadunut.dev
