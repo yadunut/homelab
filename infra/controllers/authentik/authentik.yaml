@@ -24,50 +24,51 @@ spec:
   interval: 15m0s
   url: https://charts.goauthentik.io
 ---
-apiVersion: helm.toolkit.fluxcd.io/v2
-kind: HelmRelease
-metadata:
-  name: authentik
-  namespace: authentik-system
-spec:
-  chart:
-    spec:
-      chart: authentik
-      reconcileStrategy: ChartVersion
-      sourceRef:
-        kind: HelmRepository
-        name: authentik-repo
-      version: 2024.10.1
-  interval: 1m0s
-  values:
-    authentik:
-      secret_key: 
-        valueFrom:
-          secretKeyRef:
-            name: authentik-secret-key
-            key: password
-      error_reporting:
-        enabled: false
-      postgresql:
-        password:
-          valueFrom:
-            secretKeyRef:
-              name: authentik-postgresql-password
-              key: password
-    server:
-      ingress:
-        ingressClassName: traefik
-        enabled: true
-        hosts:
-          - authentik.yadunut.dev
-        tls:
-          - secretName: wildcard-cert-yadunut.dev-prod
-            hosts:
-              - authentik.yadunut.dev
-    postgresql:
-      enabled: true
-      auth:
-        existingSecret: "authentik-postgresql-password"
-    redis:
-      enabled: true
-          
+# apiVersion: helm.toolkit.fluxcd.io/v2
+# kind: HelmRelease
+# metadata:
+#   name: authentik
+#   namespace: authentik-system
+# spec:
+#   chart:
+#     spec:
+#       chart: authentik
+#       reconcileStrategy: ChartVersion
+#       sourceRef:
+#         kind: HelmRepository
+#         name: authentik-repo
+#       version: 2024.10.1
+#   interval: 1m0s
+#   values:
+#     authentik:
+#       env:
+#       secret_key: 
+#         valueFrom:
+#           secretKeyRef:
+#             name: authentik-secret-key
+#             key: password
+#       error_reporting:
+#         enabled: false
+#       postgresql:
+#         password:
+#           valueFrom:
+#             secretKeyRef:
+#               name: authentik-postgresql-password
+#               key: password
+#     server:
+#       ingress:
+#         ingressClassName: traefik
+#         enabled: true
+#         hosts:
+#           - authentik.yadunut.dev
+#         tls:
+#           - secretName: wildcard-cert-yadunut.dev-prod
+#             hosts:
+#               - authentik.yadunut.dev
+#     postgresql:
+#       enabled: true
+#       auth:
+#         existingSecret: "authentik-postgresql-password"
+#     redis:
+#       enabled: true
+#
