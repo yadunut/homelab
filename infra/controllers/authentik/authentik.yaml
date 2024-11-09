@@ -1,0 +1,76 @@
+---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: authentik-secret-key
+  namespace: authentik-system
+spec:
+  itemPath: "vaults/cluster/items/authentik-secret-key"
+---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: authentik-postgresql-password
+  namespace: authentik-system
+spec:
+  itemPath: "vaults/cluster/items/authentik-postgresql-password"
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: authentik-repo
+  namespace: authentik-system
+spec:
+  interval: 15m0s
+  url: https://charts.goauthentik.io
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: authentik
+  namespace: authentik-system
+spec:
+  chart:
+    spec:
+      chart: authentik
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: authentik-repo
+      version: 2024.10.1
+  interval: 1m0s
+  values:
+    authentik:
+      secret_key: 
+        valueFrom:
+          secretKeyRef:
+            name: authentik-secret-key
+            key: password
+      error_reporting:
+        enabled: false
+      postgresql:
+        password:
+          valueFrom:
+            secretKeyRef:
+              name: authentik-postgresql-password
+              key: password
+    server:
+      ingress:
+        ingressClassName: traefik
+        enabled: true
+        hosts:
+          - authentik.yadunut.dev
+        tls:
+          - secretName: wildcard-cert-yadunut.dev-prod
+            hosts:
+              - authentik.yadunut.dev
+    postgresql:
+      enabled: true
+      auth:
+        password:
+          secretKeyRef:
+            name: authentik-postgresql-password
+            key: password
+    redis:
+      enabled: true
+          
