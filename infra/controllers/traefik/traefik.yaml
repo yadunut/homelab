@@ -36,8 +36,9 @@ spec:
       type: LoadBalancer
     ingressRoute:
       dashboard:
-        enabled: true
-
+        enabled: false
+    additionalArguments:
+      - "--api.insecure=true"
 ---
 apiVersion: v1
 kind: Service
@@ -95,5 +96,5 @@ spec:
               name: traefik
   tls:
   - hosts:
-    - authentik.yadunut.dev
-    secretName: wildcard-cert-yadunut.dev-prod
+    - traefik.i.yadunut.dev
+    secretName: wildcard-cert-i.yadunut.dev-prod
