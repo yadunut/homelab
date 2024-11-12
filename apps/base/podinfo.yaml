@@ -39,11 +39,11 @@ spec:
       annotations:
         traefik.ingress.kubernetes.io/router.middlewares: authentik-system-ak-outpost-authentik-embedded-outpost@kubernetescrd
       hosts:
-        - host: i.yadunut.dev
+        - host: podinfo.i.yadunut.dev
           paths:
             - path: /
               pathType: ImplementationSpecific
       tls:
-        - secretName: wildcard-cert-yadunut.dev-prod
+        - secretName: wildcard-cert-i.yadunut.dev-prod
           hosts:
-            - i.yadunut.dev
+            - podinfo.i.yadunut.dev
