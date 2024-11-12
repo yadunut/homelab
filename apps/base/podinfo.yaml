@@ -37,7 +37,7 @@ spec:
     ingress:
       enabled: true
       annotations:
-        traefik.ingress.kubernetes.io/router.middlewares: authentik-system-ak-outpost-authentik-embedded-outpost@kubernetescrd
+        traefik.ingress.kubernetes.io/router.middlewares: authentik-system-authentik@kubernetescrd
       hosts:
         - host: podinfo.i.yadunut.dev
           paths:
