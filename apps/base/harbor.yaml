@@ -12,14 +12,6 @@ metadata:
 spec:
   itemPath: "vaults/cluster/items/harbor-admin-password"
 ---
-apiVersion: onepassword.com/v1
-kind: OnePasswordItem
-metadata:
-  name: harbor-secret-key
-  namespace: harbor
-spec:
-  itemPath: "vaults/cluster/items/harbor-secret-key"
----
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -52,12 +44,10 @@ spec:
         enabled: true
         certSource: secret
         secret:
-          secretName: wildcard-cert-i.yadunut.dev-prod
+          secretName: wildcard-cert-yadunut.dev-prod
       ingress:
         hosts:
           core: harbor.yadunut.dev
     externalURL: https://harbor.yadunut.dev
     existingSecretAdminPassword: harbor-admin-password
     existingSecretAdminPasswordKey: password
-    existingSecretSecretKey: harbor-secret-key
-
