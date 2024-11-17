@@ -1,0 +1,83 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gitea
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: gitea-repo
+  namespace: flux-system
+spec:
+  interval: 15m0s
+  url: https://dl.gitea.com/charts/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gitea
+  namespace: gitea
+spec:
+  chart:
+    spec:
+      chart: gitea
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: gitea-repo
+        namespace: flux-system
+      version: v10.6.x
+  interval: 1m0s
+  releaseName: gitea
+  values:
+    service:
+      http:
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        port: 80
+        annotations:
+          metallb.universe.tf/allow-shared-ip: gitea
+      ssh:
+        enabled: true
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        port: 22
+        annotations:
+          metallb.universe.tf/allow-shared-ip: gitea
+    ingress:
+      enabled: true
+      hosts:
+        - host: git.yadunut.dev
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - secretName: wildcard-cert-i.yadunut.dev-prod
+          hosts:
+            - git.yadunut.dev
+    actions:
+      enabled: true
+      provisioning:
+        enabled: true
+
+    redis-cluster:
+      enabled: false
+    redis:
+      enabled: true
+    postgresql:
+      enabled: true
+    postgresql-ha:
+      enabled: false
+
+    persistence:
+      enabled: true
+    gitea:
+      config:
+        database:
+          DB_TYPE: postgres
+        indexer:
+          ISSUE_INDEXER_TYPE: bleve
+          REPO_INDEXER_ENABLED: true
+        service:
+          DISABLE_REGISTRATION: true
