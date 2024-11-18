@@ -31,6 +31,8 @@ spec:
   interval: 1m0s
   releaseName: gitea
   values:
+    strategy:
+      type: Recreate
     service:
       http:
         type: LoadBalancer
