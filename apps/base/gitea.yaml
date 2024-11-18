@@ -82,6 +82,8 @@ spec:
 
     persistence:
       enabled: true
+      accessModes:
+        - ReadWriteMany
     gitea:
       admin:
         existingSecret: gitea-admin-password
