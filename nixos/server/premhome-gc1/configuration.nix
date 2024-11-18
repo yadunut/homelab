@@ -32,6 +32,7 @@
     jq
     ripgrep
     fd
+    nfs-utils
   ];
 
   networking = {

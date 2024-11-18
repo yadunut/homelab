@@ -34,6 +34,10 @@
     git
     neovim
     wget
+    jq
+    ripgrep
+    fd
+    nfs-utils
   ];
 
   networking = {
