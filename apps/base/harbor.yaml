@@ -12,6 +12,14 @@ metadata:
 spec:
   itemPath: "vaults/cluster/items/harbor-admin-password"
 ---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: harbor-secret-key
+  namespace: harbor
+spec:
+  itemPath: "vaults/cluster/items/harbor-secret-key"
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -51,3 +59,4 @@ spec:
     externalURL: https://harbor.yadunut.dev
     existingSecretAdminPassword: harbor-admin-password
     existingSecretAdminPasswordKey: password
+    existingSecretSecretKey: harbor-secret-key
