@@ -94,4 +94,6 @@ spec:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
         service:
-          DISABLE_REGISTRATION: true
+          ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+        repository:
+          ENABLE_PUSH_CREATE_USER: true
