@@ -10,7 +10,6 @@ spec:
   dependsOn:
   - name: infra-metallb-config
   - name: infra-cert-manager-configs
-  - name: infra-external-dns
   prune: true
   retryInterval: 1m0s
   sourceRef:
