@@ -70,6 +70,19 @@ spec:
       enabled: true
       provisioning:
         enabled: true
+      statefulset:
+        actRunner:
+          config: |
+            log:
+              level: info
+            cache:
+              enabled: true
+            runner:
+              labels:
+                - "ubuntu-latest:docker://gitea/runner-images:ubuntu-latest"
+                - "ubuntu-22.04:docker://gitea/runner-images:ubuntu-22.04"
+                - "ubuntu-20.04:docker://gitea/runner-images:ubuntu-20.04"
+
 
     redis-cluster:
       enabled: false
