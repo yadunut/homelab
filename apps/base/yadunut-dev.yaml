@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: yadunut-dev
-          image: harbor.yadunut.dev/yadunut/yadunut.dev:main # {"$imagepolicy": "yadunut-dev:yadunut-dev"}
+          image: harbor.yadunut.dev/yadunut/yadunut.dev:main # {"$imagepolicy": "flux-system:yadunut-dev"}
           ports:
             - containerPort: 8080
               name: http
@@ -66,7 +66,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
 metadata:
   name: yadunut-dev
-  namespace: yadunut-dev
+  namespace: flux-system
 spec:
   image: harbor.yadunut.dev/yadunut/yadunut.dev
   interval: 1m0s
@@ -75,7 +75,7 @@ apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImagePolicy
 metadata:
   name: yadunut-dev
-  namespace: yadunut-dev
+  namespace: flux-system
 spec:
   imageRepositoryRef:
     name: yadunut-dev
