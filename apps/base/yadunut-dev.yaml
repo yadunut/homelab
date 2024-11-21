@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: yadunut-dev
-          image: harbor.yadunut.dev/yadunut/yadunut.dev:main
+          image: harbor.yadunut.dev/yadunut/yadunut.dev:main # {"$imagepolicy": "yadunut-dev:yadunut-dev"}
           ports:
             - containerPort: 8080
               name: http
