@@ -61,4 +61,12 @@ spec:
               name: yadunut-dev
               port:
                 name: http
-
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: yadunut-dev
+  namespace: yadunut-dev
+spec:
+  image: harbor.yadunut.dev/yadunut/yadunut.dev
+  interval: 1m0s
