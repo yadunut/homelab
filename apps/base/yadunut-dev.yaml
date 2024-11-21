@@ -78,6 +78,9 @@ metadata:
 spec:
   imageRepositoryRef:
     name: yadunut-dev
+  filterTags:
+    pattern: '^sha-[a-fA-F0-9]+-(?P<ts>.*)'
+    extract: '$ts'
   policy:
-    semver:
-      range: '>=0.0.0'
+    numerical:
+      order: asc
