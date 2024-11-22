@@ -62,6 +62,10 @@ spec:
           paths:
             - path: /
               pathType: ImplementationSpecific
+        - host: gitea.ts.yadunut.com
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
       tls:
         - secretName: wildcard-cert-i.yadunut.dev-prod
           hosts:

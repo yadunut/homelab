@@ -9,7 +9,7 @@ A quick guide on setting up new VMs / Servers in the Homelab with proxmox.
 This is to be run on the proxmox node. 
 
 ```bash
-nix build --refresh "git+https://gitea.ts.yadunut.com/yadunut/homelab.git#generate-iso"
+nix build --refresh "git+https://git.yadunut.dev/yadunut/homelab.git#generate-iso"
 ```
 Copy ISO Over to the VM
 ```bash
@@ -22,14 +22,14 @@ This command is to be run on the proxmox Node / via SSH. Follow the guide to set
 
 TODO: This currently only works on falcon, to support other nodes, I need to create new VMs via the API with `pvesh` instead of the `qm` tool. 
 ```bash
-nix run --refresh --verbose "git+https://gitea.ts.yadunut.com/yadunut/homelab.git?ref=main#create-vm"
+nix run --refresh --verbose "git+https://git.yadunut.dev/yadunut/homelab.git?ref=main#create-vm"
 ```
 Copy the IP address 
 
 
 # Process to creating a New Machine
 1. Create an ISO and transfer it over to Proxmox if it doesn't already exist
-2. Create the VMs on Proxmox with the `nix run "git+https://gitea.ts.yadunut.com/yadunut/homelab.git#create-vm"` command
+2. Create the VMs on Proxmox with the `nix run "git+https://git.yadunut.dev/yadunut/homelab.git#create-vm"` command
 3. Create the machine configuration in `./nixos/machines`
 4. With NixOS anywhere, 
 
@@ -47,7 +47,7 @@ Now that I have VMs booted into the ISO, I need to setup the VMs. This would fir
 
 ## Flux
 ```bash
-flux bootstrap gitea --owner=yadunut --repository=homelab --hostname=gitea.ts.yadunut.com --path flux
+flux bootstrap gitea --owner=yadunut --repository=homelab --hostname=git.yadunut.dev --path flux
 ```
 
 ## Give Ups
