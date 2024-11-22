@@ -57,6 +57,8 @@ spec:
           metallb.universe.tf/allow-shared-ip: gitea
     ingress:
       enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: gitea-old-to-new-redirect@kubernetescrd
       hosts:
         - host: git.yadunut.dev
           paths:
@@ -142,3 +144,14 @@ spec:
       services:
         - name: gitea-ssh
           port: 2222
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: old-to-new-redirect
+  namespace: gitea
+spec:
+  redirectRegex:
+    regex: ^http://gitea.ts.yadunut.com/(.*)
+    replacement: https://git.yadunut.dev/${1}
+    permanent: true
