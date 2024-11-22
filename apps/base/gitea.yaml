@@ -115,6 +115,7 @@ spec:
       config:
         server:
           SSH_PORT: 2222
+          LANDING_PAGE: /yadunut
         database:
           DB_TYPE: postgres
         indexer:
