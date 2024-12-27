@@ -22,7 +22,10 @@
     "net.ipv4.ip_forward" = 1;
   };
 
-  services.openssh.enable = true;
+  services.openssh = {
+    enable = true;
+    settings.PasswordAuthentication = false;
+  };
   services.qemuGuest.enable = true;
 
   environment.systemPackages = with pkgs; [
