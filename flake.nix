@@ -60,6 +60,7 @@
               pkgs.helmfile
               pkgs.fluxcd
               pkgs.kustomize
+              pkgs.kubectl
             ];
           };
         };

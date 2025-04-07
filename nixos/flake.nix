@@ -96,7 +96,7 @@
       }
       // builtins.mapAttrs (name: value: {
         imports = value._module.args.modules;
-        deployment.targetHost = value._module.specialArgs.meta.private-ip;
+        deployment.targetHost = value._module.specialArgs.meta.zt-ip;
       })
       configs;
   };
