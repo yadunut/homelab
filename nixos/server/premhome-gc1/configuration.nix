@@ -43,6 +43,25 @@
       enable = true;
       allowedTCPPorts = [22 80 443];
     };
+    interfaces.ens3 = {
+      ipv4 = {
+        addresses = [
+          {
+            address = "167.253.159.47";
+            prefixLength = 25;
+          }
+        ];
+
+        # Gateway Configuration
+        routes = [
+          {
+            address = "0.0.0.0";
+            prefixLength = 0;
+            via = "167.253.159.126";
+          }
+        ];
+      };
+    };
   };
 
   # For longhorn
