@@ -47,7 +47,7 @@ Now that I have VMs booted into the ISO, I need to setup the VMs. This would fir
 
 ## Flux
 ```bash
-flux bootstrap gitea --owner=yadunut --repository=homelab --hostname=git.yadunut.dev --path flux
+flux bootstrap github --owner=yadunut --repository=homelab --path cluster/base --personal --components-extra image-reflector-controller,image-automation-controller
 ```
 
 ## Give Ups
