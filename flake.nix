@@ -55,7 +55,6 @@
               pkgs.colmena
               pkgs.shellcheck
               agenix.packages.${system}.default
-              pkgs.ansible
               pkgs.kubernetes-helm
               pkgs.helmfile
               pkgs.fluxcd
