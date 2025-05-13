@@ -29,7 +29,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: external-dns-repo
-      version: 1.15.0
+      version: 1.16.x
   interval: 1m
   timeout: 5m
   values:
@@ -41,4 +41,3 @@ spec:
           secretKeyRef:
             name: cloudflare-token
             key: password
-
