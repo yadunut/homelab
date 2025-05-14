@@ -37,7 +37,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: authentik-repo
-      version: 2024.10.1
+      version: 2025.4.0
   interval: 1m0s
   values:
     global:
@@ -61,4 +61,3 @@ spec:
         existingSecret: "authentik-postgresql-password"
     redis:
       enabled: true
-
