@@ -20,6 +20,8 @@ spec:
       labels:
         app: proxmox-proxy
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: premhome-falcon-1
       containers:
         - name: tcp-proxy
           image: harbor.yadunut.dev/yadunut/tcp_proxy:sha-582dd5f-1747336425 # {"$imagepolicy": "flux-system:tcp-proxy"}
