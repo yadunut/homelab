@@ -60,6 +60,11 @@ spec:
                 name: proxmox-proxy
                 port:
                   name: https
+  tls:
+    - hosts:
+        - proxmox.i.yadunut.dev
+      secretName: wildcard-cert-i.yadunut.dev-prod
+
 ---
 apiVersion: v1
 kind: Service
