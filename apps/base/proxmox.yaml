@@ -42,6 +42,8 @@ metadata:
 spec:
   entryPoints:
     - websecure # the same entrypoint Traefik uses for HTTPS
+  tls:
+    passthrough: true
   routes:
     - match: HostSNI(`proxmox.i.yadunut.dev`)
       services:
@@ -55,7 +57,7 @@ metadata:
   namespace: proxmox
 spec:
   selector:
-    name: proxmox-proxy
+    app: proxmox-proxy
   ports:
     - name: https
       port: 8443
