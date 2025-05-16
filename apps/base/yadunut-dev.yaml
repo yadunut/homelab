@@ -50,16 +50,16 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: yadunut.dev
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: yadunut-dev
-            port:
-              name: http
+    - host: yadunut.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: yadunut-dev
+                port:
+                  name: http
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
@@ -79,8 +79,8 @@ spec:
   imageRepositoryRef:
     name: yadunut-dev
   filterTags:
-    pattern: '^sha-[a-fA-F0-9]+-(?P<ts>.*)'
-    extract: '$ts'
+    pattern: "^sha-[a-fA-F0-9]+-(?P<ts>.*)"
+    extract: "$ts"
   policy:
     numerical:
       order: asc

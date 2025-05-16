@@ -35,20 +35,31 @@ spec:
               name: https
 ---
 apiVersion: traefik.io/v1alpha1
-kind: IngressRouteTCP
+kind: ServersTransport
 metadata:
-  name: proxmox-tcp
+  name: proxmox-insecure
   namespace: proxmox
 spec:
-  entryPoints:
-    - websecure # the same entrypoint Traefik uses for HTTPS
-  tls:
-    passthrough: true
-  routes:
-    - match: HostSNI(`proxmox.i.yadunut.dev`)
-      services:
-        - name: proxmox-proxy
-          port: 8443
+  insecureSkipVerify: true
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: proxmox-proxy
+  namespace: proxmox
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: proxmox.i.yadunut.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: proxmox-proxy
+                port:
+                  name: https
 ---
 apiVersion: v1
 kind: Service
