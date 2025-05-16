@@ -6,3 +6,4 @@ resources:
   - ../base/harbor.yaml
   - ../base/gitea.yaml
   # - ../base/yadunut-dev.yaml
+  - ../base/proxmox.yaml
