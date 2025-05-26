@@ -24,7 +24,7 @@ spec:
         kubernetes.io/hostname: premhome-falcon-1
       containers:
         - name: tcp-proxy
-          image: harbor.yadunut.dev/yadunut/tcp_proxy:sha-582dd5f-1747336425 # {"$imagepolicy": "flux-system:tcp-proxy"}
+          image: harbor.yadunut.dev/yadunut/tcp_proxy:sha-85ed592-1748014668 # {"$imagepolicy": "flux-system:tcp-proxy"}
           env:
             - name: LISTEN_ADDR
               value: ":8443"
@@ -67,7 +67,6 @@ spec:
     - hosts:
         - proxmox.i.yadunut.dev
       secretName: wildcard-cert-i.yadunut.dev-prod
-
 ---
 apiVersion: v1
 kind: Service
