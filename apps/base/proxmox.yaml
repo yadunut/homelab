@@ -27,7 +27,7 @@ spec:
           image: harbor.yadunut.dev/yadunut/tcp_proxy:sha-85ed592-1748014668 # {"$imagepolicy": "flux-system:tcp-proxy"}
           env:
             - name: LISTEN_ADDR
-              value: ":8443"
+              value: "0.0.0.0:8443"
             - name: UPSTREAM_ADDR
               value: "10.0.0.5:8006"
           ports:
