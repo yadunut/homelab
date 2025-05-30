@@ -48,13 +48,11 @@ metadata:
   name: proxmox-proxy
   namespace: proxmox
   annotations:
-    # traefik.ingress.kubernetes.io/router.middlewares: authentik-system-authentik@kubernetescrd
-    traefik.ingress.kubernetes.io/service.serversscheme: https
-    traefik.ingress.kubernetes.io/service.serverstransport: proxmox-proxmox-insecure@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: authentik-system-authentik@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
-    - host: proxmox.yadunut.dev
+    - host: proxmox.i.yadunut.dev
       http:
         paths:
           - path: /
@@ -66,7 +64,7 @@ spec:
                   name: https
   tls:
     - hosts:
-        - proxmox.yadunut.dev
+        - proxmox.i.yadunut.dev
       secretName: wildcard-cert-i.yadunut.dev-prod
 ---
 apiVersion: v1
