@@ -49,7 +49,8 @@ metadata:
   namespace: proxmox
   annotations:
     # traefik.ingress.kubernetes.io/router.middlewares: authentik-system-authentik@kubernetescrd
-    traefik.ingress.kubernetes.io/service.serverstransport: proxmox-proxmox-insecure
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serverstransport: proxmox-proxmox-insecure@kubernetescrd
 spec:
   ingressClassName: traefik
   rules:
@@ -73,6 +74,9 @@ kind: Service
 metadata:
   name: proxmox-proxy
   namespace: proxmox
+  annotations:
+    traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serverstransport: proxmox-proxmox-insecure@kubernetescrd
 spec:
   selector:
     app: proxmox-proxy
