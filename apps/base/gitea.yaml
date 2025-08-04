@@ -110,6 +110,7 @@ spec:
         server:
           SSH_PORT: 2222
           LANDING_PAGE: /yadunut
+          LFS_START_SERVER: true
         database:
           DB_TYPE: postgres
         indexer:
