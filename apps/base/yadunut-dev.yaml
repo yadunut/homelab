@@ -24,7 +24,7 @@ spec:
         - name: yadunut-dev
           image: harbor.yadunut.dev/yadunut/yadunut.dev:sha-266aac2-1754370206 # {"$imagepolicy": "flux-system:yadunut-dev"}
           ports:
-            - containerPort: 3000
+            - containerPort: 80
               name: http
               protocol: TCP
 ---
