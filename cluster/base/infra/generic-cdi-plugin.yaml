@@ -1,0 +1,16 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: infra-generic-cdi-plugin
+  namespace: flux-system
+spec:
+  interval: 1h0m0s
+  path: ./infra/controllers/generic-cdi-plugin
+  prune: true
+  retryInterval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  timeout: 5m0s
+  wait: true
