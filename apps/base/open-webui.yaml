@@ -75,9 +75,9 @@ spec:
       - name: ENABLE_OAUTH_PERSISTENT_CONFIG
         value: "false"
       - name: ENABLE_LOGIN_FORM
-        value: "false"
+        value: "true"
       - name: OPENID_REDIRECT_URI
-        value: "https://chat.yadunut.dev/oauth/oidc/callback/"
+        value: "https://chat.yadunut.dev/oauth/oidc/callback"
 
     # OIDC via Authentik
     sso:
