@@ -71,13 +71,13 @@ spec:
       enabled: true
       accessModes: ["ReadWriteOnce"]
 
-    commonEnvVars:
-      - name: ENABLE_OAUTH_PERSISTENT_CONFIG
-        value: "false"
-      - name: ENABLE_LOGIN_FORM
-        value: "true"
-      - name: OPENID_REDIRECT_URI
-        value: "https://chat.yadunut.dev/oauth/oidc/callback"
+    # commonEnvVars:
+    # - name: ENABLE_OAUTH_PERSISTENT_CONFIG
+    #   value: "false"
+    # - name: ENABLE_LOGIN_FORM
+    #   value: "true"
+    # - name: OPENID_REDIRECT_URI
+    #   value: "https://chat.yadunut.dev/oauth/oidc/callback"
 
     # OIDC via Authentik
     sso:
