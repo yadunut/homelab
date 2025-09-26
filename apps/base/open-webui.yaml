@@ -74,12 +74,12 @@ spec:
     # OIDC via Authentik
     sso:
       enabled: true
-      enableSignup: false
-      mergeAccountsByEmail: false
+      enableSignup: true
+      mergeAccountsByEmail: true
       oidc:
         enabled: true
-        providerName: "SSO"
-        providerUrl: "https://authentik.yadunut.dev/application/o/open-webui"
+        providerName: "Authentik"
+        providerUrl: "https://authentik.yadunut.dev/application/o/open-webui/.well-known/openid-configuration"
         clientId: "Z37HQwWBYxax4vwN047B8PWr3JxT6qMAOtCAyJ4Z"
         clientExistingSecret: open-webui-oidc-client-secret
         clientExistingSecretKey: password
