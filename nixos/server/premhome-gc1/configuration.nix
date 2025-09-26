@@ -2,10 +2,18 @@
   config,
   pkgs,
   ...
-}: {
-  imports = [../../common/users.nix ../../common/zerotier.nix ../../common/k3s.nix];
+}:
+{
+  imports = [
+    ../../common/users.nix
+    ../../common/zerotier.nix
+    ../../common/k3s.nix
+  ];
   nix = {
-    settings.experimental-features = ["nix-command" "flakes"];
+    settings.experimental-features = [
+      "nix-command"
+      "flakes"
+    ];
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -38,10 +46,17 @@
   ];
 
   networking = {
-    nameservers = [ "1.1.1.1" "8.8.8.8" ];
+    nameservers = [
+      "1.1.1.1"
+      "8.8.8.8"
+    ];
     firewall = {
       enable = true;
-      allowedTCPPorts = [22 80 443];
+      allowedTCPPorts = [
+        22
+        80
+        443
+      ];
     };
     interfaces.ens3 = {
       ipv4 = {
