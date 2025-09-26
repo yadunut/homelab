@@ -80,7 +80,7 @@ spec:
         enabled: true
         providerName: "SSO"
         providerUrl: "https://authentik.yadunut.dev/application/o/open-webui"
-        clientId: "mBfdpk6ruYSEtYUxBjzqXoW6rpVRYfG3FFncOXXK"
+        clientId: "Z37HQwWBYxax4vwN047B8PWr3JxT6qMAOtCAyJ4Z"
         clientExistingSecret: open-webui-oidc-client-secret
         clientExistingSecretKey: password
         scopes: "openid email profile"
