@@ -69,6 +69,7 @@ spec:
     # Use built-in sqlite persistence (PVC)
     persistence:
       enabled: true
+      size: 10Gi
       accessModes: ["ReadWriteOnce"]
 
     # commonEnvVars:
