@@ -12,6 +12,22 @@ metadata:
 spec:
   itemPath: "vaults/cluster/items/gitea-admin-password"
 ---
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: gitea-valkey
+  namespace: gitea
+spec:
+  itemPath: "vaults/cluster/items/gitea-valkey"
+# ---
+# apiVersion: onepassword.com/v1
+# kind: OnePasswordItem
+# metadata:
+#   name: gitea-actions-token
+#   namespace: gitea
+# spec:
+#   itemPath: "vaults/cluster/items/gitea-actions-token"
+---
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
@@ -35,7 +51,7 @@ spec:
         kind: HelmRepository
         name: gitea-repo
         namespace: flux-system
-      version: v10.6.x
+      version: v12.3.x
   interval: 1m0s
   releaseName: gitea
   values:
@@ -66,34 +82,35 @@ spec:
         - secretName: wildcard-cert-i.yadunut.dev-prod
           hosts:
             - git.yadunut.dev
-    actions:
-      enabled: true
-      provisioning:
-        enabled: true
-      statefulset:
-        actRunner:
-          config: |
-            log:
-              level: debug
-            cache:
-              enabled: true
-            runner:
-              labels:
-                - "ubuntu-latest:docker://catthehacker/ubuntu:act-latest"
-                - "ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04"
-                - "ubuntu-20.04:docker://catthehacker/ubuntu:act-20.04"
-            container:
-              options: |
-                --add-host=docker:host-gateway -v /certs:/certs -e "DOCKER_HOST=tcp://docker:2376/" -e "DOCKER_TLS_CERTDIR=/certs" -e "DOCKER_TLS_VERIFY=1" -e "DOCKER_CERT_PATH=/certs/server"
-              valid_volumes:
-                - /certs
-                - '**'
-
-
-    redis-cluster:
+    # actions:
+    #   enabled: 
+    #   provisioning:
+    #     enabled: true
+    #   statefulset:
+    #     actRunner:
+    #       config: |
+    #         log:
+    #           level: debug
+    #         cache:
+    #           enabled: true
+    #         runner:
+    #           labels:
+    #             - "ubuntu-latest:docker://catthehacker/ubuntu:act-latest"
+    #             - "ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04"
+    #             - "ubuntu-20.04:docker://catthehacker/ubuntu:act-20.04"
+    #         container:
+    #           options: |
+    #             --add-host=docker:host-gateway -v /certs:/certs -e "DOCKER_HOST=tcp://docker:2376/" -e "DOCKER_TLS_CERTDIR=/certs" -e "DOCKER_TLS_VERIFY=1" -e "DOCKER_CERT_PATH=/certs/server"
+    #           valid_volumes:
+    #             - /certs
+    #             - '**'
+    valkey-cluster:
       enabled: false
-    redis:
+    valkey:
       enabled: true
+      auth:
+        existingSecret: gitea-valkey
+        existingSecretPasswordKey: password
     postgresql:
       enabled: true
     postgresql-ha:
@@ -140,3 +157,55 @@ spec:
       services:
         - name: gitea-ssh
           port: 2222
+# ---
+# apiVersion: helm.toolkit.fluxcd.io/v2
+# kind: HelmRelease
+# metadata:
+#   name: gitea-actions
+#   namespace: gitea
+# spec:
+#   chart:
+#     spec:
+#       chart: actions
+#       sourceRef:
+#         kind: HelmRepository
+#         name: gitea-repo
+#         namespace: flux-system
+#       version: v0.0.x
+#   interval: 1m
+#   values:
+#     enabled: true
+#     giteaRootURL: https://git.yadunut.dev
+#
+#     # Provide the runner registration token from 1Password-backed Secret
+#     existingSecret: gitea-actions-token
+#     existingSecretKey: token
+#
+#     statefulset:
+#       replicas: 1
+#       # Your custom runner config replicated here (labels, dind, volumes)
+#       actRunner:
+#         config: |
+#           log:
+#             level: debug
+#           cache:
+#             enabled: true
+#           runner:
+#             labels:
+#               - "ubuntu-latest:docker://catthehacker/ubuntu:act-latest"
+#               - "ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04"
+#               - "ubuntu-20.04:docker://catthehacker/ubuntu:act-20.04"
+#           container:
+#             options: |
+#               --add-host=docker:host-gateway -v /certs:/certs -e "DOCKER_HOST=tcp://docker:2376/" -e "DOCKER_TLS_CERTDIR=/certs" -e "DOCKER_TLS_VERIFY=1" -e "DOCKER_CERT_PATH=/certs/server"
+#             valid_volumes:
+#               - /certs
+#               - '**'
+#       dind:
+#         extraVolumeMounts:
+#           - name: certs
+#             mountPath: /certs
+#       extraVolumes:
+#         - name: certs
+#           emptyDir: {}
+
