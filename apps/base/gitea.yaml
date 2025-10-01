@@ -164,21 +164,6 @@ spec:
 
     statefulset:
       replicas: 1
-      extraVolumes:
-        - name: docker-run
-          emptyDir: {}
-
-      # 2) Mount that volume into BOTH containers in the pod:
-      extraVolumeMounts:
-        # mount into the runner
-        - name: docker-run
-          mountPath: /var/run
-          container: act-runner
-        # mount into the DinD sidecar
-        - name: docker-run
-          mountPath: /var/run
-          container: dind
-
       # Your custom runner config replicated here (labels, dind, volumes)
       actRunner:
         config: |
@@ -192,7 +177,8 @@ spec:
               - "ubuntu-22.04:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-22.04"
               - "ubuntu-20.04:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-20.04"
           container:
+            network: host
             options: |
-              --add-host=docker:host-gateway
-              -e "DOCKER_HOST=tcp://dind:2376/"
-              -e "DOCKER_BUILDKIT=1"
+              --add-host=dind:host-gateway
+              -e DOCKER_HOST=tcp://dind:2376
+              -e DOCKER_TLS_VERIFY=1
