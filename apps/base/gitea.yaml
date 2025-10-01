@@ -173,19 +173,6 @@ spec:
             enabled: true
           runner:
             labels:
-              - "ubuntu-latest:docker://catthehacker/ubuntu:act-latest"
-              - "ubuntu-22.04:docker://catthehacker/ubuntu:act-22.04"
-              - "ubuntu-20.04:docker://catthehacker/ubuntu:act-20.04"
-          container:
-            options: |
-              --add-host=docker:host-gateway -v /certs:/certs -e "DOCKER_HOST=tcp://docker:2376/" -e "DOCKER_TLS_CERTDIR=/certs" -e "DOCKER_TLS_VERIFY=1" -e "DOCKER_CERT_PATH=/certs/server"
-            valid_volumes:
-              - /certs
-              - '**'
-      dind:
-        extraVolumeMounts:
-          - name: certs
-            mountPath: /certs
-      extraVolumes:
-        - name: certs
-          emptyDir: {}
+              - "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-latest"
+              - "ubuntu-22.04:docker://docker.gitea.com/runner-images:ubuntu-22.04"
+              - "ubuntu-20.04:docker://docker.gitea.com/runner-images:ubuntu-20.04"
