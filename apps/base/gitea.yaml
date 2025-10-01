@@ -164,15 +164,20 @@ spec:
 
     statefulset:
       replicas: 1
-      # Provide a Docker daemon via DinD so docker-based actions (buildx, login, etc.) work
-      dind:
-        repository: docker
-        tag: "27.5.1-dind"
-        pullPolicy: IfNotPresent
-        # Uncomment to force legacy iptables on some kernels
-        # extraEnvs:
-        #   - name: DOCKER_IPTABLES_LEGACY
-        #     value: "1"
+      extraVolumes:
+        - name: docker-run
+          emptyDir: {}
+
+      # 2) Mount that volume into BOTH containers in the pod:
+      extraVolumeMounts:
+        # mount into the runner
+        - name: docker-run
+          mountPath: /var/run
+          container: act-runner
+        # mount into the DinD sidecar
+        - name: docker-run
+          mountPath: /var/run
+          container: dind
 
       # Your custom runner config replicated here (labels, dind, volumes)
       actRunner:
@@ -183,12 +188,11 @@ spec:
             enabled: true
           runner:
             labels:
-              - "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-latest"
-              - "ubuntu-22.04:docker://docker.gitea.com/runner-images:ubuntu-22.04"
-              - "ubuntu-20.04:docker://docker.gitea.com/runner-images:ubuntu-20.04"
+              - "ubuntu-latest:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-latest"
+              - "ubuntu-22.04:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-22.04"
+              - "ubuntu-20.04:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-20.04"
           container:
-            # Ensure the runner and job containers use the DinD socket
-            docker_host: "unix:///var/run/docker.sock"
-            # Allow mounting the docker.sock into job containers
-            valid_volumes:
-              - "/var/run/docker.sock"
+            options: |
+              --add-host=docker:host-gateway
+              -e "DOCKER_HOST=tcp://dind:2376/"
+              -e "DOCKER_BUILDKIT=1"
