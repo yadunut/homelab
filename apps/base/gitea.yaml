@@ -181,9 +181,9 @@ spec:
             valid_volumes:
               - '**'
             options: |
-              -v /certs/server:/certs/server
-              --add-host=dind:host-gateway
-              -e DOCKER_HOST=tcp://dind:2376
+              -v /certs:/certs
+              --add-host=docker:host-gateway
+              -e DOCKER_HOST=tcp://docker:2376
               -e DOCKER_TLS_VERIFY=1
-              -e DOCKER_CERT_PATH=/certs/server
-              -e DOCKER_TLS_CERTDIR=/certs/server
+              -e DOCKER_CERT_PATH=/certs/client
+              -e DOCKER_TLS_CERTDIR=/certs
