@@ -55,7 +55,12 @@ Yay! you now have an interface, and an IP address to broadcast on :D
 ```sh
 op connect server create cluster --vaults cluster
 op connect token create cluster --server <Server ID> --vault cluster
+# Copy this and paste this to `cluster/1password-token/password`
 
-kubectl create secret generic -n 1password-system 1password-credentials  --from-literal=password="$(op read 'op://cluster/1password-credentials/1password-credentials.json')"
-kubectl create secret generic -n 1password-system 1password-token  --from-literal password="$(op read 'op://cluster/1password-token/password')"
+cat 1password-credentials.json | base64 |  tr '/+' '_-' | tr -d '=' | tr -d '\n' > password
+# Upload this file to `cluster/1password-credentials/password`
+mv token password
+# Upload this file to `cluster/1password-token/password`
+kubectl create secret generic -n 1password-system 1password-credentials  --from-literal=password="$(op read -n 'op://cluster/1password-credentials/1password-credentials.json')"
+kubectl create secret generic -n 1password-system 1password-token  --from-literal password="$(op read -n 'op://cluster/1password-token/password')"
 ```
