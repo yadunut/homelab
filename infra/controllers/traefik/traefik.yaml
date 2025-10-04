@@ -33,7 +33,7 @@ spec:
       value: "ingress"
       effect: "NoSchedule"
     service:
-      type: LoadBalancer
+      type: ClusterIP
     ports:
       git-ssh:
         port: 2222
@@ -73,7 +73,7 @@ metadata:
   name: traefik-internal
   namespace: traefik-system
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: traefik
       port: 80

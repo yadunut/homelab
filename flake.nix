@@ -117,7 +117,6 @@
         devShells = {
           default = pkgs.mkShell {
             buildInputs = [
-              pkgs.nix
               pkgs.colmena
               pkgs.shellcheck
               agenix.packages.${system}.default
