@@ -35,7 +35,7 @@ spec:
         kind: HelmRepository
         name: open-webui-repo
         namespace: flux-system
-      version: 8.6.x
+      version: 8.x.x
   interval: 1m0s
   values:
     ollama:
