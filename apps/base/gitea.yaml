@@ -43,7 +43,7 @@ spec:
         kind: HelmRepository
         name: gitea-repo
         namespace: flux-system
-      version: v12.3.x
+      version: v12.4.x
   interval: 1m0s
   releaseName: gitea
   values:
@@ -78,8 +78,8 @@ spec:
       enabled: false
     valkey:
       enabled: true
-      image:
-        repository: bitnamilegacy/valkey
+      # image:
+      #   repository: bitnamilegacy/valkey
       global:
         security:
           allowInsecureImages: true
@@ -88,9 +88,9 @@ spec:
       #   existingSecretPasswordKey: password
     postgresql:
       enabled: true
-      image:
-        repository: bitnamilegacy/postgresql
-        tag: 16.3.0-debian-12-r23
+      # image:
+      #   repository: bitnamilegacy/postgresql
+        # tag: 16.3.0-debian-12-r23
       global:
         security:
           allowInsecureImages: true
