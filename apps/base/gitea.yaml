@@ -101,6 +101,15 @@ spec:
     gitea:
       admin:
         existingSecret: gitea-admin-password
+      livenessProbe:
+        httpGet:
+          path: /api/healthz
+          port: http
+        initialDelaySeconds: 200
+        timeoutSeconds: 5
+        periodSeconds: 10
+        successThreshold: 1
+        failureThreshold: 10
       config:
         server:
           SSH_PORT: 2222
