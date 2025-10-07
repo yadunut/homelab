@@ -88,9 +88,9 @@ spec:
       #   existingSecretPasswordKey: password
     postgresql:
       enabled: true
-      # image:
+      image:
       #   repository: bitnamilegacy/postgresql
-        # tag: 16.3.0-debian-12-r23
+        tag: 16.3.0-debian-12-r23
       global:
         security:
           allowInsecureImages: true
