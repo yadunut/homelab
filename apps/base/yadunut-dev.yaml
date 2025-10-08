@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: yadunut-dev
-          image: harbor.yadunut.dev/yadunut/yadunut.dev:sha-ed81c0c-1759898138 # {"$imagepolicy": "flux-system:yadunut-dev"}
+          image: harbor.yadunut.dev/yadunut/yadunut.dev:sha-736d6e9-1759901009 # {"$imagepolicy": "flux-system:yadunut-dev"}
           ports:
             - containerPort: 80
               name: http
