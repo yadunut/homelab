@@ -51,18 +51,12 @@ spec:
       type: Recreate
     service:
       http:
-        type: ClusterIP
-        externalTrafficPolicy: Local
+        type: LoadBalancer
         port: 80
-        annotations:
-          metallb.universe.tf/allow-shared-ip: gitea
       ssh:
         enabled: true
-        type: ClusterIP
-        externalTrafficPolicy: Local
+        type: LoadBalancer
         port: 2222
-        annotations:
-          metallb.universe.tf/allow-shared-ip: gitea
     ingress:
       enabled: true
       hosts:
