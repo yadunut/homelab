@@ -51,11 +51,11 @@ spec:
       type: Recreate
     service:
       http:
-        type: LoadBalancer
+        type: ClusterIP
         port: 80
       ssh:
         enabled: true
-        type: LoadBalancer
+        type: ClusterIP
         port: 2222
     ingress:
       enabled: true
