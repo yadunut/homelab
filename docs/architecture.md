@@ -6,7 +6,7 @@ This document describes the homelab’s multi‑node Kubernetes (k3s) cluster, n
 - Orchestrator: k3s with embedded etcd on all nodes; cluster init is `premhome-gc1`.
 - Overlay network: ZeroTier (`10.222.0.0/23`) used for k8s node IPs and flannel (host-gw) via interface `ztxh6lvd6t`.
 - Admin plane: Tailscale on all nodes, used only for SSH/admin access.
-- Ingress: Traefik (external + internal) with MetalLB.
+- Ingress: Traefik with a single external LoadBalancer via MetalLB; internal access via ClusterIP/Ingress.
 - DNS: Cloudflare via external-dns.
 - TLS: cert-manager using Let’s Encrypt with wildcard certs for `yadunut.dev` and `i.yadunut.dev`.
 - Secrets: 1Password Connect + Operator.
@@ -42,11 +42,10 @@ All nodes run Tailscale for admin/SSH. All four nodes are Longhorn data nodes.
   - Used only for SSH/admin; not used for service exposure or cluster networking.
 - MetalLB (LoadBalancer IPs)
   - External pool: `167.253.159.47/32` (named `premhome-gc1`) for public ingress.
-  - Internal pool: `10.222.1.0/24` currently in use by internal Traefik LoadBalancer IPs (`10.222.1.1` and `10.222.1.2`).
 - Ingress and traffic flow
   - Traefik controller runs on node(s) labeled `ingress=true` (currently `premhome-gc1`).
   - External Service `traefik-external` (MetalLB) advertises `167.253.159.47` and exposes 80/443 plus `git-ssh` on 2222.
-  - Internal Services `traefik-internal` and `traefik` have LB IPs in `10.222.1.0/24` and serve `*.i.yadunut.dev` endpoints (behind Authentik).
+  - Internal endpoints (including `*.i.yadunut.dev`) are routed via Traefik to ClusterIP Services; `traefik-internal` is ClusterIP and only used as an Ingress backend for the dashboard.
 - DNS and TLS
   - external-dns manages records in Cloudflare for `yadunut.dev`. Public ingress uses `*.yadunut.dev`.
   - cert-manager issues wildcard certs for `yadunut.dev` and `i.yadunut.dev`. Secrets are auto-reflected to namespaces via emberstack/reflector.
@@ -54,7 +53,7 @@ All nodes run Tailscale for admin/SSH. All four nodes are Longhorn data nodes.
 ## Core Infrastructure
 - Traefik (Helm)
   - External LB: `traefik-external` on `167.253.159.47` exposing 80/443/2222.
-  - Internal LBs: `traefik-internal` and `traefik` on `10.222.1.0/24` for `*.i.yadunut.dev`.
+  - Internal access: ClusterIP Services (including `traefik-internal`) used by Ingress only; no internal MetalLB VIPs.
   - TCP Ingress (git-ssh 2222) routes to Gitea SSH.
 - MetalLB (Helm): address pools as above.
 - external-dns (Helm): Cloudflare provider, token from 1Password.
@@ -94,9 +93,6 @@ flowchart TB
   TRX --> Authn[Authentik (OIDC)]
 
   subgraph ZT[ZeroTier Overlay: 10.222.0.0/23]
-    INT1[10.222.1.1<br/>traefik-internal]:::int
-    INT2[10.222.1.2<br/>traefik]:::int
-
     subgraph K3s[ k3s Cluster (flannel host-gw on ztxh6lvd6t) ]
       GC1[premhome-gc1\n10.222.0.13\nlabel: ingress=true]:::cp
       FAL[premhome-falcon-1\n10.222.0.198]:::cp
@@ -113,9 +109,9 @@ flowchart TB
     end
   end
 
-  INT1 -->|i.yadunut.dev| LonghornUI[Longhorn UI]
-  INT1 -->|i.yadunut.dev| ProxmoxProxy[Proxmox Proxy]
-  INT1 -->|i.yadunut.dev| Podinfo[Podinfo]
+  TRX -->|i.yadunut.dev| LonghornUI[Longhorn UI]
+  TRX -->|i.yadunut.dev| ProxmoxProxy[Proxmox Proxy]
+  TRX -->|i.yadunut.dev| Podinfo[Podinfo]
 
   subgraph AdminPlane[Admin Plane]
     TS[Tailscale (SSH/Admin on all nodes)]:::infra
@@ -137,7 +133,8 @@ flowchart TB
 ```
 
 ## Notes and Observations
-- Internal MetalLB pool `10.222.1.0/24` is currently assigned to Traefik’s internal LoadBalancers (`10.222.1.1` and `10.222.1.2`). If you prefer to hide or change this range, we can update MetalLB config and Services accordingly.
+- Internal MetalLB pool has been removed; internal Services are ClusterIP and reached via Traefik/Ingress.
+- `*.i.yadunut.dev` resolves to the public Traefik IP and is protected by Authentik.
 - Traefik `git-ssh` entrypoint (2222/TCP) terminates on `167.253.159.47` and routes via `IngressRouteTCP` to Gitea’s SSH service.
 - Minor consistency to review: Gitea’s Ingress uses host `git.yadunut.dev` while its TLS secret in GitOps references `wildcard-cert-i.yadunut.dev-prod`; consider switching to `wildcard-cert-yadunut.dev-prod` for that ingress.
 - No taints are set on nodes today; Traefik tolerates `dedicated=ingress:NoSchedule`, but such a taint is not applied.
