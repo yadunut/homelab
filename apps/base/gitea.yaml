@@ -173,9 +173,9 @@ spec:
             enabled: true
           runner:
             labels:
-              - "ubuntu-latest:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-latest"
-              - "ubuntu-22.04:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-22.04"
-              - "ubuntu-20.04:docker://harbor.yadunut.dev/gitea_cache/runner-images:ubuntu-20.04"
+              - "ubuntu-latest:docker://docker.gitea.com/runner-images:ubuntu-latest"
+              - "ubuntu-22.04:docker://docker.gitea.com/runner-images:ubuntu-22.04"
+              - "ubuntu-20.04:docker://docker.gitea.com/runner-images:ubuntu-20.04"
           container:
             network: host
             valid_volumes:
