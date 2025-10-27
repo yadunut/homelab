@@ -9,6 +9,7 @@ spec:
   path: ./infra/controllers/authentik
   dependsOn:
   - name: infra-1password-config
+  - name: infra-traefik
   prune: true
   retryInterval: 1m0s
   sourceRef:
