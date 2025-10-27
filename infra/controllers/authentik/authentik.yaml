@@ -62,7 +62,13 @@ spec:
       image:
         repository: bitnamilegacy/postgresql
         tag: "17.6.0"
+      global:
+        security:
+          allowInsecureImages: true
     redis:
       enabled: true
       image:
         repository: bitnamilegacy/redis
+      global:
+        security:
+          allowInsecureImages: true
