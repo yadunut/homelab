@@ -60,57 +60,57 @@
     // flake-utils.lib.eachDefaultSystem (
       system:
       let
-        fluxOverlay = (
-          final: prev:
-          let
-            version = "2.7.1";
-            srcHash = "sha256-UJiH6dunTKrHtjc1FudyGugSAJYrBC7TMQp+3PdywPI=";
-            manifestsHash = "sha256-/57wRJ2Sj5vkPsuDQp4q+gbs6C4Qy1PfS3KNt2I5IlU=";
-            vendorHash = "sha256-C5s+/OwZ3cjJZmj39j69LJS3qwQXGJuxyRK1vHVgXGg=";
-
-            manifests = prev.fetchzip {
-              url = "https://github.com/fluxcd/flux2/releases/download/v${version}/manifests.tar.gz";
-              # First build with a dummy, then replace with the `got:` hash from the error
-              hash = manifestsHash;
-              stripRoot = false;
-            };
-          in
-          {
-            fluxcd = prev.fluxcd.overrideAttrs (old: {
-              inherit version vendorHash;
-              src = prev.fetchFromGitHub {
-                owner = "fluxcd";
-                repo = "flux2";
-                rev = "v${version}";
-                # First build with a dummy, then replace with the `got:` hash
-                hash = srcHash;
-              };
-              postUnpack = ''
-                cp -r ${manifests} source/cmd/flux/manifests
-                # disable tests that require network access
-                rm source/cmd/flux/create_secret_git_test.go
-              '';
-
-              ldflags = [
-                "-s"
-                "-w"
-                "-X main.VERSION=${version}"
-              ];
-
-              # keep install check aligned with the new version
-              installCheckPhase = ''
-                $out/bin/flux --version | grep ${version} > /dev/null
-              '';
-
-              meta = old.meta // {
-                changelog = "https://github.com/fluxcd/flux2/releases/tag/v${version}";
-              };
-            });
-          }
-        );
+        # fluxOverlay = (
+        #   final: prev:
+        #   let
+        #     version = "2.7.2";
+        #     srcHash = "sha256-UJiH6dunTKrHtjc1FudyGugSAJYrBC7TMQp+3PdywPI=";
+        #     manifestsHash = "sha256-/57wRJ2Sj5vkPsuDQp4q+gbs6C4Qy1PfS3KNt2I5IlU=";
+        #     vendorHash = "sha256-C5s+/OwZ3cjJZmj39j69LJS3qwQXGJuxyRK1vHVgXGg=";
+        #
+        #     manifests = prev.fetchzip {
+        #       url = "https://github.com/fluxcd/flux2/releases/download/v${version}/manifests.tar.gz";
+        #       # First build with a dummy, then replace with the `got:` hash from the error
+        #       hash = manifestsHash;
+        #       stripRoot = false;
+        #     };
+        #   in
+        #   {
+        #     fluxcd = prev.fluxcd.overrideAttrs (old: {
+        #       inherit version vendorHash;
+        #       src = prev.fetchFromGitHub {
+        #         owner = "fluxcd";
+        #         repo = "flux2";
+        #         rev = "v${version}";
+        #         # First build with a dummy, then replace with the `got:` hash
+        #         hash = srcHash;
+        #       };
+        #       postUnpack = ''
+        #         cp -r ${manifests} source/cmd/flux/manifests
+        #         # disable tests that require network access
+        #         rm source/cmd/flux/create_secret_git_test.go
+        #       '';
+        #
+        #       ldflags = [
+        #         "-s"
+        #         "-w"
+        #         "-X main.VERSION=${version}"
+        #       ];
+        #
+        #       # keep install check aligned with the new version
+        #       installCheckPhase = ''
+        #         $out/bin/flux --version | grep ${version} > /dev/null
+        #       '';
+        #
+        #       meta = old.meta // {
+        #         changelog = "https://github.com/fluxcd/flux2/releases/tag/v${version}";
+        #       };
+        #     });
+        #   }
+        # );
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ fluxOverlay ];
+          # overlays = [ fluxOverlay ];
         };
       in
       {
