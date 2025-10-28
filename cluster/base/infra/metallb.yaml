@@ -5,7 +5,7 @@ metadata:
   name: infra-metallb
   namespace: flux-system
 spec:
-  interval: 1h0m0s
+  interval: 15m0s
   path: ./infra/controllers/metallb
   prune: true
   retryInterval: 1m0s
@@ -21,7 +21,7 @@ metadata:
   name: infra-metallb-config
   namespace: flux-system
 spec:
-  interval: 1h0m0s
+  interval: 15m0s
   path: ./infra/configs/metallb
   dependsOn:
   - name: infra-metallb
@@ -31,4 +31,3 @@ spec:
     kind: GitRepository
     name: flux-system
   timeout: 5m0s
-  wait: true

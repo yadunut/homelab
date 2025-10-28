@@ -5,7 +5,7 @@ metadata:
   name: infra-generic-cdi-plugin
   namespace: flux-system
 spec:
-  interval: 1h0m0s
+  interval: 15m0s
   path: ./infra/controllers/generic-cdi-plugin
   prune: true
   retryInterval: 1m0s
@@ -13,4 +13,3 @@ spec:
     kind: GitRepository
     name: flux-system
   timeout: 5m0s
-  wait: true

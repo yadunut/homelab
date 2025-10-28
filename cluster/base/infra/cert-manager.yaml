@@ -5,7 +5,7 @@ metadata:
   name: infra-cert-manager
   namespace: flux-system
 spec:
-  interval: 1h0m0s
+  interval: 15m0s
   path: ./infra/controllers/cert-manager
   prune: true
   retryInterval: 1m0s
@@ -21,7 +21,7 @@ metadata:
   name: infra-cert-manager-configs
   namespace: flux-system
 spec:
-  interval: 1h0m0s
+  interval: 15m0s
   path: ./infra/configs/cert-manager
   dependsOn:
   - name: infra-cert-manager
@@ -32,4 +32,3 @@ spec:
     kind: GitRepository
     name: flux-system
   timeout: 5m0s
-  wait: true

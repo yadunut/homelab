@@ -5,11 +5,10 @@ metadata:
   name: infra-traefik
   namespace: flux-system
 spec:
-  interval: 1h0m0s
+  interval: 15m0s
   path: ./infra/controllers/traefik
   dependsOn:
-  - name: infra-metallb-config
-  - name: infra-cert-manager-configs
+  - name: infra-metallb
   prune: true
   retryInterval: 1m0s
   sourceRef:
