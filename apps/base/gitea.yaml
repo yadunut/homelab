@@ -80,6 +80,16 @@ spec:
       # auth:
       #   existingSecret: gitea-valkey
       #   existingSecretPasswordKey: password
+      primary:
+        resources:
+          limits:
+            cpu: 150m
+            memory: 512Mi
+            ephemeral-storage: 2Gi
+          requests:
+            cpu: 100m
+            memory: 256Mi
+            ephemeral-storage: 50Mi
     postgresql:
       enabled: true
       global:
