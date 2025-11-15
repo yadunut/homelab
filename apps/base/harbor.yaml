@@ -23,8 +23,8 @@ spec:
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: harbor
-  namespace: harbor
+  name: harbor-repo
+  namespace: flux-system
 spec:
   interval: 15m0s
   url: https://helm.goharbor.io
@@ -41,7 +41,8 @@ spec:
       reconcileStrategy: ChartVersion
       sourceRef:
         kind: HelmRepository
-        name: harbor
+        name: harbor-repo
+        namespace: flux-system
       version: v1.15.x
   interval: 1m0s
   releaseName: harbor

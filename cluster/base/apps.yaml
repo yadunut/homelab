@@ -7,6 +7,10 @@ metadata:
 spec:
   interval: 5m0s
   path: ./apps/prod
+  dependsOn:
+  - name: infra-traefik
+  - name: infra-cert-manager-config
+  - name: infra-authentik
   prune: true
   sourceRef:
     kind: GitRepository

@@ -60,6 +60,10 @@ spec:
                 name: yadunut-dev
                 port:
                   name: http
+  tls:
+    - hosts:
+        - yadunut.dev
+      secretName: wildcard-cert-yadunut.dev-prod
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository

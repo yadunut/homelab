@@ -18,14 +18,15 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: infra-cert-manager-configs
+  name: infra-cert-manager-config
   namespace: flux-system
 spec:
   interval: 15m0s
   path: ./infra/configs/cert-manager
   dependsOn:
   - name: infra-cert-manager
-  - name: infra-1password
+  - name: infra-1password-config
+  - name: infra-reflector
   prune: true
   retryInterval: 1m0s
   sourceRef:
