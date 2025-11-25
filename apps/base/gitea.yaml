@@ -81,6 +81,8 @@ spec:
       #   existingSecret: gitea-valkey
       #   existingSecretPasswordKey: password
       primary:
+        pdb:
+          create: false
         resources:
           limits:
             cpu: 150m
@@ -95,6 +97,9 @@ spec:
       global:
         security:
           allowInsecureImages: true
+      primary:
+        pdb:
+          create: false
     postgresql-ha:
       enabled: false
 

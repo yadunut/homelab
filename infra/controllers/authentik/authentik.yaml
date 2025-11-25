@@ -59,5 +59,11 @@ spec:
       enabled: true
       auth:
         existingSecret: "authentik-postgresql-password"
+      primary:
+        pdb:
+          create: false
     redis:
       enabled: true
+      master:
+        pdb:
+          create: false
