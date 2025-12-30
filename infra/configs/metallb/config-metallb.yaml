@@ -1,9 +1,0 @@
----
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: premhome-gc1
-  namespace: metallb-system
-spec:
-  addresses:
-    - 167.253.159.47/32

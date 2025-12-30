@@ -1,5 +1,0 @@
-X Delete ingress digitalocean container
-X Install nixos on greencloud server
-Setup ztnet on greencloud server
-setup zerotier on greencloud server
-Delete nodes from
