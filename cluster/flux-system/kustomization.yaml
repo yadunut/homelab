@@ -3,3 +3,25 @@ kind: Kustomization
 resources:
 - gotk-components.yaml
 - gotk-sync.yaml
+patches:
+  # HTTP proxy for source-controller to reach IPv4-only services (e.g., GitHub)
+  # Required because the cluster is IPv6-only
+  - target:
+      kind: Deployment
+      name: source-controller
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: HTTPS_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: HTTP_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: NO_PROXY
+          value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
