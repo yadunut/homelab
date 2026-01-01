@@ -1,0 +1,87 @@
+# HTTP Proxy for IPv6-only pods to reach IPv4-only services
+# Uses hostNetwork to access the node's IPv4 connectivity
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tinyproxy-config
+  namespace: kube-system
+data:
+  tinyproxy.conf: |
+    User nobody
+    Group nogroup
+    Port 8888
+    Listen ::
+    Timeout 600
+    DefaultErrorFile "/usr/share/tinyproxy/default.html"
+    StatFile "/usr/share/tinyproxy/stats.html"
+    LogLevel Info
+    MaxClients 100
+    MinSpareServers 5
+    MaxSpareServers 20
+    StartServers 10
+    MaxRequestsPerChild 0
+    Allow 0.0.0.0/0
+    Allow ::/0
+    ViaProxyName "tinyproxy"
+    ConnectPort 443
+    ConnectPort 80
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: http-proxy
+  namespace: kube-system
+  labels:
+    app: http-proxy
+spec:
+  selector:
+    matchLabels:
+      app: http-proxy
+  template:
+    metadata:
+      labels:
+        app: http-proxy
+    spec:
+      hostNetwork: true
+      tolerations:
+        - operator: Exists
+      containers:
+        - name: tinyproxy
+          image: vimagick/tinyproxy
+          ports:
+            - containerPort: 8888
+              hostPort: 8888
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tinyproxy/tinyproxy.conf
+              subPath: tinyproxy.conf
+          resources:
+            limits:
+              memory: 64Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+      volumes:
+        - name: config
+          configMap:
+            name: tinyproxy-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-proxy
+  namespace: kube-system
+spec:
+  selector:
+    app: http-proxy
+  ports:
+    - port: 8888
+      targetPort: 8888
+      protocol: TCP
+  type: ClusterIP
+  ipFamilies:
+    - IPv6
+  ipFamilyPolicy: SingleStack
+
