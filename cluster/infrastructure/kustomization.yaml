@@ -5,4 +5,5 @@ resources:
   - http-proxy
   - longhorn
   - 1password
+  - cert-manager
 
