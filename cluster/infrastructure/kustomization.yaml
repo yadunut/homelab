@@ -7,3 +7,4 @@ resources:
   - longhorn
   - 1password
   - cert-manager
+  - external-dns
