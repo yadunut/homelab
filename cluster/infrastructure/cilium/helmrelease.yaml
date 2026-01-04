@@ -1,0 +1,48 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: cilium
+      version: 1.18.2
+      sourceRef:
+        kind: HelmRepository
+        name: cilium
+        namespace: kube-system
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    autoDirectNodeRoutes: true
+    bpf:
+      masquerade: true
+    cluster:
+      name: nut-cluster
+    enableIPv6Masquerade: true
+    hubble:
+      enabled: true
+      peerService:
+        clusterDomain: k8s.internal
+      relay:
+        enabled: true
+      ui:
+        enabled: true
+    ipam:
+      mode: kubernetes
+    ipv4:
+      enabled: false
+    ipv6:
+      enabled: true
+    ipv6NativeRoutingCIDR: fd00:10:96::/48
+    kubeProxyReplacement: true
+    operator:
+      replicas: 1
+    routingMode: native
