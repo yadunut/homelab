@@ -1,0 +1,33 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: 1password-connect
+  namespace: 1password-connect
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: connect
+      sourceRef:
+        kind: HelmRepository
+        name: 1password
+        namespace: 1password-connect
+      interval: 1h
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    connect:
+      credentialsName: 1password-credentials
+      credentialsKey: password
+    operator:
+      create: true
+      autoRestart: true
+      token:
+        name: 1password-token
+        key: password
+
