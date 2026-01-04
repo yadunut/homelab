@@ -1,0 +1,7 @@
+apiVersion: onepassword.com/v1
+kind: OnePasswordItem
+metadata:
+  name: longhorn-garage-key
+  namespace: longhorn-system
+spec:
+  itemPath: "vaults/cluster/items/longhorn-garage-key"
