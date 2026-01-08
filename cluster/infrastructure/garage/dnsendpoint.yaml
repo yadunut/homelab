@@ -1,0 +1,25 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: garage
+  namespace: garage
+spec:
+  endpoints:
+    - dnsName: "*.web.garage.yadunut.dev"
+      recordTTL: 300
+      recordType: AAAA
+      targets:
+        - "2a11:8083:11:1021::a"
+        - "2a11:8083:11:13d4::a"
+    - dnsName: "s3.garage.yadunut.dev"
+      recordTTL: 300
+      recordType: AAAA
+      targets:
+        - "2a11:8083:11:1021::a"
+        - "2a11:8083:11:13d4::a"
+    - dnsName: "*.s3.garage.yadunut.dev"
+      recordTTL: 300
+      recordType: AAAA
+      targets:
+        - "2a11:8083:11:1021::a"
+        - "2a11:8083:11:13d4::a"

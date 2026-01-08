@@ -1,0 +1,26 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: garage-web-tls
+  namespace: garage
+spec:
+  secretName: garage-web-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.web.garage.yadunut.dev"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: garage-s3-tls
+  namespace: garage
+spec:
+  secretName: garage-s3-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "s3.garage.yadunut.dev"
+    - "*.s3.garage.yadunut.dev"
