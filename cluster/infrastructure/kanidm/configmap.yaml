@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kanidm-config
+  namespace: kanidm
+data:
+  server.toml: |
+    version = "2"
+    bindaddress = "[::]:8443"
+    db_path = "/data/kanidm.db"
+    tls_chain = "/data/tls.crt"
+    tls_key = "/data/tls.key"
+    domain = "idm.yadunut.dev"
+    origin = "https://idm.yadunut.dev"

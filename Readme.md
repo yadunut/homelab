@@ -37,6 +37,10 @@ flux get kustomizations
 - [x] longhorn
 - [x] external dns
 - [x] cert-maanger
-- [ ] longhorn backups
+- [x] longhorn backups
+- [x] kanidm
+- [ ] expose longhorn website
+- [ ] expose traefik website
+- [ ] monitoring
 - [ ] website
-- [ ] kanidm
+- [ ] figure out why metrics not being reported in lens

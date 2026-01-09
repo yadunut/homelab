@@ -30,7 +30,7 @@ spec:
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
-        drop: 
+        drop:
           - ALL
         add:
           - NET_BIND_SERVICE
@@ -43,13 +43,13 @@ spec:
     ports:
       web:
         port: 80
-        expose: 
+        expose:
           default: true
         exposedPort: 80
         protocol: TCP
       websecure:
         port: 443
-        expose: 
+        expose:
           default: true
         exposedPort: 443
         protocol: TCP

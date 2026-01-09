@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanidm
+  namespace: kanidm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kanidm
+  template:
+    metadata:
+      labels:
+        app: kanidm
+    spec:
+      containers:
+        - name: kanidm
+          image: kanidm/server:1.8.5
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              readOnly: false
+            - name: config
+              mountPath: /data/server.toml
+              subPath: server.toml
+              readOnly: true
+            - name: tls-secret
+              mountPath: /data/tls.crt
+              subPath: tls.crt
+              readOnly: true
+            - name: tls-secret
+              mountPath: /data/tls.key
+              subPath: tls.key
+              readOnly: true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: kanidm-config
+            items:
+              - key: server.toml
+                path: server.toml
+        - name: tls-secret
+          secret:
+            secretName: kanidm-tls
+            items:
+              - key: tls.crt
+                path: tls.crt
+              - key: tls.key
+                path: tls.key
+        - name: data
+          persistentVolumeClaim:
+            claimName: kanidm-data

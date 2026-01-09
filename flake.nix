@@ -22,6 +22,7 @@
             pkgs.kubectl
             pkgs.cilium-cli
             pkgs.kubernetes-helm
+            pkgs.kanidm_1_8
           ];
         };
       };
