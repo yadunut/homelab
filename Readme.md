@@ -41,6 +41,7 @@ flux get kustomizations
 - [x] kanidm
 - [ ] expose longhorn website
 - [ ] expose traefik website
+- [ ] oauth proxy
 - [ ] monitoring
 - [ ] website
 - [ ] figure out why metrics not being reported in lens

@@ -11,7 +11,25 @@ spec:
       targets:
         - "2a11:8083:11:1021::a"
         - "2a11:8083:11:13d4::a"
+    - dnsName: "*.web.garage.yadunut.dev"
+      recordTTL: 300
+      recordType: A
+      targets:
+        - "167.253.159.47"
+        - "103.149.46.7"
     - dnsName: "s3.garage.yadunut.dev"
+      recordTTL: 300
+      recordType: AAAA
+      targets:
+        - "2a11:8083:11:1021::a"
+        - "2a11:8083:11:13d4::a"
+    - dnsName: "s3.garage.yadunut.dev"
+      recordTTL: 300
+      recordType: A
+      targets:
+        - "167.253.159.47"
+        - "103.149.46.7"
+    - dnsName: "*.s3.garage.yadunut.dev"
       recordTTL: 300
       recordType: AAAA
       targets:
@@ -19,7 +37,7 @@ spec:
         - "2a11:8083:11:13d4::a"
     - dnsName: "*.s3.garage.yadunut.dev"
       recordTTL: 300
-      recordType: AAAA
+      recordType: A
       targets:
-        - "2a11:8083:11:1021::a"
-        - "2a11:8083:11:13d4::a"
+        - "167.253.159.47"
+        - "103.149.46.7"

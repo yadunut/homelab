@@ -11,10 +11,21 @@ spec:
       targets:
         - "2a11:8083:11:1021::a"
         - "2a11:8083:11:13d4::a"
+    - dnsName: yadunut.dev
+      recordTTL: 300
+      recordType: A
+      targets:
+        - "167.253.159.47"
+        - "103.149.46.7"
     - dnsName: "*.yadunut.dev"
       recordTTL: 300
       recordType: AAAA
       targets:
         - "2a11:8083:11:1021::a"
         - "2a11:8083:11:13d4::a"
-
+    - dnsName: "*.yadunut.dev"
+      recordTTL: 300
+      recordType: A
+      targets:
+        - "167.253.159.47"
+        - "103.149.46.7"
