@@ -42,6 +42,8 @@ spec:
     ipv6:
       enabled: true
     ipv6NativeRoutingCIDR: fd00:10:96::/48
+    k8sServiceHost: fd5d:644d:2e43:8ad9:ec99:935d:644d:2e43
+    k8sServicePort: 6443
     kubeProxyReplacement: true
     operator:
       replicas: 1
