@@ -4,6 +4,7 @@ resources:
   - coredns
   - cilium
   - http-proxy
+  - oauth2-proxy
   - longhorn
   - 1password
   - cert-manager
