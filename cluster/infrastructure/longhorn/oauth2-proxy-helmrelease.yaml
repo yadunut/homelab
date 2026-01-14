@@ -1,0 +1,47 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: longhorn-oauth2-proxy
+  namespace: longhorn-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: oauth2-proxy
+      version: 10.1.*
+      sourceRef:
+        kind: HelmRepository
+        name: oauth2-proxy
+        namespace: flux-system
+      interval: 1h
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    config:
+      existingSecret: longhorn-oauth
+      cookieName: longhorn-oauth2-proxy
+    extraArgs:
+      provider: oidc
+      scope: "openid email groups"
+      oidc-issuer-url: https://idm.yadunut.dev/oauth2/openid/longhorn
+      oidc-groups-claim: "groups"
+      allowed-group: "longhorn_admin@idm.yadunut.dev"
+      redirect-url: https://longhorn.yadunut.dev/oauth2/callback
+      upstream: "static://202"
+      email-domain: "*"
+      cookie-domain: longhorn.yadunut.dev
+      cookie-secure: "true"
+      whitelist-domain: longhorn.yadunut.dev
+      skip-provider-button: "true"
+      code-challenge-method: "S256"
+      reverse-proxy: "true"
+      set-xauthrequest: "true"
+      pass-access-token: "true"
+      set-authorization-header: "true"
+    ingress:
+      enabled: false

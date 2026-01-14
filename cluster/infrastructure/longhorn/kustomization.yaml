@@ -5,3 +5,8 @@ resources:
   - helmrepo.yaml
   - helmrelease.yaml
   - backup.yaml
+  - oauth2-proxy-onepassworditem.yaml
+  - oauth2-proxy-helmrelease.yaml
+  - certificate.yaml
+  - middleware.yaml
+  - ingressroute.yaml

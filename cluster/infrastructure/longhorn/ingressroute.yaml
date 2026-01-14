@@ -1,0 +1,37 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: longhorn
+  namespace: longhorn-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`longhorn.yadunut.dev`)
+      kind: Rule
+      middlewares:
+        - name: longhorn-oauth-auth-redirect
+      services:
+        - name: longhorn-frontend
+          port: http
+  tls:
+    secretName: longhorn-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: longhorn-oauth2-proxy
+  namespace: longhorn-system
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`longhorn.yadunut.dev`) && PathPrefix(`/oauth2/`)
+      kind: Rule
+      middlewares:
+        - name: longhorn-auth-headers
+      services:
+        - name: longhorn-oauth2-proxy
+          port: http
+  tls:
+    secretName: longhorn-tls
