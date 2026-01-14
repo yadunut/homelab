@@ -6,4 +6,3 @@ resources:
   - certificate.yaml
   - dnsendpoint.yaml
   - ingressroute.yaml
-  - middleware.yaml

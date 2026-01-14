@@ -9,6 +9,7 @@ spec:
     name: cloudflare
     kind: ClusterIssuer
   dnsNames:
+    - "web.garage.yadunut.dev"
     - "*.web.garage.yadunut.dev"
 ---
 apiVersion: cert-manager.io/v1

@@ -42,6 +42,11 @@ spec:
       type: ClusterIP
     ports:
       web:
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
+            permanent: true
         port: 80
         expose:
           default: true
