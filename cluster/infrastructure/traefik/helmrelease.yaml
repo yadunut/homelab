@@ -24,6 +24,7 @@ spec:
   values:
     deployment:
       replicas: 2
+      dnsPolicy: ClusterFirstWithHostNet
     updateStrategy:
       type: Recreate
     hostNetwork: true
