@@ -68,7 +68,7 @@ spec:
         allowExternalNameServices: true
     ingressRoute:
       dashboard:
-        enabled: true
+        enabled: false
     logs:
       general:
         level: INFO

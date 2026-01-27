@@ -39,7 +39,7 @@ flux get kustomizations
 - [x] cert-maanger
 - [x] longhorn backups
 - [x] kanidm
-- [ ] expose longhorn website
+- [x] expose longhorn website
 - [ ] expose traefik website
 - [ ] oauth proxy
 - [ ] monitoring

@@ -1,0 +1,37 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`traefik.yadunut.dev`)
+      kind: Rule
+      middlewares:
+        - name: traefik-oauth-auth-redirect
+      services:
+        - name: api@internal
+          kind: TraefikService
+  tls:
+    secretName: traefik-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-oauth2-proxy
+  namespace: traefik
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`traefik.yadunut.dev`) && PathPrefix(`/oauth2/`)
+      kind: Rule
+      middlewares:
+        - name: traefik-auth-headers
+      services:
+        - name: traefik-oauth2-proxy
+          port: http
+  tls:
+    secretName: traefik-tls
