@@ -13,3 +13,4 @@ resources:
   - garage
   - harbor
   - kanidm
+  - metrics-server
