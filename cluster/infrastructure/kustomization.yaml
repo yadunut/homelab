@@ -11,4 +11,5 @@ resources:
   - external-dns
   - traefik
   - garage
+  - harbor
   - kanidm
