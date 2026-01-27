@@ -4,6 +4,7 @@ resources:
   - namespace.yaml
   - helmrepo.yaml
   - helmrelease.yaml
+  - storageclass.yaml
   - backup.yaml
   - oauth2-proxy-onepassworditem.yaml
   - oauth2-proxy-helmrelease.yaml
