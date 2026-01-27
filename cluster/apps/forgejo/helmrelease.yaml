@@ -1,0 +1,81 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: forgejo
+      version: 16.0.*
+      sourceRef:
+        kind: HelmRepository
+        name: forgejo
+        namespace: forgejo
+      interval: 1h
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    replicaCount: 1
+
+    persistence:
+      enabled: true
+
+    ingress:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: git.yadunut.dev
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: forgejo-tls
+          hosts:
+            - git.yadunut.dev
+
+    gitea:
+      admin:
+        existingSecret: forgejo-admin
+
+      config:
+        database:
+          DB_TYPE: postgres
+          HOST: forgejo-postgres-rw:5432
+          NAME: forgejo
+          USER: forgejo
+          SCHEMA: public
+
+        server:
+          DOMAIN: git.yadunut.dev
+          ROOT_URL: https://git.yadunut.dev
+          DISABLE_SSH: true
+          LANDING_PAGE: "/yadunut"
+          LFS_START_SERVER: true
+
+        openid:
+          ENABLE_OPENID_SIGNUP: true
+        service:
+          SHOW_REGISTRATION_BUTTON: false
+          ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+        packages:
+          ENABLED: false
+
+        repository:
+          ENABLE_PUSH_CREATE_USER: true
+
+        indexer:
+          REPO_INDEXER_ENABLED: true
+
+      additionalConfigFromEnvs:
+        - name: FORGEJO__DATABASE__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: forgejo-postgres-app
+              key: password
