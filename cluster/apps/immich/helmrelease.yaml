@@ -80,6 +80,16 @@ spec:
 
     machine-learning:
       enabled: true
+      controllers:
+        main:
+          containers:
+            main:
+              env:
+                # HTTP proxy for reaching IPv4-only services (e.g., HuggingFace model downloads)
+                # Required because the cluster is IPv6-only
+                HTTP_PROXY: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+                HTTPS_PROXY: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+                NO_PROXY: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
       persistence:
         cache:
           enabled: true
