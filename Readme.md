@@ -43,7 +43,9 @@ flux get kustomizations
 - [x] expose traefik website
 - [x] oauth proxy
 - [x] harbor
-- [ ] forjego
+- [x] forjego
+- [x] immich
+- [ ] pastebin of some kind
 - [ ] kanidm operator
 - [ ] some action runner thingie
 - [ ] monitoring
