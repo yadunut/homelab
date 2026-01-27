@@ -40,8 +40,12 @@ flux get kustomizations
 - [x] longhorn backups
 - [x] kanidm
 - [x] expose longhorn website
-- [ ] expose traefik website
-- [ ] oauth proxy
+- [x] expose traefik website
+- [x] oauth proxy
+- [x] harbor
+- [ ] forjego
+- [ ] kanidm operator
+- [ ] some action runner thingie
 - [ ] monitoring
 - [ ] website
 - [ ] figure out why metrics not being reported in lens
