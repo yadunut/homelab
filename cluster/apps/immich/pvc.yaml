@@ -6,7 +6,7 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: longhorn-postgres
+  storageClassName: longhorn-local-1r
   resources:
     requests:
       storage: 20Gi

@@ -8,7 +8,7 @@ spec:
 
   storage:
     size: 10Gi
-    storageClass: longhorn-postgres
+    storageClass: longhorn-local-1r
 
   bootstrap:
     initdb:
