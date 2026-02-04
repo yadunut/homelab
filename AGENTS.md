@@ -1,25 +1,122 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
-This repo is a Flux GitOps layout for a homelab Kubernetes cluster. Core manifests live in `cluster/`, with `cluster/kustomization.yaml` assembling the tree. `cluster/flux-system/` contains the Flux bootstrap manifests, while `cluster/infrastructure/` groups infra components by service (for example `cluster/infrastructure/traefik/`). Each component directory typically includes `helmrepo.yaml`, `helmrelease.yaml`, `namespace.yaml`, and `kustomization.yaml` plus any service-specific resources. Operational notes live in `docs/` (see `docs/http-proxy-guide.md`). The Nix dev shell is defined in `flake.nix`.
+## Purpose
+This repo is the Flux GitOps source for a Kubernetes homelab. Future agents should treat this file as the first-stop context before changing manifests.
 
-## Build, Test, and Development Commands
-- `nix develop`: enter the dev shell with `flux`, `kubectl`, `helm`, and `cilium-cli`.
-- `kubectl kustomize cluster`: render the full manifest tree locally for review.
-- `flux reconcile kustomization -n flux-system infrastructure`: trigger a reconcile (requires cluster access).
+## Project Structure
+- Core manifests: `cluster/`
+- Root assembly: `cluster/kustomization.yaml`
+- Flux bootstrap: `cluster/flux-system/`
+- Infrastructure components: `cluster/infrastructure/<service>/`
+- Apps: `cluster/apps/`
+- Operational docs: `docs/`
+- Dev shell: `flake.nix`
 
-## Coding Style & Naming Conventions
-- YAML uses 2-space indentation; keep structure consistent with existing Flux and HelmRelease patterns.
-- Component directories are named after the service (`cluster/infrastructure/external-dns`).
-- Use predictable filenames: `helmrepo.yaml`, `helmrelease.yaml`, `namespace.yaml`, `kustomization.yaml`.
-- Resource names should match the component name (`metadata.name: traefik`).
-- Keep `spec.values` edits focused to the service you are changing.
+Common component file names:
+- `helmrepo.yaml`
+- `helmrelease.yaml`
+- `namespace.yaml`
+- `kustomization.yaml`
 
-## Testing Guidelines
-There is no automated test suite in the repo. Validate changes by rendering manifests (`kubectl kustomize cluster`) and, if you have cluster access, by reconciling with Flux and reviewing status (`flux get kustomizations`).
+## Reconciliation Model
+- Flux sync source is branch `main` and path `./cluster` (see `cluster/flux-system/gotk-sync.yaml`).
+- Infrastructure is reconciled via `cluster/infrastructure.yaml`.
+- App kustomizations (for example `cluster/apps/forgejo.yaml`, `cluster/apps/immich.yaml`) depend on `infrastructure` and should preserve that ordering.
 
-## Commit & Pull Request Guidelines
-Commits are short, lowercase, and imperative (examples: "add traefik", "migrate cilium to flux"). Keep one topic per commit and mention the component early in the message. PRs should include a brief summary, affected components/paths, and validation notes (render commands or reconcile output). Link related issues when applicable; screenshots are only needed for UI-facing changes.
+## Nonstandard Cluster Context
 
-## Security & Configuration Tips
-Secrets are referenced via 1Password items (see `cluster/infrastructure/1password/` and `cluster/infrastructure/cert-manager/secret.yaml`); do not commit plaintext secrets. The cluster is IPv6-only, so external access may require the HTTP proxy described in `docs/http-proxy-guide.md`.
+### 1) Node/Kubernetes source of truth
+- All nodes run NixOS.
+- Host-level Kubernetes definitions live in a separate repo:
+  `https://git.yadunut.dev/yadunut/nix/src/branch/main/modules/kubernetes`
+
+### 2) Networking and DNS
+- Cluster networking is IPv6-only for pods/services.
+- IPv4 is available at ingress nodes and via the in-cluster HTTP proxy.
+- Cluster DNS domain is `k8s.internal` (not `cluster.local`).
+- CoreDNS service IP is intentionally fixed; do not change it casually (`cluster/infrastructure/coredns/coredns.yaml`).
+
+### 3) Proxy for IPv4-only egress
+- Proxy endpoint: `http://http-proxy.kube-system.svc.k8s.internal:8888`
+- Default env pattern:
+
+```yaml
+env:
+  - name: HTTPS_PROXY
+    value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+  - name: HTTP_PROXY
+    value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+  - name: NO_PROXY
+    value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
+```
+
+- Canonical details: `docs/http-proxy-guide.md`
+- Flux source-controller already receives this proxy config via patch in `cluster/flux-system/kustomization.yaml`.
+
+### 4) Ingress and exposure patterns
+- Traefik runs on ingress-labeled nodes with `hostNetwork: true`.
+- Use existing Traefik patterns:
+  - HTTP routes via `Ingress` or `IngressRoute`
+  - TCP passthrough where required (Kanidm uses `IngressRouteTCP` with `tls.passthrough: true`)
+- Keep admin UIs behind oauth2-proxy + OIDC group checks where already used.
+
+### 5) DNS management
+- ExternalDNS provider is Cloudflare.
+- ExternalDNS is configured with `sources: [crd]`; DNS is managed through `DNSEndpoint` resources.
+- Public hostnames in this repo are typically maintained as both `AAAA` and `A` records.
+
+### 6) Storage
+- Storage classes in use:
+  - `longhorn`: default replicated storage (3 replicas)
+  - `longhorn-local-1r`: non-replicated strict-local storage (pod/volume stay on same node)
+- Prefer `longhorn-local-1r` for node-local stateful workloads that do not need replication.
+- Canonical operational detail and capacity notes: `docs/storage.md`
+- Caveat: on `nut-gc2`, `/srv` is shared by Longhorn and Garage; do not double-count capacity.
+
+### 7) Secrets and identity
+- Do not commit plaintext secrets.
+- Secrets are sourced through 1Password operator resources (`OnePasswordItem`) and referenced by workloads.
+- OIDC/identity patterns use Kanidm (`idm.yadunut.dev`), with group-based access for protected services.
+
+### 8) Generated manifests
+- `cluster/flux-system/gotk-components.yaml` and `cluster/flux-system/gotk-sync.yaml` are generated by Flux.
+- Do not hand-edit generated `gotk-*` files; use overlays/patches such as `cluster/flux-system/kustomization.yaml`.
+
+## Build and Validation Commands
+- `nix develop`
+- `kubectl kustomize cluster`
+- `flux reconcile kustomization -n flux-system infrastructure`
+- `flux get kustomizations`
+
+## Editing Conventions
+- YAML: 2-space indentation.
+- Keep resource names aligned with component names where possible.
+- Keep `spec.values` edits scoped to the component being changed.
+- Preserve existing file naming patterns and directory structure.
+
+## Agent Change Checklist
+Before opening a PR or finalizing a change, verify:
+1. Reconciliation ordering still makes sense (infrastructure before dependent apps).
+2. IPv4-dependent workloads include proxy configuration and correct `NO_PROXY`.
+3. DNS updates use `DNSEndpoint` conventions and required A/AAAA records.
+4. Storage class choice matches workload behavior (`longhorn` vs `longhorn-local-1r`).
+5. Secrets are 1Password-backed and no plaintext secret material was added.
+6. No direct edits were made to generated `gotk-*` manifests.
+7. `kubectl kustomize cluster` renders successfully.
+
+## Commit and PR Conventions
+- Commits are short, lowercase, and imperative (for example: `add traefik`, `migrate cilium to flux`).
+- Keep one topic per commit.
+- PRs should include:
+  - Summary of intent
+  - Affected components/paths
+  - Validation notes (render/reconcile commands)
+
+## Jujutsu (jj) Commit Workflow
+- Prefer `jj` for local commit workflow in this repo.
+- Typical flow:
+  - `jj status`
+  - `jj diff`
+  - `jj commit -m "<short lowercase imperative message>"`
+  - `jj git push`
+- Keep commit messages consistent with this repo's convention (short, lowercase, imperative, single topic).
