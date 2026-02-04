@@ -96,4 +96,3 @@ spec:
           size: 10Gi
           type: persistentVolumeClaim
           accessMode: ReadWriteOnce
-          storageClass: longhorn-local-1r
