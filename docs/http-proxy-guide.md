@@ -8,7 +8,7 @@ This cluster is IPv6-only, meaning pods cannot directly reach IPv4-only services
 |---------|-------|
 | Proxy URL | `http://http-proxy.kube-system.svc.k8s.internal:8888` |
 | Port | `8888` |
-| Type | HTTP CONNECT proxy (tinyproxy) |
+| Type | HTTP CONNECT proxy (Squid) |
 
 ## Environment Variables
 
@@ -209,4 +209,3 @@ Pod sets HTTPS_PROXY=http://http-proxy.kube-system.svc.k8s.internal:8888
 ```
 
 The proxy runs as a DaemonSet with `hostNetwork: true`, giving it access to the node's IPv4 connectivity while being accessible to pods via the cluster service.
-

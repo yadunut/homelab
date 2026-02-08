@@ -4,28 +4,33 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: tinyproxy-config
+  name: squid-config
   namespace: kube-system
 data:
-  tinyproxy.conf: |
-    User nobody
-    Group nogroup
-    Port 8888
-    Listen ::
-    Timeout 600
-    DefaultErrorFile "/usr/share/tinyproxy/default.html"
-    StatFile "/usr/share/tinyproxy/stats.html"
-    LogLevel Info
-    MaxClients 100
-    MinSpareServers 5
-    MaxSpareServers 20
-    StartServers 10
-    MaxRequestsPerChild 0
-    Allow 0.0.0.0/0
-    Allow ::/0
-    ViaProxyName "tinyproxy"
-    ConnectPort 443
-    ConnectPort 80
+  squid.conf: |
+    http_port [::]:8888
+
+    # Keep connect attempts bounded so failed destinations do not stall clients.
+    connect_timeout 10 seconds
+
+    # Restrict proxied destination ports to common HTTP/HTTPS.
+    acl SSL_ports port 443
+    acl Safe_ports port 80
+    acl Safe_ports port 443
+    acl CONNECT method CONNECT
+    http_access deny !Safe_ports
+    http_access deny CONNECT !SSL_ports
+
+    # Internal cluster DNS names must bypass proxy via NO_PROXY on clients.
+    # This proxy is intended for internet egress.
+    http_access allow all
+
+    # We want egress proxying, not response caching.
+    cache deny all
+
+    # Avoid adding intermediary headers to proxied traffic.
+    via off
+    forwarded_for delete
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -47,26 +52,26 @@ spec:
       tolerations:
         - operator: Exists
       containers:
-        - name: tinyproxy
-          image: vimagick/tinyproxy
+        - name: squid
+          image: ubuntu/squid:6.13-25.04_beta@sha256:3de2e64f0ca6efdac3e98557607dc0f23050037f3885016d5d5bfcf9950501b8
           ports:
             - containerPort: 8888
               hostPort: 8888
               protocol: TCP
           volumeMounts:
             - name: config
-              mountPath: /etc/tinyproxy/tinyproxy.conf
-              subPath: tinyproxy.conf
+              mountPath: /etc/squid/squid.conf
+              subPath: squid.conf
           resources:
             limits:
-              memory: 64Mi
+              memory: 256Mi
             requests:
-              cpu: 10m
-              memory: 32Mi
+              cpu: 50m
+              memory: 64Mi
       volumes:
         - name: config
           configMap:
-            name: tinyproxy-config
+            name: squid-config
 ---
 apiVersion: v1
 kind: Service
@@ -84,4 +89,3 @@ spec:
   ipFamilies:
     - IPv6
   ipFamilyPolicy: SingleStack
-
