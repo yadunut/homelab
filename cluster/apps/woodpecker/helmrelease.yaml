@@ -1,0 +1,87 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: woodpecker
+  namespace: woodpecker
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: woodpecker
+      version: 3.5.*
+      sourceRef:
+        kind: HelmRepository
+        name: woodpecker
+        namespace: woodpecker
+      interval: 1h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    server:
+      statefulSet:
+        replicaCount: 1
+      persistentVolume:
+        enabled: true
+        size: 10Gi
+        storageClass: longhorn
+      serviceAccount:
+        create: true
+        name: woodpecker-server
+      ingress:
+        enabled: true
+        ingressClassName: traefik
+        hosts:
+          - host: ci.yadunut.dev
+            paths:
+              - path: /
+        tls:
+          - secretName: woodpecker-tls
+            hosts:
+              - ci.yadunut.dev
+      env:
+        WOODPECKER_HOST: https://ci.yadunut.dev
+        WOODPECKER_OPEN: "false"
+        WOODPECKER_ADMIN: yadunut
+        WOODPECKER_FORGEJO: "true"
+        WOODPECKER_FORGEJO_URL: https://git.yadunut.dev
+        WOODPECKER_FORGEJO_CLIENT:
+          valueFrom:
+            secretKeyRef:
+              name: woodpecker-forgejo-oauth
+              key: client
+        WOODPECKER_FORGEJO_SECRET:
+          valueFrom:
+            secretKeyRef:
+              name: woodpecker-forgejo-oauth
+              key: secret
+        WOODPECKER_PLUGINS_PRIVILEGED: woodpeckerci/plugin-docker-buildx:latest
+        WOODPECKER_ENVIRONMENT: PLUGIN_IPV6:true,PLUGIN_CUSTOM_DNS:fd00:10:97::a,PLUGIN_HTTP_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888,PLUGIN_HTTPS_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888,HTTP_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888,HTTPS_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888
+        PLUGIN_NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev
+        PLUGIN_BUILD_ARGS_FROM_ENV: HTTP_PROXY,HTTPS_PROXY,NO_PROXY
+        HTTP_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
+        HTTPS_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
+        NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev,woodpecker-server,woodpecker-server-headless,woodpecker-server.woodpecker.svc,woodpecker-server.woodpecker.svc.k8s.internal
+    agent:
+      replicaCount: 2
+      persistence:
+        enabled: false
+      serviceAccount:
+        create: true
+        name: woodpecker-agent
+      env:
+        WOODPECKER_SERVER: woodpecker-server:9000
+        WOODPECKER_BACKEND: kubernetes
+        WOODPECKER_BACKEND_K8S_NAMESPACE: woodpecker
+        WOODPECKER_BACKEND_K8S_NAMESPACE_PER_ORGANIZATION: "false"
+        WOODPECKER_BACKEND_K8S_STORAGE_CLASS: longhorn-local-1r
+        WOODPECKER_BACKEND_K8S_VOLUME_SIZE: 10Gi
+        WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
+        WOODPECKER_BACKEND_K8S_SECCTX_NONROOT: "false"
+        PLUGIN_NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev
+        HTTP_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
+        HTTPS_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
+        NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev,woodpecker-server,woodpecker-server-headless,woodpecker-server.woodpecker.svc,woodpecker-server.woodpecker.svc.k8s.internal

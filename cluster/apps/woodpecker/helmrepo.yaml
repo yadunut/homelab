@@ -1,0 +1,9 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: woodpecker
+  namespace: woodpecker
+spec:
+  interval: 1h
+  type: oci
+  url: oci://ghcr.io/woodpecker-ci/helm
