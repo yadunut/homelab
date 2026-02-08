@@ -22,9 +22,15 @@ spec:
     remediation:
       retries: 3
   values:
+    updateStrategy:
+      type: Recreate
     existingSecretAdminPassword: harbor-admin-password
     existingSecretAdminPasswordKey: password
     existingSecretSecretKey: harbor-secret-key
+    proxy:
+      httpProxy: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      httpsProxy: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      noProxy: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
     expose:
       type: ingress
       ingress:
