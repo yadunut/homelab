@@ -9,4 +9,4 @@ spec:
   storageClassName: longhorn-local-1r
   resources:
     requests:
-      storage: 20Gi
+      storage: 50Gi
