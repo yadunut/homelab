@@ -27,6 +27,10 @@ spec:
     persistence:
       enabled: true
 
+    service:
+      ssh:
+        port: 2222
+
     ingress:
       enabled: true
       className: traefik
@@ -55,7 +59,9 @@ spec:
         server:
           DOMAIN: git.yadunut.dev
           ROOT_URL: https://git.yadunut.dev
-          DISABLE_SSH: true
+          DISABLE_SSH: false
+          START_SSH_SERVER: true
+          SSH_PORT: 2222
           LANDING_PAGE: "/yadunut"
           LFS_START_SERVER: true
 
