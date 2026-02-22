@@ -7,3 +7,6 @@ resources:
   - pvc.yaml
   - certificate.yaml
   - helmrelease.yaml
+  - image-repository.yaml
+  - image-policy.yaml
+  - image-update-automation.yaml
