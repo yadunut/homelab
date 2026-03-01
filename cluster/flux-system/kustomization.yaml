@@ -25,3 +25,43 @@ patches:
         value:
           name: NO_PROXY
           value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
+  # HTTP proxy for image-reflector-controller to reach container registries (e.g., GHCR)
+  - target:
+      kind: Deployment
+      name: image-reflector-controller
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: HTTPS_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: HTTP_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: NO_PROXY
+          value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
+  # HTTP proxy for image-automation-controller to reach git remotes (e.g., GitHub)
+  - target:
+      kind: Deployment
+      name: image-automation-controller
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: HTTPS_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: HTTP_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: NO_PROXY
+          value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
