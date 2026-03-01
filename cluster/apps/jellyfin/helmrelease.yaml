@@ -33,8 +33,7 @@ spec:
         storageClass: longhorn-local-1r
       media:
         enabled: true
-        size: 50Gi
-        storageClass: longhorn-local-1r
+        existingClaim: jellyfin-media
 
     service:
       ipFamilyPolicy: SingleStack

@@ -4,6 +4,13 @@ resources:
   - namespace.yaml
   - helmrepo.yaml
   - certificate.yaml
-  - onepassworditem.yaml
+  - media-pvc.yaml
   - helmrelease.yaml
+  - copyparty-deployment.yaml
+  - copyparty-service.yaml
+  - copyparty-oauth2-proxy-onepassworditem.yaml
+  - copyparty-oauth2-proxy-helmrelease.yaml
+  - copyparty-middleware.yaml
+  - copyparty-certificate.yaml
+  - copyparty-ingressroute.yaml
 

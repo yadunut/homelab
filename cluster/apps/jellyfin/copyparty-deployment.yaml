@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: copyparty
+  namespace: jellyfin
+  labels:
+    app: copyparty
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: copyparty
+  template:
+    metadata:
+      labels:
+        app: copyparty
+    spec:
+      containers:
+        - name: copyparty
+          image: copyparty/ac
+          args:
+            - "-i"
+            - "::"
+            - "-p"
+            - "3923"
+            - "-v"
+            - "/media::rwmd,*"
+            - "--no-robots"
+            - "--idp-h-usr"
+            - "X-Auth-Request-User"
+            - "--xff-src"
+            - "lan"
+            - "-e2dsa"
+          ports:
+            - containerPort: 3923
+              protocol: TCP
+          env:
+            - name: HTTPS_PROXY
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: HTTP_PROXY
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: NO_PROXY
+              value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
+          volumeMounts:
+            - name: media
+              mountPath: /media
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: jellyfin-media
