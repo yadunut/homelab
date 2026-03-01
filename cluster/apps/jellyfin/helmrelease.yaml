@@ -1,0 +1,88 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jellyfin
+  namespace: jellyfin
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: jellyfin
+      version: "2.x"
+      sourceRef:
+        kind: HelmRepository
+        name: jellyfin
+        namespace: jellyfin
+      interval: 1h
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    persistence:
+      cache:
+        enabled: true
+        size: 10Gi
+        storageClass: longhorn-local-1r
+      config:
+        enabled: true
+        size: 5Gi
+        storageClass: longhorn-local-1r
+      media:
+        enabled: true
+        size: 50Gi
+        storageClass: longhorn-local-1r
+
+    service:
+      ipFamilyPolicy: SingleStack
+      ipFamilies:
+        - IPv6
+
+    ingress:
+      enabled: true
+      className: traefik
+      hosts:
+        - host: media.yadunut.dev
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: jellyfin-tls
+          hosts:
+            - media.yadunut.dev
+
+    initContainers:
+      - name: init-network-config
+        image: busybox:1.37
+        command:
+          - sh
+          - -c
+          - |
+            if [ ! -f /config/config/network.xml ]; then
+              mkdir -p /config/config
+              cat > /config/config/network.xml << 'XMLEOF'
+            <?xml version="1.0" encoding="utf-8"?>
+            <NetworkConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+              <EnableIPv4>false</EnableIPv4>
+              <EnableIPv6>true</EnableIPv6>
+            </NetworkConfiguration>
+            XMLEOF
+            fi
+        volumeMounts:
+          - name: config
+            mountPath: /config
+
+    jellyfin:
+      env:
+        - name: JELLYFIN_PublishedServerUrl
+          value: "https://media.yadunut.dev"
+        - name: HTTPS_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+        - name: HTTP_PROXY
+          value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+        - name: NO_PROXY
+          value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
+

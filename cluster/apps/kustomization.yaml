@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
   - forgejo.yaml
   - immich.yaml
+  - jellyfin.yaml
   - woodpecker.yaml
