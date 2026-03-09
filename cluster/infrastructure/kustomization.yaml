@@ -15,4 +15,5 @@ resources:
   - kanidm
   - metrics-server
   - monitoring
+  - nvidia-device-plugin
   - cloudnative-pg

@@ -13,9 +13,10 @@ This cluster exposes NVIDIA GPUs to Kubernetes pods via
 2. **Kubernetes** (`cluster/infrastructure/nvidia-device-plugin/`) deploys:
    - A `RuntimeClass` named `nvidia` pointing to the containerd handler
    - The nvidia-device-plugin DaemonSet (via Helm), pinned to GPU nodes
+   - Time-slicing with 4 shared replicas per physical GPU
 
-The device plugin discovers GPUs via NVML and registers `nvidia.com/gpu`
-as an allocatable resource on the node.
+The device plugin discovers GPUs via NVML and advertises the shared resource
+`nvidia.com/gpu.shared` on the node.
 
 ## GPU nodes
 
@@ -25,7 +26,14 @@ as an allocatable resource on the node.
 
 ## Running a pod with a GPU
 
-Request `nvidia.com/gpu` in resource limits and set `runtimeClassName: nvidia`:
+This cluster is configured for time-sliced GPU sharing. All services that need
+GPU access should request `nvidia.com/gpu.shared` in resource limits and set
+`runtimeClassName: nvidia`.
+
+Use `nvidia.com/gpu.shared`, not `nvidia.com/gpu`, unless the device plugin is
+explicitly reconfigured back to exclusive GPU allocation.
+
+Example:
 
 ```yaml
 apiVersion: v1
@@ -42,7 +50,7 @@ spec:
       command: ["nvidia-smi"]
       resources:
         limits:
-          nvidia.com/gpu: "1"
+          nvidia.com/gpu.shared: "1"
   restartPolicy: Never
 ```
 
@@ -60,7 +68,7 @@ kubectl run gpu-test \
         "name": "gpu-test",
         "image": "nvidia/cuda:13.0.0-base-ubuntu24.04",
         "command": ["nvidia-smi"],
-        "resources": {"limits": {"nvidia.com/gpu": "1"}}
+        "resources": {"limits": {"nvidia.com/gpu.shared": "1"}}
       }]
     }
   }'
@@ -87,7 +95,7 @@ above. After rebooting, the CDI generator runs on boot and populates
 ssh penguin.wireguard "sudo systemctl restart nvidia-container-toolkit-cdi-generator"
 ```
 
-**nvidia.com/gpu missing from node capacity** -- Check the device plugin pod:
+**nvidia.com/gpu.shared missing from node capacity** -- Check the device plugin pod:
 
 ```sh
 kubectl get pods -n kube-system -l app.kubernetes.io/name=nvidia-device-plugin

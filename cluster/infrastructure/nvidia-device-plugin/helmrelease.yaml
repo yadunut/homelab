@@ -1,0 +1,50 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nvidia-device-plugin
+  namespace: kube-system
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: nvidia-device-plugin
+      version: 0.18.*
+      sourceRef:
+        kind: HelmRepository
+        name: nvidia-device-plugin
+        namespace: kube-system
+      interval: 1h
+  install:
+    createNamespace: true
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    runtimeClassName: nvidia
+    failOnInitError: false
+    config:
+      default: shared
+      map:
+        shared: |-
+          version: v1
+          sharing:
+            timeSlicing:
+              renameByDefault: true
+              failRequestsGreaterThanOne: true
+              resources:
+                - name: nvidia.com/gpu
+                  replicas: 4
+    nodeSelector:
+      kubernetes.io/hostname: penguin
+      kubernetes.io/os: linux
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - penguin
