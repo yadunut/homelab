@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: copyparty-config
+  namespace: drive
+data:
+  copyparty.conf: |
+    [global]
+      # basic features
+      e2dsa
+      e2ts
+      no-robots
+
+      idp-h-usr: X-Auth-Request-Preferred-Username
+      idp-h-grp: x-Auth-Request-Groups
+      xff-src: lan
+      rproxy: 1
+
+      idp-store: 3
+
+    # strategic parent for user homes; only drive_admin see listing by default
+    [/u]
+      /data/u
+      accs:
+        r: @acct
+        rwmda: @drive_admin@idm.yadunut.dev
+
+    # per-user home: /u/${u}
+    [/u/${u}]
+      /data/u/${u}
+      accs:
+        rwmda: ${u}, @drive_admin@idm.yadunut.dev
+
+    # shared root (kept static; ${u} cannot be used at [/])
+    [/]
+      /data
+      accs:
+        r: @acct

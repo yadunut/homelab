@@ -5,3 +5,4 @@ resources:
   - immich.yaml
   - jellyfin.yaml
   - woodpecker.yaml
+  - drive.yaml

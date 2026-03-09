@@ -1,0 +1,38 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: drive
+  namespace: drive
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`drive.yadunut.dev`)
+      kind: Rule
+      middlewares:
+        - name: drive-oauth-auth-redirect
+      services:
+        - name: copyparty
+          port: 3923
+  tls:
+    secretName: drive-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: drive-oauth2-proxy
+  namespace: drive
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`drive.yadunut.dev`) && PathPrefix(`/oauth2/`)
+      kind: Rule
+      middlewares:
+        - name: drive-auth-headers
+      services:
+        - name: drive-oauth2-proxy
+          port: http
+  tls:
+    secretName: drive-tls
+
