@@ -1,0 +1,34 @@
+copyparty v1.20.10 "sftp is fine too" (2026-02-25)
+  CPython v3.13.12 on Darwin64 25.3.0 [Clang 21.1.8 ]
+   sqlite 3.51.2*1 | jinja 3.1.6 | pyftpd 2.1.0 | tftp (None) | miko (None)
+
+# auth-ord help page (authentication precedence)
+
+--auth-ord is a comma-separated list of auth options
+(one or more of the [options] below); first one wins
+
+[pw] is conventional login, for example the "PW" header,
+  or the ?pw=[...] URL-suffix, or a valid session cookie
+  (see --help-auth)
+
+[idp] is a username provided in the http-request-header
+  defined by --idp-h-usr and/or --idp-hm-usr, which is
+  provided by an authentication middleware such as
+  authentik, authelia, tailscale, ... (see --help-idp)
+
+[idp-h] is specifically an --idp-h-usr header,
+[idp-hm] is specifically an --idp-hm-usr header;
+[idp] is the same as [idp-hm,idp-h]
+
+[ipu] is a mapping from an IP-address to a username,
+  auto-authing that client-IP to that account
+  (see the description of --ipu in --help)
+
+NOTE: even if an option (pw/ipu/...) is not in the list,
+  it may still be enabled and can still take effect if
+  none of the other alternatives identify the user
+
+NOTE: if [ipu] is in the list, it must be FIRST or LAST
+
+NOTE: if [pw] is not in the list, the logout-button
+  will be hidden when any idp feature is enabled

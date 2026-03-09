@@ -1,0 +1,1516 @@
+copyparty v1.20.10 "sftp is fine too" (2026-02-25)
+  CPython v3.13.12 on Darwin64 25.3.0 [Clang 21.1.8 ]
+   sqlite 3.51.2*1 | jinja 3.1.6 | pyftpd 2.1.0 | tftp (None) | miko (None)
+
+http file sharing hub v1.20.10 (2026-02-25)
+
+options:
+  -h, --help       show this help message and exit
+
+general options:
+  -c PATH          REPEATABLE: add config file (default: [])
+  -nc NUM          max num clients (default: 1024)
+  -a ACCT          REPEATABLE: add account, USER:PASS; example [ed:wark] 
+                    (default: None)
+  -v VOL           REPEATABLE: add volume, SRC:DST:FLAG; examples [.::r], 
+                    [/mnt/nas/music:/music:r:aed], see --help-accounts 
+                    (default: None)
+  --grp G:N,N      REPEATABLE: add group, NAME:USER1,USER2,...; example 
+                    [admins:ed,foo,bar] (default: None)
+  --usernames      require username and password for login; default is just 
+                    password (default: False)
+  --chdir PATH     change working-directory to PATH before mapping volumes 
+                    (default: None)
+  -ed              enable the ?dots url parameter / client option which 
+                    allows clients to see dotfiles / hidden files 
+                    (volflag=dots) (default: False)
+  --urlform MODE   how to handle url-form POSTs; see --help-urlform (default: 
+                    print,xm)
+  --wintitle TXT   server terminal title, for example [$ip-10.1.2.] or [$ip-] 
+                    (default: cpp @ $pub)
+  --name TXT       server name (displayed topleft in browser and in mDNS) 
+                    (default: yadunut-mbp)
+  --name-url TXT   URL for server name hyperlink (displayed topleft in 
+                    browser) (default: None)
+  --site URL       public URL to assume when creating links; example: 
+                    [https://example.com/] (default: )
+  --mime EXT=MIME  REPEATABLE: map file EXTension to MIMEtype, for example 
+                    [jpg=image/jpeg] (default: None)
+  --mimes          list default mimetype mapping and exit (default: False)
+  --rmagic         do expensive analysis to improve accuracy of returned 
+                    mimetypes; will make file-downloads, rss, and webdav 
+                    slower (volflag=rmagic) (default: False)
+  -j CORES         num cpu-cores for uploads/downloads (0=all); keeping the 
+                    default is almost always best (default: 1)
+  --license        show licenses and exit (default: False)
+  --version        show versions and exit (default: False)
+  --versionb       show version and exit (default: False)
+
+network options:
+  -i IP            IPs and/or unix-sockets to listen on (comma-separated 
+                    list; see --help-bind). Default: all IPv4 and IPv6 
+                    (default: ::)
+  -p PORT          ports to listen on (comma/range); ignored for unix-sockets 
+                    (default: 3923)
+  --ll             include link-local IPv4/IPv6 in mDNS replies, even if the 
+                    NIC has routable IPs (breaks some mDNS clients) (default: 
+                    False)
+  --rproxy DEPTH   which ip to associate clients with; [0]=tcp, [1]=origin 
+                    (first x-fwd, unsafe), [-1]=closest-proxy, 
+                    [-2]=second-hop, [-3]=third-hop (default: 9999999)
+  --xff-hdr NAME   if reverse-proxied, which http header to read the client's 
+                    real ip from (default: x-forwarded-for)
+  --xf-host NAME   if reverse-proxied, which http header to read the correct 
+                    Host value from; this header must contain the server's 
+                    external domain name (default: x-forwarded-host)
+  --xf-proto NAME  if reverse-proxied, which http header to read the correct 
+                    protocol value from; this header must contain either 
+                    'http' or 'https' (default: x-forwarded-proto)
+  --xf-proto-fb T  protocol to assume if the X-Forwarded-Proto header 
+                    (--xf-proto) is not provided by the reverseproxy; either 
+                    'http' or 'https' (default: )
+  --xff-src CIDR   list of trusted reverse-proxy CIDRs (comma-separated); 
+                    only accept the real-ip header (--xff-hdr) and IdP 
+                    headers if the incoming connection is from an IP within 
+                    either of these subnets. Specify [lan] to allow all LAN / 
+                    private / non-internet IPs. Can be disabled with [any] if 
+                    you are behind cloudflare (or similar) and are using 
+                    --xff-hdr=cf-connecting-ip (or similar) (default: 
+                    127.0.0.0/8, ::1/128)
+  --ipa CIDR       only accept connections from IP-addresses inside CIDR 
+                    (comma-separated); examples: [lan] or [10.89.0.0/16, 
+                    192.168.33.0/24]
+                    └─for performance and security, this only looks at the 
+                     TCP/Network-level IP, and will NOT work behind a 
+                     reverseproxy (default: )
+  --ipar CIDR      only accept connections from IP-addresses inside CIDR 
+                    (comma-separated).
+                    └─this is reverseproxy-compatible; reads client-IP from 
+                     'X-Forwarded-For' if possible, with TCP/Network IP as 
+                     fallback (default: )
+  --rp-loc PATH    if reverse-proxying on a location instead of a dedicated 
+                    domain/subdomain, provide the base location here; 
+                    example: [/foo/bar] (default: )
+  --cachectl TXT   default-value of the 'Cache-Control' response-header 
+                    (controls caching in webbrowsers). Default prevents 
+                    repeated downloading of the same file unless necessary 
+                    (browser will ask copyparty if the file has changed). 
+                    Examples: [max-age=604869] will cache for 7 days, 
+                    [no-store, max-age=0] will always redownload. 
+                    (volflag=cachectl) (default: no-cache)
+  --http-vary TXT  value of the 'Vary' response-header; a hint for caching 
+                    proxies (default: Origin, PW, Cookie)
+  --http-no-tcp    do not listen on TCP/IP for http/https; only listen on 
+                    unix-domain-sockets (default: False)
+  --wr-h-eps PATH  write list of listening-on ip:port to textfile at PATH 
+                    when http-servers have started (default: )
+  --wr-h-aon PATH  write list of accessible-on ip:port to textfile at PATH 
+                    when http-servers have started (default: )
+  --s-thead SEC    socket timeout (read request header) (default: 120)
+  --s-tbody SEC    socket timeout (read/write request/response bodies). Use 
+                    60 on fast servers (default is extremely safe). Disable 
+                    with 0 if reverse-proxied for a 2% speed boost (default: 
+                    128.0)
+  --s-rd-sz B      socket read size in bytes (indirectly affects filesystem 
+                    writes; recommendation: keep equal-to or lower-than 
+                    --iobuf) (default: 262144)
+  --s-wr-sz B      socket write size in bytes (default: 262144)
+  --s-wr-slp SEC   debug: socket write delay in seconds (default: 0.0)
+  --rsp-slp SEC    debug: response delay in seconds (default: 0.0)
+  --rsp-jtr SEC    debug: response delay, random duration 0..SEC (default: 
+                    0.0)
+
+SSL/TLS options:
+  --http-only      disable ssl/tls -- force plaintext (default: False)
+  --https-only     disable plaintext -- force tls (default: False)
+  --cert PATH      path to file containing a concatenation of TLS key and 
+                    certificate chain (default: 
+                    /Users/yadunut/Library/Preferences/copyparty/cert.pem)
+  --ssl-ver LIST   set allowed ssl/tls versions; [help] shows available 
+                    versions; default is what your python version considers 
+                    safe (default: )
+  --ciphers LIST   set allowed ssl/tls ciphers; [help] shows available 
+                    ciphers (default: )
+  --ssl-dbg        dump some tls info (default: False)
+  --ssl-log PATH   log master secrets for later decryption in wireshark 
+                    (default: )
+
+TLS certificate generator options:
+  --no-crt         disable automatic certificate creation (default: False)
+  --crt-ns N,N     comma-separated list of FQDNs (domains) to add into the 
+                    certificate (default: )
+  --crt-exact      do not add wildcard entries for each --crt-ns (default: 
+                    False)
+  --crt-noip       do not add autodetected IP addresses into cert (default: 
+                    False)
+  --crt-nolo       do not add 127.0.0.1 / localhost into cert (default: False)
+  --crt-nohn       do not add mDNS names / hostname into cert (default: False)
+  --crt-dir PATH   where to save the CA cert (default: 
+                    /Users/yadunut/Library/Preferences/copyparty)
+  --crt-cdays D    ca-certificate expiration time in days (default: 3650.0)
+  --crt-sdays D    server-cert expiration time in days (default: 365.0)
+  --crt-cn TXT     CA/server-cert common-name (default: partyco)
+  --crt-cnc TXT    override CA name (default: --crt-cn)
+  --crt-cns TXT    override server-cert name (default: --crt-cn cpp)
+  --crt-back HRS   backdate in hours (default: 72.0)
+  --crt-alg S-N    algorithm and keysize; one of these: ecdsa-256 rsa-4096 
+                    rsa-2048 (default: ecdsa-256)
+
+IdP / identity provider / user authentication options:
+  --idp-h-usr HN   REPEATABLE: bypass the copyparty authentication checks if 
+                    the request-header HN contains a username to associate 
+                    the request with (for use with authentik/oauth/...)
+                   WARNING: if you enable this, make sure clients are unable 
+                    to specify this header themselves; must be washed away 
+                    and replaced by a reverse-proxy (default: None)
+  --idp-hm-usr T   REPEATABLE: bypass the copyparty authentication checks if 
+                    the request-header T is provided, and its value exists in 
+                    a mapping defined by this option; see --help-idp 
+                    (default: None)
+  --idp-h-grp HN   assume the request-header HN contains the groupname of the 
+                    requesting user; can be referenced in config files for 
+                    group-based access control (default: )
+  --idp-h-key HN   optional but recommended safeguard; your reverse-proxy 
+                    will insert a secret header named HN into all requests, 
+                    and the other IdP headers will be ignored if this header 
+                    is not present (default: )
+  --idp-gsep RE    if there are multiple groups in --idp-h-grp, they are 
+                    separated by one of the characters in RE (default: |:;+,)
+  --idp-chsub TXT  characters to replace in usernames/groupnames; a list of 
+                    pairs of characters separated by | so for example | _| 
+                    will replace spaces with _ to make configuration easier, 
+                    or |%_|^_|@_| will replace %/^/@ with _ (default: )
+  --idp-db PATH    where to store the known IdP users/groups (if you run 
+                    multiple copyparty instances, make sure they use 
+                    different DBs) (default: 
+                    /Users/yadunut/Library/Preferences/copyparty/idp.db)
+  --idp-store N    how to use --idp-db; [0] = entirely disable, [1] = 
+                    write-only (effectively disabled), [2] = remember users, 
+                    [3] = remember users and groups.
+                   NOTE: Will remember and restore the IdP-volumes of all 
+                    users for all eternity if set to 2 or 3, even when user 
+                    is deleted from your IdP (default: 1)
+  --idp-adm U,U    comma-separated list of users allowed to use /?idp (the 
+                    cache management UI) (default: )
+  --idp-cookie S   generate a session-token for IdP users which is written to 
+                    cookie cppws (or cppwd if plaintext), to reduce the load 
+                    on the IdP server, lifetime S seconds.
+                    └─note: The expiration time is a client hint only; the 
+                     actual lifetime of the session-token is infinite (until 
+                     next restart with --ses-db wiped) (default: 0)
+  --idp-login L    replace all login-buttons with a link to URL L (unless pw 
+                    is in --auth-ord then both will be shown); [{dst}] 
+                    expands to url of current page (default: )
+  --idp-login-t T  the label/text for the idp-login button (default: Login 
+                    with SSO)
+  --idp-logout L   replace all logout-buttons with a link to URL L (default: )
+  --auth-ord TXT   controls auth precedence; examples: [pw,idp,ipu], [ipu,pw,
+                    idp], see --help-auth-ord (default: idp,ipu)
+  --pw-hdr NAME    lowercase name of password-header (NAME: foo); WARNING: 
+                    Changing this will break support for many clients 
+                    (default: pw)
+  --pw-urlp NAME   lowercase name of password url-param (?NAME=foo); WARNING: 
+                    Changing this will break support for many clients 
+                    (default: pw)
+  --no-bauth       disable basic-authentication support; do not accept 
+                    passwords from the 'Authenticate' header at all. NOTE: 
+                    This breaks support for the android app (default: False)
+  --bauth-last     keeps basic-authentication enabled, but only as a 
+                    last-resort; if a cookie is also provided then the cookie 
+                    wins (default: False)
+  --ses-db PATH    where to store the sessions database (if you run multiple 
+                    copyparty instances, make sure they use different DBs) 
+                    (default: 
+                    /Users/yadunut/Library/Preferences/copyparty/sessions.db)
+  --ses-len CHARS  session key length; default is 120 bits ((20//4)*4*6) 
+                    (default: 20)
+  --no-ses         disable sessions; use plaintext passwords in cookies 
+                    (default: False)
+  --grp-all NAME   the name of the auto-generated group which contains every 
+                    username which is known (default: acct)
+  --ipu CIDR=USR   REPEATABLE: users with IP matching CIDR are 
+                    auto-authenticated as username USR; example: 
+                    [172.16.24.0/24=dave] (default: None)
+  --ipr CIDR=USR   REPEATABLE: username USR can only connect from an IP 
+                    matching one or more CIDR (comma-sep.); example: 
+                    [192.168.123.0/24,172.16.0.0/16=dave] (default: None)
+
+user-changeable passwords options:
+  --chpw           allow users to change their own passwords (default: False)
+  --chpw-no U,U,U  REPEATABLE: do not allow password-changes for this 
+                    comma-separated list of usernames (default: None)
+  --chpw-db PATH   where to store the passwords database (if you run multiple 
+                    copyparty instances, make sure they use different DBs) 
+                    (default: 
+                    /Users/yadunut/Library/Preferences/copyparty/chpw.json)
+  --chpw-len N     minimum password length (default: 8)
+  --chpw-v LVL     verbosity of summary on config load [0] = nothing at all, 
+                    [1] = number of users, [2] = list users with default-pw, 
+                    [3] = list all users (default: 2)
+
+qr options:
+  --qr             show QR-code on startup (default: False)
+  --qrs            change the QR-code URL to https:// (default: False)
+  --qrl PATH       location to include in the url, for example 
+                    [priv/?pw=hunter2] (default: )
+  --qri PREFIX     select IP which starts with PREFIX; [.] to force default 
+                    IP when mDNS URL would have been used instead (default: )
+  --qr-fg COLOR    foreground; try [0] or [-1] if the qr-code is unreadable 
+                    (default: 16)
+  --qr-bg COLOR    background (white=255) (default: 229)
+  --qrp CELLS      padding (spec says 4 or more, but 1 is usually fine) 
+                    (default: 4)
+  --qrz N          [1]=1x, [2]=2x, [0]=auto (try [2] on broken fonts) 
+                    (default: 0)
+  --qr-pin N       sticky/pin the qr-code to always stay on-screen; 
+                    [0]=disabled, [1]=with-url, [2]=just-qr (default: 0)
+  --qr-wait SEC    wait SEC before printing the qr-code to the log (default: 
+                    0)
+  --qr-every SEC   print the qr-code every SEC (try this with/without 
+                    --qr-pin in case of issues) (default: 0)
+  --qr-winch SEC   when --qr-pin is enabled, check for terminal size change 
+                    every SEC (default: 0)
+  --qr-file TXT    REPEATABLE: write qr-code to file.
+                    └─To create txt or svg, TXT is Filepath:Zoom:Pad, for 
+                     example [qr.txt:1:2]
+                    └─To create png or gif, TXT is 
+                     Filepath:Zoom:Pad:Foreground:Background, for example 
+                     [qr.png:8:2:333333:ffcc55], or [qr.png:8:2::ffcc55] for 
+                     transparent (default: None)
+  --qr-stdout      always display the QR-code on STDOUT in the terminal, even 
+                    if -q (default: False)
+  --qr-stderr      always display the QR-code on STDERR in the terminal, even 
+                    if -q (default: False)
+
+Zeroconf options:
+  -z               enable all zeroconf backends (mdns, ssdp) (default: False)
+  --z-on NETS      enable zeroconf ONLY on the comma-separated list of 
+                    subnets and/or interface names/indexes
+                    └─example: eth0, wlo1, virhost0, 192.168.123.0/24, 
+                     fd00:fda::/96 (default: )
+  --z-off NETS     disable zeroconf on the comma-separated list of subnets 
+                    and/or interface names/indexes (default: )
+  --z-chk SEC      check for network changes every SEC seconds (0=disable) 
+                    (default: 10)
+  -zv              verbose all zeroconf backends (default: False)
+  --mc-hop SEC     rejoin multicast groups every SEC seconds (workaround for 
+                    some switches/routers which cause mDNS to suddenly stop 
+                    working after some time); try [300] or [180]
+                    └─note: can be due to firewalls; make sure UDP port 5353 
+                     is open in both directions (on clients too) (default: 0)
+
+Zeroconf-mDNS options; also see --help-zm:
+  --zm             announce the enabled protocols over mDNS (multicast 
+                    DNS-SD) -- compatible with KDE, gnome, macOS, ... 
+                    (default: False)
+  --zm-on NETS     enable mDNS ONLY on the comma-separated list of subnets 
+                    and/or interface names/indexes (default: )
+  --zm-off NETS    disable mDNS on the comma-separated list of subnets and/or 
+                    interface names/indexes (default: )
+  --zm4            IPv4 only -- try this if some clients can't connect 
+                    (default: False)
+  --zm6            IPv6 only (default: False)
+  --zmv            verbose mdns (default: False)
+  --zmvv           verboser mdns (default: False)
+  --zm-http PORT   port to announce for http/webdav; [-1] = auto, [0] = 
+                    disabled, [4649] = port 4649 (default: -1)
+  --zm-https PORT  port to announce for https/webdavs; [-1] = auto, [0] = 
+                    disabled, [4649] = port 4649 (default: -1)
+  --zm-no-pe       mute parser errors (invalid incoming MDNS packets) 
+                    (default: False)
+  --zm-nwa-1       disable workaround for avahi-bug #379 (corruption in 
+                    Avahi's mDNS reflection feature) (default: False)
+  --zms dhf        list of services to announce -- d=webdav h=http f=ftp 
+                    s=smb -- lowercase=plaintext uppercase=TLS -- default: 
+                    all enabled services except http/https (Ddfs if --ftp and 
+                    --smb is set, Dd otherwise) (default: )
+  --zm-ld PATH     link a specific folder for webdav shares (default: )
+  --zm-lh PATH     link a specific folder for http shares (default: )
+  --zm-lf PATH     link a specific folder for ftp shares (default: )
+  --zm-ls PATH     link a specific folder for smb shares (default: )
+  --zm-fqdn FQDN   the domain to announce; NOTE: using anything other than 
+                    .local is nonstandard and could cause problems (default: 
+                    --name.local)
+  --zm-mnic        merge NICs which share subnets; assume that same subnet 
+                    means same network (default: False)
+  --zm-msub        merge subnets on each NIC -- always enabled for ipv6 -- 
+                    reduces network load, but gnome-gvfs clients may stop 
+                    working, and clients cannot be in subnets that the server 
+                    is not (default: False)
+  --zm-noneg       disable NSEC replies -- try this if some clients don't see 
+                    copyparty (default: False)
+  --zm-spam SEC    send unsolicited announce every SEC; useful if clients 
+                    have IPs in a subnet which doesn't overlap with the 
+                    server, or to avoid some firewall issues (default: 0.0)
+
+Zeroconf-SSDP options:
+  --zs             announce the enabled protocols over SSDP -- compatible 
+                    with Windows (default: False)
+  --zs-on NETS     enable SSDP ONLY on the comma-separated list of subnets 
+                    and/or interface names/indexes (default: )
+  --zs-off NETS    disable SSDP on the comma-separated list of subnets and/or 
+                    interface names/indexes (default: )
+  --zsv            verbose SSDP (default: False)
+  --zsl PATH       location to include in the url (or a complete external 
+                    URL), for example [priv/?pw=hunter2] (goes directly to 
+                    /priv/ with password hunter2) or [?hc=priv&pw=hunter2] 
+                    (shows mounting options for /priv/ with password) 
+                    (default: /?hc)
+  --zsid UUID      USN (device identifier) to announce (default: 
+                    uuid:ad021630-175e-4e20-8ae5-0f1f2ff3667d)
+
+filesystem options:
+  --casechk N      detect and prevent CI (case-insensitive) behavior if the 
+                    underlying filesystem is CI? [y] = detect and prevent, 
+                    [n] = ignore and allow, [auto] = y if CI fs detected. 
+                    NOTE: y is very slow but necessary for correct WebDAV 
+                    behavior on Windows/Macos (volflag=casechk) (default: 
+                    auto)
+  --fsnt OS        which characters to allow in file/folder names; [win] = 
+                    windows (not <>:|?*"\/), [mac] = macos (not :), [lin] = 
+                    linux (anything goes) (volflag=fsnt) (default: auto)
+  --rm-retry T/R   if a file cannot be deleted because it is busy, continue 
+                    trying for T seconds, retry every R seconds; disable with 
+                    0/0 (volflag=rm_retry) (default: 0/0)
+  --mv-retry T/R   if a file cannot be renamed because it is busy, continue 
+                    trying for T seconds, retry every R seconds; disable with 
+                    0/0 (volflag=mv_retry) (default: 0/0)
+  --iobuf BYTES    file I/O buffer-size; if your volumes are on a network 
+                    drive, try increasing to 524288 or even 4194304 (and let 
+                    me know if that improves your performance) (default: 
+                    262144)
+  --mtab-age SEC   rebuild mountpoint cache every SEC to keep track of 
+                    sparse-files support; keep low on servers with removable 
+                    media (default: 60)
+
+share-url options:
+  --shr DIR        toplevel virtual folder for shared files/folders, for 
+                    example [/share] (default: )
+  --shr-db FILE    database to store shares in (default: 
+                    /Users/yadunut/Library/Preferences/copyparty/shares.db)
+  --shr-who TXT    who can create a share? [no]=nobody, [a]=admin-permission, 
+                    [auth]=authenticated (volflag=shr_who) (default: auth)
+  --shr-adm U,U    comma-separated list of users allowed to view/delete any 
+                    share (default: )
+  --shr-rt MIN     shares can be revived by their owner if they expired less 
+                    than MIN minutes ago; [60]=hour, [1440]=day, [10080]=week 
+                    (default: 1440)
+  --shr-site URL   public URL to assume when creating share-links; example: 
+                    [https://example.com/] (default: --site)
+  --shr-v          debug (default: False)
+
+upload options:
+  --dotpart        dotfile incomplete uploads, hiding them from clients 
+                    unless -ed (default: False)
+  --plain-ip       when avoiding filename collisions by appending the 
+                    uploader's ip to the filename: append the plaintext ip 
+                    instead of salting and hashing the ip (default: False)
+  --up-site URL    public URL to assume when creating links to uploaded 
+                    files; example: [https://example.com/] (default: --site)
+  --put-name TXT   filename for nameless uploads (when uploader doesn't 
+                    provide a name); default is [put-UNIXTIME-IP.bin] (the 
+                    .6f means six decimal places) (volflag=put_name) 
+                    (default: put-{now.6f}-{cip}.bin)
+  --put-ck ALG     default checksum-hasher for PUT/WebDAV uploads: no / md5 / 
+                    sha1 / sha256 / sha512 / b2 / blake2 / b2s / blake2s 
+                    (volflag=put_ck) (default: sha512)
+  --bup-ck ALG     default checksum-hasher for bup/basic-uploader: no / md5 / 
+                    sha1 / sha256 / sha512 / b2 / blake2 / b2s / blake2s 
+                    (volflag=bup_ck) (default: sha512)
+  --unpost SEC     grace period where uploads can be deleted by the uploader, 
+                    even without delete permissions; 0=disabled, default=12h 
+                    (default: 43200)
+  --unp-who NUM    clients can undo recent uploads by using the unpost tab 
+                    (requires -e2d). [0] = never allowed (disable feature), 
+                    [1] = allow if client has the same IP as the upload AND 
+                    is using the same account, [2] = just check the IP, [3] = 
+                    just check account-name (volflag=unp_who) (default: 1)
+  --apnd-who NUM   who can append to existing files? [no]=nobody, 
+                    [aw]=admin+write, [dw]=delete+write, [w]=write 
+                    (volflag=apnd_who) (default: dw)
+  --u2abort NUM    clients can abort incomplete uploads by using the unpost 
+                    tab (requires -e2d). [0] = never allowed (disable 
+                    feature), [1] = allow if client has the same IP as the 
+                    upload AND is using the same account, [2] = just check 
+                    the IP, [3] = just check account-name (volflag=u2abort) 
+                    (default: 1)
+  --blank-wt SEC   file write grace period (any client can write to a blank 
+                    file last-modified more recently than SEC seconds ago) 
+                    (default: 300)
+  --reg-cap N      max number of uploads to keep in memory when running 
+                    without -e2d; roughly 1 MiB RAM per 600 (default: 38400)
+  --no-fpool       disable file-handle pooling -- instead, repeatedly close 
+                    and reopen files during upload (bad idea to enable this 
+                    on windows and/or cow filesystems) (default: False)
+  --use-fpool      force file-handle pooling, even when it might be dangerous 
+                    (multiprocessing, filesystems lacking sparse-files 
+                    support, ...) (default: False)
+  --chmod-f UGO    unix file permissions to use when creating files; default 
+                    is probably 644 (OS-decided), see --help-chmod. Examples: 
+                    [644] = owner-RW + all-R, [755] = owner-RWX + all-RX, 
+                    [777] = full-yolo (volflag=chmod_f) (default: )
+  --chmod-d UGO    unix file permissions to use when creating directories; 
+                    see --help-chmod. Examples: [755] = owner-RW + all-R, 
+                    [2750] = setgid + owner-RW + group-R, [777] = full-yolo 
+                    (volflag=chmod_d) (default: 755)
+  --uid N          unix user-id to chown new files/folders to; default = -1 = 
+                    do-not-change (volflag=uid) (default: -1)
+  --gid N          unix group-id to chown new files/folders to; default = -1 
+                    = do-not-change (volflag=gid) (default: -1)
+  --wram           allow uploading even if a volume is inside a ramdisk, 
+                    meaning that all data will be lost on the next server 
+                    reboot (volflag=wram) (default: False)
+  --dedup          enable symlink-based upload deduplication (volflag=dedup) 
+                    (default: False)
+  --safe-dedup N   how careful to be when deduplicating files; [1] = just 
+                    verify the filesize, [50] = verify file contents have not 
+                    been altered (volflag=safededup) (default: 50)
+  --hardlink       enable hardlink-based dedup; will fallback on symlinks 
+                    when that is impossible (across filesystems) 
+                    (volflag=hardlink) (default: False)
+  --hardlink-only  do not fallback to symlinks when a hardlink cannot be made 
+                    (volflag=hardlinkonly) (default: False)
+  --reflink        enable reflink-based dedup; will fallback on full copies 
+                    when that is impossible (non-CoW filesystem) 
+                    (volflag=reflink) (default: False)
+  --no-dupe        reject duplicate files during upload; only matches within 
+                    the same volume (volflag=nodupe) (default: False)
+  --no-dupe-m      also reject dupes when moving a file into another volume 
+                    (volflag=nodupem) (default: False)
+  --no-clone       do not use existing data on disk to satisfy dupe uploads; 
+                    reduces server HDD reads in exchange for much more 
+                    network load (volflag=noclone) (default: False)
+  --no-snap        disable snapshots -- forget unfinished uploads on 
+                    shutdown; don't create .hist/up2k.snap files -- 
+                    abandoned/interrupted uploads must be cleaned up manually 
+                    (default: False)
+  --snap-wri SEC   write upload state to ./hist/up2k.snap every SEC seconds; 
+                    allows resuming incomplete uploads after a server crash 
+                    (default: 300)
+  --snap-drop MIN  forget unfinished uploads after MIN minutes; impossible to 
+                    resume them after that (360=6h, 1440=24h) (default: 
+                    1440.0)
+  --rm-partial     delete the .PARTIAL file when an unfinished upload expires 
+                    after --snap-drop (volflag=rm_partial) (default: False)
+  --u2ts TXT       how to timestamp uploaded files; [c]=client-last-modified, 
+                    [u]=upload-time, [fc]=force-c, [fu]=force-u 
+                    (volflag=u2ts) (default: c)
+  --rotf-tz TXT    default timezone for the rotf upload rule; examples: 
+                    [Europe/Oslo], [America/Toronto], [Antarctica/South_Pole] 
+                    (volflag=rotf_tz) (default: UTC)
+  --rand           force randomized filenames, --nrand chars long 
+                    (volflag=rand) (default: False)
+  --nrand NUM      randomized filenames length (volflag=nrand) (default: 9)
+  --magic          enable filetype detection on nameless uploads 
+                    (volflag=magic) (default: False)
+  --df GiB         ensure GiB free disk space by rejecting upload requests; 
+                    assumes gigabytes unless a unit suffix is given: [256m], 
+                    [4], [2T] (volflag=df) (default: 0)
+  --sparse MiB     windows-only: minimum size of incoming uploads through 
+                    up2k before they are made into sparse files (default: 4)
+  --turbo LVL      configure turbo-mode in up2k client; [-1] = 
+                    forbidden/always-off, [0] = default-off and warn if 
+                    enabled, [1] = default-off, [2] = on, [3] = on and 
+                    disable datecheck (default: 0)
+  --nosubtle N     when to use a wasm-hasher instead of the browser's 
+                    builtin; faster on chrome, but buggy in older chrome 
+                    versions. [0] = only when necessary (non-https), [1] = 
+                    always (all browsers), [2] = always on chrome/firefox, 
+                    [3] = always on chrome, [N] = chrome-version N and newer 
+                    (recommendation: 137) (default: 0)
+  --u2j JOBS       web-client: number of file chunks to upload in parallel; 1 
+                    or 2 is good when latency is low (same-country), 2~4 for 
+                    android-clients, 2~6 for cross-atlantic. Max is 6 in most 
+                    browsers. Big values increase network-speed but may 
+                    reduce HDD-speed (default: 2)
+  --u2sz N,N,N     web-client: default upload chunksize (MiB); sets min,
+                    default,max in the settings gui. Each HTTP POST will aim 
+                    for default, and never exceed max. Cloudflare max is 96. 
+                    Big values are good for cross-atlantic but may increase 
+                    HDD fragmentation on some FS. Disable this optimization 
+                    with [1,1,1] (default: 1,64,96)
+  --u2ow NUM       web-client: default setting for when to replace/overwrite 
+                    existing files; [0]=never, [1]=if-client-newer, 
+                    [2]=always (volflag=u2ow) (default: 0)
+  --u2sort TXT     upload order; [s]=smallest-first, [n]=alphabetical, 
+                    [fs]=force-s, [fn]=force-n -- alphabetical is a bit 
+                    slower on fiber/LAN but makes it easier to eyeball if 
+                    everything went fine (default: s)
+  --write-uplog    write POST reports to textfiles in working-directory 
+                    (default: False)
+
+general db options:
+  -e2d             enable up2k database; this enables file search, 
+                    upload-undo, improves deduplication (default: False)
+  -e2ds            scan writable folders for new files on startup; sets -e2d 
+                    (default: False)
+  -e2dsa           scans all folders on startup; sets -e2ds (default: False)
+  -e2v             verify file integrity; rehash all files and compare with 
+                    db (default: False)
+  -e2vu            on hash mismatch: update the database with the new hash 
+                    (default: False)
+  -e2vp            on hash mismatch: panic and quit copyparty (default: False)
+  --hist PATH      where to store volume data (db, thumbs); default is a 
+                    folder named ".hist" inside each volume (volflag=hist) 
+                    (default: )
+  --dbpath PATH    override where the volume databases are to be placed; 
+                    default is the same as --hist (volflag=dbpath) (default: )
+  --fika TXT       list of user-actions to allow while filesystem-indexer is 
+                    still busy; set blank to never interrupt indexing (old 
+                    default). [u]=uploads, [c]=filecopy, [m]=move/rename, 
+                    [d]=delete. NOTE: [m] is untested/scary, and blank is 
+                    recommended if dedup enabled (default: ucd)
+  --no-hash PTN    regex: disable hashing of matching 
+                    absolute-filesystem-paths during e2ds folder scans (must 
+                    be specified as one big regex, not multiple times) 
+                    (volflag=nohash) (default: )
+  --no-idx PTN     regex: disable indexing of matching 
+                    absolute-filesystem-paths during e2ds folder scan (must 
+                    be specified as one big regex, not multiple times) 
+                    (volflag=noidx) (default: 
+                    /(__MACOS|Icon\r\r)|/\.(_|DS_Store|AppleDouble|LSOverride|-
+                    DocumentRevisions-|fseventsd|Spotlight-|TemporaryItems|Tra-
+                    shes|VolumeIcon\.icns|com\.apple\.timemachine\.donotpresen-
+                    t|AppleDB|AppleDesktop|apdisk))
+  --no-dirsz       do not show total recursive size of folders in listings, 
+                    show inode size instead; slightly faster 
+                    (volflag=nodirsz) (default: False)
+  --re-dirsz       if the directory-sizes in the UI are bonkers, use this 
+                    along with -e2dsa to rebuild the index from scratch 
+                    (default: False)
+  --no-dhash       disable rescan acceleration; do full database integrity 
+                    check -- makes the db ~5% smaller and bootup/rescans 
+                    3~10x slower (default: False)
+  --re-dhash       force a cache rebuild on startup; enable this once if it 
+                    gets out of sync (should never be necessary) (default: 
+                    False)
+  --no-forget      never forget indexed files, even when deleted from disk -- 
+                    makes it impossible to ever upload the same file twice -- 
+                    only useful for offloading uploads to a cloud service or 
+                    something (volflag=noforget) (default: False)
+  --forget-ip MIN  remove uploader-IP from database (and make unpost 
+                    impossible) MIN minutes after upload, for GDPR reasons. 
+                    Default [0] is never-forget. [1440]=day, [10080]=week, 
+                    [43200]=month. (volflag=forget_ip) (default: 0)
+  --dbd PROFILE    database durability profile; sets the tradeoff between 
+                    robustness and speed, see --help-dbd (volflag=dbd) 
+                    (default: wal)
+  --xlink          on upload: check all volumes for dupes, not just the 
+                    target volume (probably buggy, not recommended) 
+                    (volflag=xlink) (default: False)
+  --hash-mt CORES  num cpu cores to use for file hashing; set 0 or 1 for 
+                    single-core hashing (default: 5)
+  --re-maxage SEC  rescan filesystem for changes every SEC seconds; 0=off 
+                    (volflag=scan) (default: 0)
+  --db-act SEC     defer any scheduled volume reindexing until SEC seconds 
+                    after last db write (uploads, renames, ...) (default: 
+                    10.0)
+  --srch-icase     case-insensitive search for all unicode characters (the 
+                    default is icase for just ascii). NOTE: will make 
+                    searches much slower (around 4x), and NOTE: only applies 
+                    to filenames/paths, not tags (default: False)
+  --srch-time SEC  search deadline -- terminate searches running for more 
+                    than SEC seconds (default: 45)
+  --srch-hits N    max search results to allow clients to fetch; 125 results 
+                    will be shown initially (default: 7999)
+  --srch-excl PTN  regex: exclude files from search results if the file-URL 
+                    matches PTN (case-sensitive). Example: 
+                    [password|logs/[0-9]] any URL containing 'password' or 
+                    'logs/DIGIT' (volflag=srch_excl) (default: )
+  --dotsrch        show dotfiles in search results (volflags: dotsrch | 
+                    nodotsrch) (default: False)
+
+metadata db options:
+  -e2t             enable metadata indexing; makes it possible to search for 
+                    artist/title/codec/resolution/... (default: False)
+  -e2ts            scan newly discovered files for metadata on startup; sets 
+                    -e2t (default: False)
+  -e2tsr           delete all metadata from DB and do a full rescan; sets 
+                    -e2ts (default: False)
+  --no-mutagen     use FFprobe for tags instead; will detect more tags 
+                    (default: False)
+  --no-mtag-ff     never use FFprobe as tag reader; is probably safer 
+                    (default: False)
+  --mtag-to SEC    timeout for FFprobe tag-scan (default: 60)
+  --mtag-mt CORES  num cpu cores to use for tag scanning (default: 10)
+  --mtag-v         verbose tag scanning; print errors from mtp subprocesses 
+                    and such (default: False)
+  --mtag-vv        debug mtp settings and mutagen/FFprobe parsers (default: 
+                    False)
+  --db-xattr t,t   read file xattrs as metadata tags; [a,b] reads keys a and 
+                    b as tags a and b, [a=foo,b=bar] reads keys a and b as 
+                    tags foo and bar, [~~a,b] does everything except a and b, 
+                    [~~] does everything. NOTE: Each tag must also be enabled 
+                    with -mte (volflag=db_xattr) (default: )
+  -mtm M=t,t,t     REPEATABLE: add/replace metadata mapping (default: None)
+  -mte M,M,M       tags to index/display (comma-sep.); either an entire 
+                    replacement list, or add/remove stuff on the default-list 
+                    with +foo or /bar (default: .files,circle,album,.tn,
+                    artist,title,tdate,.bpm,key,.dur,.q,.vq,.aq,vc,ac,fmt,res,
+                    .fps,ahash,vhash)
+  -mth M,M,M       tags to hide by default (comma-sep.); assign/add/remove 
+                    same as -mte (default: tdate,.vq,.aq,vc,ac,fmt,res,.fps)
+  -mtp M=[f,]BIN   REPEATABLE: read tag M using program BIN to parse the file 
+                    (default: None)
+
+thumbnail options:
+  --no-thumb       disable all thumbnails (volflag=dthumb) (default: False)
+  --no-vthumb      disable video thumbnails (volflag=dvthumb) (default: False)
+  --no-athumb      disable audio thumbnails (spectrograms) (volflag=dathumb) 
+                    (default: False)
+  --th-size WxH    thumbnail res (volflag=thsize) (default: 320x256)
+  --th-mt CORES    num cpu cores to use for generating thumbnails (default: 
+                    10)
+  --th-convt SEC   convert-to-image timeout in seconds (volflag=convt) 
+                    (default: 60.0)
+  --ac-convt SEC   convert-to-audio timeout in seconds (volflag=aconvt) 
+                    (default: 150.0)
+  --th-ram-max GB  max memory usage (GiB) permitted by thumbnailer; not very 
+                    accurate (default: 5.3)
+  --th-crop TXT    crop thumbnails to 4:3 or keep dynamic height; client can 
+                    override in UI unless force. [y]=crop, [n]=nocrop, 
+                    [fy]=force-y, [fn]=force-n (volflag=crop) (default: y)
+  --th-x3 TXT      show thumbs at 3x resolution; client can override in UI 
+                    unless force. [y]=yes, [n]=no, [fy]=force-yes, 
+                    [fn]=force-no (volflag=th3x) (default: n)
+  --th-qv N        webp/jpg thumbnail quality (10~90); higher is larger 
+                    filesize and better quality (volflag=th_qv) (default: 40)
+  --th-qvx N       jxl thumbnail quality (10~90); higher is larger filesize 
+                    and better quality (volflag=th_qvx) (default: 64)
+  --th-dec LIBS    image decoders, in order of preference (default: vips,raw,
+                    pil,ff)
+  --th-no-jpg      disable jpg output (default: False)
+  --th-no-webp     disable webp output (default: False)
+  --th-no-jxl      disable jpeg-xl output (default: False)
+  --th-ff-jpg      force jpg output for video thumbs (avoids issues on some 
+                    FFmpeg builds) (default: False)
+  --th-ff-swr      use swresample instead of soxr for audio thumbs (faster, 
+                    lower accuracy, avoids issues on some FFmpeg builds) 
+                    (default: False)
+  --th-poke SEC    activity labeling cooldown -- avoids doing keepalive pokes 
+                    (updating the mtime) on thumbnail folders more often than 
+                    SEC seconds (default: 300)
+  --th-clean SEC   cleanup interval; 0=disabled (default: 43200)
+  --th-maxage SEC  max folder age -- folders which haven't been poked for 
+                    longer than --th-poke seconds will get deleted every 
+                    --th-clean seconds (default: 604800)
+  --th-covers N,N  folder thumbnails to stat/look for; enabling -e2d will 
+                    make these case-insensitive, and try them as dotfiles 
+                    (.folder.jpg), and also automatically select thumbnails 
+                    for all folders that contain pics, even if none match 
+                    this pattern (default: folder.png,folder.jpg,cover.png,
+                    cover.jpg)
+  --th-spec-p N    for music, do spectrograms or embedded coverart? 
+                    [0]=only-art, [1]=prefer-art, [2]=only-spec (default: 1)
+  --th-r-pil T,T   image formats to decode using pillow (default: avif,avifs,
+                    blp,bmp,cbz,dcx,dds,dib,emf,eps,epub,fits,flc,fli,fpx,gif,
+                    heic,heics,heif,heifs,icns,ico,im,j2p,j2k,jp2,jpeg,jpg,
+                    jpx,jxl,pbm,pcx,pgm,png,pnm,ppm,psd,qoi,sgi,spi,tga,tif,
+                    tiff,webp,wmf,xbm,xpm)
+  --th-r-vips T,T  image formats to decode using pyvips (default: 3fr,avif,
+                    cr2,cr3,crw,dcr,dng,erf,exr,fit,fits,fts,gif,hdr,heic,
+                    heics,heif,heifs,jp2,jpeg,jpg,jpx,jxl,k25,mdc,mef,mrw,nef,
+                    nii,pfm,pgm,png,ppm,raf,raw,sr2,srf,svg,tif,tiff,webp,x3f)
+  --th-r-raw T,T   image formats to decode using rawpy (default: 3fr,arw,cr2,
+                    cr3,crw,dcr,dng,erf,k25,kdc,mdc,mef,mos,mrw,nef,nrw,orf,
+                    pef,raf,raw,sr2,srf,srw,x3f)
+  --th-r-ffi T,T   image formats to decode using ffmpeg (default: apng,avif,
+                    avifs,bmp,cbz,dds,dib,epub,fit,fits,fts,gif,hdr,heic,
+                    heics,heif,heifs,icns,ico,jp2,jpeg,jpg,jpx,jxl,pbm,pcx,
+                    pfm,pgm,png,pnm,ppm,psd,qoi,sgi,tga,tif,tiff,webp,xbm,xpm)
+  --th-r-ffv T,T   video formats to decode using ffmpeg (default: 3gp,asf,av1,
+                    avc,avi,flv,h264,h265,hevc,m4v,mjpeg,mjpg,mkv,mov,mp4,
+                    mpeg,mpeg2,mpegts,mpg,mpg2,mts,nut,ogm,ogv,rm,ts,vob,webm,
+                    wmv)
+  --th-r-ffa T,T   audio formats to decode using ffmpeg (default: aac,ac3,aif,
+                    aiff,alac,alaw,amr,apac,ape,au,bonk,dfpwm,dts,flac,gsm,
+                    ilbc,it,itgz,itxz,itz,m4a,mdgz,mdxz,mdz,mo3,mod,mp2,mp3,
+                    mpc,mptm,mt2,mulaw,oga,ogg,okt,opus,ra,s3m,s3gz,s3xz,s3z,
+                    tak,tta,ulaw,wav,wma,wv,xm,xmgz,xmxz,xmz,xpk)
+  --th-spec-cnv T  audio formats which provoke 
+                    https://trac.ffmpeg.org/ticket/10797 (huge ram usage for 
+                    s3xmodit spectrograms) (default: it,itgz,itxz,itz,mdgz,
+                    mdxz,mdz,mo3,mod,s3m,s3gz,s3xz,s3z,xm,xmgz,xmxz,xmz,xpk)
+  --au-unpk E=F.C  audio/image formats to decompress before passing to ffmpeg 
+                    (default: mdz=mod.zip, mdgz=mod.gz, mdxz=mod.xz, 
+                    s3z=s3m.zip, s3gz=s3m.gz, s3xz=s3m.xz, xmz=xm.zip, 
+                    xmgz=xm.gz, xmxz=xm.xz, itz=it.zip, itgz=it.gz, 
+                    itxz=it.xz, cbz=jpg.cbz, epub=jpg.epub)
+
+transcoding options:
+  --q-opus KBPS    target bitrate for transcoding to opus; set 0 to disable 
+                    (default: 128)
+  --q-mp3 QUALITY  target quality for transcoding to mp3, for example [192k] 
+                    (CBR) or [q0] (CQ/CRF, q0=maxquality, q9=smallest); set 0 
+                    to disable (default: q2)
+  --allow-wav      allow transcoding to wav (lossless, uncompressed) 
+                    (default: False)
+  --allow-flac     allow transcoding to flac (lossless, compressed) (default: 
+                    False)
+  --no-caf         disable transcoding to caf-opus (affects iOS v12~v17), 
+                    will use mp3 instead (default: False)
+  --no-owa         disable transcoding to webm-opus (iOS v18 and later), will 
+                    use mp3 instead (default: False)
+  --no-acode       disable audio transcoding (default: False)
+  --no-bacode      disable batch audio transcoding by folder download 
+                    (zip/tar) (default: False)
+  --ac-maxage SEC  delete cached transcode output after SEC seconds (default: 
+                    86400)
+
+RSS options:
+  --rss            enable RSS output (experimental) (volflag=rss) (default: 
+                    False)
+  --rss-nf HITS    default number of files to return (url-param 'nf') 
+                    (default: 250)
+  --rss-fext E,E   default list of file extensions to include (url-param 
+                    'fext'); blank=all (default: )
+  --rss-sort ORD   default sort order (url-param 'sort'); [m]=last-modified 
+                    [u]=upload-time [n]=filename [s]=filesize; 
+                    Uppercase=oldest-first. Note that upload-time is 0 for 
+                    non-uploaded files (volflag=rss_sort) (default: m)
+  --rss-fmt-t TXT  title format (url-param 'rss_fmt_t') (volflag=rss_fmt_t) 
+                    (default: {fname})
+  --rss-fmt-d TXT  description format (url-param 'rss_fmt_d') 
+                    (volflag=rss_fmt_d) (default: {artist} - {title})
+
+SFTP options:
+  --sftp PORT      enable SFTP server on PORT, for example 3922 (default: 0)
+  --sftpv          verbose (default: False)
+  --sftpvv         verboser (default: False)
+  --sftp-i IP      IPs to listen on (comma-separated list). Set this to 
+                    override -i for this protocol (default: -i)
+  --sftp4          only listen on IPv4 (default: False)
+  --sftp-key U K   REPEATABLE: add ssh-key K for user U (username, space, 
+                    key-type, space, base64); if user has multiple keys, then 
+                    repeat this option for each key
+                    └─commandline example: --sftp-key 'david ssh-ed25519 
+                     AAAAC3NzaC...'
+                    └─config-file example: sftp-key: david ssh-ed25519 
+                     AAAAC3NzaC... (default: None)
+  --sftp-pw        allow password-authentication with sftp (not just 
+                    ssh-keys) (default: False)
+  --sftp-anon TXT  allow anonymous/unauthenticated connections with TXT as 
+                    username (default: )
+  --sftp-hostk FP  path to folder with hostkeys, for example 
+                    'ssh_host_rsa_key'; missing keys will be generated 
+                    (default: /Users/yadunut/Library/Preferences/copyparty)
+  --sftp-banner T  bannertext to send when someone connects; can be @filepath 
+                    (default: )
+  --sftp-ipa CIDR  only accept connections from IP-addresses inside CIDR 
+                    (comma-separated); specify [any] to disable inheriting 
+                    --ipa / --ipar. Examples: [lan] or [10.89.0.0/16, 
+                    192.168.33.0/24] (default: )
+
+FTP options (TCP only):
+  --ftp PORT       enable FTP server on PORT, for example 3921 (default: 0)
+  --ftps PORT      enable FTPS server on PORT, for example 3990 (default: 0)
+  --ftpv           verbose (default: False)
+  --ftp-i IP       IPs to listen on (comma-separated list). Set this to 
+                    override -i for this protocol (default: -i)
+  --ftp4           only listen on IPv4 (default: False)
+  --ftp-ipa CIDR   only accept connections from IP-addresses inside CIDR 
+                    (comma-separated); specify [any] to disable inheriting 
+                    --ipa / --ipar. Examples: [lan] or [10.89.0.0/16, 
+                    192.168.33.0/24] (default: )
+  --ftp-no-ow      if target file exists, reject upload instead of overwrite 
+                    (default: False)
+  --ftp-wt SEC     grace period for resuming interrupted uploads (any client 
+                    can write to any file last-modified more recently than 
+                    SEC seconds ago) (default: 7)
+  --ftp-nat ADDR   the NAT address to use for passive connections (default: )
+  --ftp-pr P-P     the range of TCP ports to use for passive connections, for 
+                    example 12000-13000 (default: )
+
+WebDAV options:
+  --daw            enable full write support, even if client may not be 
+                    webdav. Some webdav clients need this option for editing 
+                    existing files; not necessary for clients that send the 
+                    'x-oc-mtime' header. Regardless, the delete-permission 
+                    must always be given. WARNING: This has side-effects -- 
+                    PUT-operations will now OVERWRITE existing files, rather 
+                    than inventing new filenames to avoid loss of data. You 
+                    might want to instead set this as a volflag where needed. 
+                    By not setting this flag, uploaded files can get written 
+                    to a filename which the client does not expect (which 
+                    might be okay, depending on client) (default: False)
+  --dav-inf        allow depth:infinite requests (recursive file listing); 
+                    extremely server-heavy but required for spec compliance 
+                    -- luckily few clients rely on this (default: False)
+  --dav-mac        disable apple-garbage filter -- allow macos to create junk 
+                    files (._* and .DS_Store, .Spotlight-*, .fseventsd, 
+                    .Trashes, .AppleDouble, __MACOS) (default: False)
+  --dav-rt         show symlink-destination's lastmodified instead of the 
+                    link itself; always enabled for recursive listings 
+                    (volflag=davrt) (default: False)
+  --dav-auth       force auth for all folders (required by davfs2 when only 
+                    some folders are world-readable) (volflag=davauth) 
+                    (default: False)
+  --dav-ua1 PTN    regex of user-agents which ARE webdav-clients, and expect 
+                    401 from GET requests; disable with [no] or blank 
+                    (default:  kioworker/)
+  --dav-port P     additional port to listen on for misbehaving webdav 
+                    clients which pretend they are graphical browsers; an 
+                    alternative/supplement to dav-ua1 (default: 0)
+  --ua-nodav PTN   regex of user-agents which are NOT webdav-clients 
+                    (default: 
+                    ^(Mozilla/|NetworkingExtension/|com\.apple\.WebKit))
+  --p-nodav P,P    server-ports (comma-sep.) which are NOT webdav-clients; an 
+                    alternative/supplement to ua-nodav (default: )
+
+TFTP options (UDP only):
+  --tftp PORT      enable TFTP server on PORT, for example 69 or 3969 
+                    (default: 0)
+  --tftp-i IP      IPs to listen on (comma-separated list). Set this to 
+                    override -i for this protocol (default: -i)
+  --tftp4          only listen on IPv4 (default: False)
+  --tftpv          verbose (default: False)
+  --tftpvv         verboser (default: False)
+  --tftp-no-fast   debug: disable optimizations (default: False)
+  --tftp-lsf PTN   return a directory listing if a file with this name is 
+                    requested and it does not exist; defaults matches .ls, 
+                    dir, .dir.txt, ls.txt, ... (default: \.?(dir|ls)(\.txt)?)
+  --tftp-nols      if someone tries to download a directory, return an error 
+                    instead of showing its directory listing (default: False)
+  --tftp-ipa CIDR  only accept connections from IP-addresses inside CIDR 
+                    (comma-separated); specify [any] to disable inheriting 
+                    --ipa / --ipar. Examples: [lan] or [10.89.0.0/16, 
+                    192.168.33.0/24] (default: )
+  --tftp-pr P-P    the range of UDP ports to use for data transfer, for 
+                    example 12000-13000 (default: )
+
+SMB/CIFS options:
+  --smb            enable smb (read-only) -- this requires running copyparty 
+                    as root on linux and macos unless --smb-port is set above 
+                    1024 and your OS does port-forwarding from 445 to that.
+                   WARNING: this protocol is DANGEROUS and buggy! Never 
+                    expose to the internet! (default: False)
+  --smb-i IP       IPs to listen on (comma-separated list). Set this to 
+                    override -i for this protocol (default: -i)
+  --smbw           enable write support (please dont) (default: False)
+  --smb1           disable SMBv2, only enable SMBv1 (CIFS) (default: False)
+  --smb-port PORT  port to listen on -- if you change this value, you must 
+                    NAT from TCP:445 to this port using iptables or similar 
+                    (default: 445)
+  --smb-nwa-1      truncate directory listings to 64kB (~400 files); avoids 
+                    impacket-0.11 bug, fixes impacket-0.12 performance 
+                    (default: False)
+  --smb-nwa-2      disable impacket workaround for filecopy globs (default: 
+                    False)
+  --smba           small performance boost: disable per-account permissions, 
+                    enables account coalescing instead (if one user has 
+                    write/delete-access, then everyone does) (default: False)
+  --smbv           verbose (default: False)
+  --smbvv          verboser (default: False)
+  --smbvvv         verbosest (default: False)
+
+OPDS options:
+  --opds           enable opds -- allows e-book readers to browse and 
+                    download files (volflag=opds) (default: False)
+  --opds-exts T,T  file formats to list in OPDS feeds; leave empty to show 
+                    everything (volflag=opds_exts) (default: epub,cbz,pdf)
+
+safety options:
+  -s               increase safety: Disable thumbnails / potentially 
+                    dangerous software (ffmpeg/pillow/vips), hide partial 
+                    uploads, avoid crawlers.
+                    └─Alias of --dotpart --no-thumb --no-mtag-ff --no-robots 
+                     --force-js (default: 0)
+  -ss              further increase safety: Prevent js-injection, accidental 
+                    move/delete, broken symlinks, webdav requires login, 404 
+                    on 403, ban on excessive 404s.
+                    └─Alias of -s --unpost=0 --no-del --no-mv --reflink 
+                     --dav-auth --vague-403 -nih (default: False)
+  -sss             further increase safety: Enable logging to disk, scan for 
+                    dangerous symlinks.
+                    └─Alias of -ss --no-dav --no-logues --no-readme 
+                     -lo=cpp-%Y-%m%d-%H%M%S.txt.xz --ls=**,*,ln,p,r (default: 
+                     False)
+  --ls U[,V[,F]]   do a sanity/safety check of all volumes on startup; 
+                    arguments USER,VOL,FLAGS (see --help-ls); example [**,*,
+                    ln,p,r] (default: )
+  --xvol           never follow symlinks leaving the volume root, unless the 
+                    link is into another volume where the user has similar 
+                    access (volflag=xvol) (default: False)
+  --xdev           stay within the filesystem of the volume root; do not 
+                    descend into other devices (symlink or bind-mount to 
+                    another HDD, ...) (volflag=xdev) (default: False)
+  --vol-nospawn    if a volume's folder does not exist on the HDD, then do 
+                    not create it (continue with warning) (volflag=nospawn) 
+                    (default: False)
+  --vol-or-crash   if a volume's folder does not exist on the HDD, then burst 
+                    into flames (volflag=assert_root) (default: False)
+  --no-dot-mv      disallow moving dotfiles; makes it impossible to move 
+                    folders containing dotfiles (default: False)
+  --no-dot-ren     disallow renaming dotfiles; makes it impossible to turn 
+                    something into a dotfile (default: False)
+  --no-logues      disable rendering .prologue/.epilogue.html into directory 
+                    listings (default: False)
+  --no-readme      disable rendering readme/preadme.md into directory 
+                    listings (default: False)
+  --vague-403      send 404 instead of 403 (security through ambiguity, very 
+                    enterprise). WARNING: Not compatible with WebDAV 
+                    (default: False)
+  --force-js       don't send folder listings as HTML, force clients to use 
+                    the embedded json instead -- slight protection against 
+                    misbehaving search engines which ignore --no-robots 
+                    (default: False)
+  --no-robots      adds http and html headers asking search engines to not 
+                    index anything (volflag=norobots) (default: False)
+  --logout H       logout clients after H hours of inactivity; [0.0028]=10sec,
+                     [0.1]=6min, [24]=day, [168]=week, [720]=month, 
+                    [8760]=year) (default: 8086.0)
+  --dont-ban TXT   anyone at this accesslevel or above will not get banned: 
+                    [av]=admin-in-volume, [aa]=has-admin-anywhere, 
+                    [rw]=read-write, [auth]=authenticated, 
+                    [any]=disable-all-bans, [no]=anyone-can-get-banned 
+                    (default: no)
+  --banmsg TXT     the response to send to banned users; can be @ban.html to 
+                    send the contents of ban.html (default: thank you for 
+                    playing   (see fileserver log and readme))
+  --ban-pw N,W,B   more than N wrong passwords in W minutes = ban for B 
+                    minutes; disable with [no] (default: 9,60,1440)
+  --ban-pwc N,W,B  more than N password-changes in W minutes = ban for B 
+                    minutes; disable with [no] (default: 5,60,1440)
+  --ban-404 N,W,B  hitting more than N 404's in W minutes = ban for B 
+                    minutes; only affects users who cannot see directory 
+                    listings because their access is either g/G/h (default: 
+                    50,60,1440)
+  --ban-403 N,W,B  hitting more than N 403's in W minutes = ban for B 
+                    minutes; [1440]=day, [10080]=week, [43200]=month 
+                    (default: 9,2,1440)
+  --ban-422 N,W,B  hitting more than N 422's in W minutes = ban for B minutes 
+                    (invalid requests, attempted exploits ++) (default: 9,2,
+                    1440)
+  --ban-url N,W,B  hitting more than N sus URL's in W minutes = ban for B 
+                    minutes; applies only to permissions g/G/h (decent 
+                    replacement for --ban-404 if that can't be used) 
+                    (default: 9,2,1440)
+  --sus-urls R     URLs which are considered sus / eligible for banning; 
+                    disable with blank or [no] (default: 
+                    \.php$|(^|/)wp-(admin|content|includes)/)
+  --nonsus-urls R  harmless URLs ignored from 403/404-bans; disable with 
+                    blank or [no] (default: 
+                    ^(favicon\..{3}|robots\.txt)$|^apple-touch-icon|^\.well-kn-
+                    own)
+  --early-ban      if a client is banned, reject its connection as soon as 
+                    possible; not a good idea to enable when proxied behind 
+                    cloudflare since it could ban your reverse-proxy 
+                    (default: False)
+  --cookie-nmax N  reject HTTP-request from client if they send more than N 
+                    cookies (default: 50)
+  --cookie-cmax N  reject HTTP-request from client if more than N characters 
+                    in Cookie header (default: 8192)
+  --aclose MIN     if a client maxes out the server connection limit, 
+                    downgrade it from connection:keep-alive to 
+                    connection:close for MIN minutes (and also kill its 
+                    active connections) -- disable with 0 (default: 10)
+  --loris B        if a client maxes out the server connection limit without 
+                    sending headers, ban it for B minutes; disable with [0] 
+                    (default: 60)
+  --acao V[,V]     Access-Control-Allow-Origin; list of origins (domains/IPs 
+                    without port) to accept requests from; [https://1.2.3.4]. 
+                    Default [*] allows requests from all sites but removes 
+                    cookies and http-auth; only ?pw=hunter2 survives 
+                    (default: *)
+  --acam V[,V]     Access-Control-Allow-Methods; list of methods to accept 
+                    from offsite ('*' behaves like --acao's description) 
+                    (default: GET,HEAD)
+
+salting options:
+  --ah-alg ALG     account-pw hashing algorithm; one of these, best to worst: 
+                    argon2 scrypt sha2 none (each optionally followed by 
+                    alg-specific comma-sep. config) (default: none)
+  --ah-salt SALT   account-pw salt; ignored if --ah-alg is none (default) 
+                    (default: PbpFeUEUhqj7aOK68h3idKkF)
+  --ah-gen PW      generate hashed password for PW, or read passwords from 
+                    STDIN if PW is [-] (default: )
+  --ah-cli         launch an interactive shell which hashes passwords without 
+                    ever storing or displaying the original passwords 
+                    (default: False)
+  --fk-salt SALT   per-file accesskey salt; used to generate unpredictable 
+                    URLs for hidden files (default: BBo1YRoUcJVvG3D6JbDq6jQU)
+  --dk-salt SALT   per-directory accesskey salt; used to generate 
+                    unpredictable URLs to share folders with users who only 
+                    have the 'get' permission (default: 
+                    Cd8OR6mwE0OR098NNlgcIr4NrgY42gtcahZnC89g)
+  --warksalt SALT  up2k file-hash salt; serves no purpose, no reason to 
+                    change this (but delete all databases if you do) 
+                    (default: hunter2)
+  --show-ah-salt   on startup, print the effective value of --ah-salt (the 
+                    autogenerated value in $XDG_CONFIG_HOME unless otherwise 
+                    specified) (default: False)
+  --show-fk-salt   on startup, print the effective value of --fk-salt (the 
+                    autogenerated value in $XDG_CONFIG_HOME unless otherwise 
+                    specified) (default: False)
+  --show-dk-salt   on startup, print the effective value of --dk-salt (the 
+                    autogenerated value in $XDG_CONFIG_HOME unless otherwise 
+                    specified) (default: False)
+
+opt-outs:
+  -nw              never write anything to disk (debug/benchmark) (default: 
+                    False)
+  --keep-qem       do not disable quick-edit-mode on windows (it is disabled 
+                    to avoid accidental text selection in the terminal window,
+                     as this would pause execution) (default: False)
+  --no-dav         disable webdav support (default: False)
+  --no-del         disable delete operations (default: False)
+  --no-mv          disable move/rename operations (default: False)
+  --no-cp          disable copy operations (default: False)
+  --no-fs-abrt     disable ability to abort ongoing copy/move (default: False)
+  -nih             no info hostname -- removes it from the UI corner, but the 
+                    value of --bname still shows in the browsertab title 
+                    (default: False)
+  -nid             no info disk-usage -- don't show in UI. This is the same 
+                    as --du-who no (default: False)
+  -nb              no powered-by-copyparty branding in UI (default: False)
+  --smsg T,T       HTTP-methods to allow ?smsg for; will execute xm hooks 
+                    like urlform / message-to-serverlog; dangerous example: 
+                    [GET,POST]. WARNING: The default (POST) is safe, but GET 
+                    is dangerous; security/CSRF hazard (default: POST)
+  --zipmaxn N      reject download-as-zip if more than N files in total; 
+                    optionally takes a unit suffix: [256], [9K], [4G] 
+                    (volflag=zipmaxn) (default: 0)
+  --zipmaxs SZ     reject download-as-zip if total download size exceeds SZ 
+                    bytes; optionally takes a unit suffix: [256M], [4G], [2T] 
+                    (volflag=zipmaxs) (default: 0)
+  --zipmaxt TXT    custom errormessage when download size exceeds max 
+                    (volflag=zipmaxt) (default: )
+  --zipmaxu        authenticated users bypass the zip size limit 
+                    (volflag=zipmaxu) (default: False)
+  --zip-who LVL    who can download as zip/tar? [0]=nobody, [1]=admins, 
+                    [2]=authenticated-with-read-access, 
+                    [3]=everyone-with-read-access (volflag=zip_who)
+                   WARNING: if a nested volume has a more restrictive value 
+                    than a parent volume, then this will be ignored if the 
+                    download is initiated from the parent, more lenient 
+                    volume (default: 3)
+  --ua-nozip PTN   regex of user-agents to reject from download-as-zip/tar; 
+                    disable with [no] or blank (default: 
+                    Barkrowler|bingbot|BLEXBot|Googlebot|GoogleOther|GPTBot|Pe-
+                    talBot|SeekportBot|SemrushBot|YandexBot)
+  --no-zip         disable download as zip/tar; same as --zip-who=0 (default: 
+                    False)
+  --no-tarcmp      disable download as compressed tar (?tar=gz, ?tar=bz2, 
+                    ?tar=xz, ?tar=gz:9, ...) (default: False)
+  --no-lifetime    do not allow clients (or server config) to schedule an 
+                    upload to be deleted after a given time (default: False)
+  --no-pipe        disable race-the-beam (lockstep download of files which 
+                    are currently being uploaded) (volflag=nopipe) (default: 
+                    False)
+  --no-tail        disable streaming a growing files with ?tail 
+                    (volflag=notail) (default: False)
+  --no-db-ip       do not write uploader-IP into the database; will also 
+                    disable unpost, you may want --forget-ip instead 
+                    (volflag=no_db_ip) (default: False)
+  --no-zls         disable browsing the contents of zip/cbz files, does not 
+                    affect thumbnails (default: False)
+
+shutdown options:
+  --ign-ebind      continue running even if it's impossible to listen on some 
+                    of the requested endpoints (default: False)
+  --ign-ebind-all  continue running even if it's impossible to receive 
+                    connections at all (default: False)
+  --exit WHEN      shutdown after WHEN has finished; [cfg] config parsing, 
+                    [idx] volscan + multimedia indexing (default: )
+
+yolo options:
+  --allow-csrf     disable csrf protections; let other domains/sites 
+                    impersonate you through cross-site requests (default: 
+                    False)
+  --cookie-lax     allow cookies from other domains (if you follow a link 
+                    from another website into your server, you will arrive 
+                    logged-in); this reduces protection against CSRF 
+                    (default: False)
+  --no-fnugg       disable the smoketest for caching-related issues in the 
+                    web-UI (default: False)
+  --getmod         permit ?move=[...] and ?delete as GET (default: False)
+  --wo-up-readme   allow users with write-only access to upload logues and 
+                    readmes without adding the _wo_ filename prefix 
+                    (volflag=wo_up_readme) (default: False)
+  --unsafe-state   when one of the emergency fallback locations are used for 
+                    runtime state ($TMPDIR, /tmp), certain features will be 
+                    force-disabled for security reasons by default. This 
+                    option overrides that safeguard and allows unsafe storage 
+                    of secrets (default: False)
+
+handlers (see --help-handlers):
+  --on404 PY       REPEATABLE: handle 404s by executing PY file (default: 
+                    None)
+  --on403 PY       REPEATABLE: handle 403s by executing PY file (default: 
+                    None)
+  --hot-handlers   recompile handlers on each request -- expensive but 
+                    convenient when hacking on stuff (default: False)
+
+event hooks (see --help-hooks):
+  --xbu CMD        REPEATABLE: execute CMD before a file upload starts 
+                    (default: None)
+  --xau CMD        REPEATABLE: execute CMD after  a file upload finishes 
+                    (default: None)
+  --xiu CMD        REPEATABLE: execute CMD after  all uploads finish and 
+                    volume is idle (default: None)
+  --xbc CMD        REPEATABLE: execute CMD before a file copy (default: None)
+  --xac CMD        REPEATABLE: execute CMD after  a file copy (default: None)
+  --xbr CMD        REPEATABLE: execute CMD before a file move/rename 
+                    (default: None)
+  --xar CMD        REPEATABLE: execute CMD after  a file move/rename 
+                    (default: None)
+  --xbd CMD        REPEATABLE: execute CMD before a file delete (default: 
+                    None)
+  --xad CMD        REPEATABLE: execute CMD after  a file delete (default: 
+                    None)
+  --xm CMD         REPEATABLE: execute CMD on message (default: None)
+  --xban CMD       REPEATABLE: execute CMD if someone gets banned 
+                    (pw/404/403/url) (default: None)
+  --hook-v         verbose hooks (default: False)
+
+grafana/prometheus metrics endpoint:
+  --stats          enable openmetrics at /.cpr/metrics for admin accounts 
+                    (default: False)
+  --stats-u U,U    comma-separated list of users allowed to access 
+                    /.cpr/metrics even if they aren't admin (default: )
+  --nos-hdd        disable disk-space metrics (used/free space) (default: 
+                    False)
+  --nos-vol        disable volume size metrics (num files, total bytes, 
+                    vmaxb/vmaxn) (default: False)
+  --nos-vst        disable volume state metrics (indexing, analyzing, 
+                    activity) (default: False)
+  --nos-dup        disable dupe-files metrics (good idea; very slow) 
+                    (default: False)
+  --nos-unf        disable unfinished-uploads metrics (default: False)
+
+textfile options:
+  --rw-edit T,T    comma-sep. list of file-extensions to allow editing with 
+                    permissions read+write; all others require 
+                    read+write+delete (volflag=rw_edit) (default: md)
+  --md-no-br       markdown: disable newline-is-newline; will only render a 
+                    newline into the html given two trailing spaces or a 
+                    double-newline (volflag=md_no_br) (default: False)
+  --md-hist TXT    where to store old version of markdown files; 
+                    [s]=subfolder, [v]=volume-histpath, [n]=nope/disabled 
+                    (volflag=md_hist) (default: s)
+  --txt-eol TYPE   enable EOL conversion when writing documents; supported: 
+                    CRLF, LF (volflag=txt_eol) (default: )
+  -mcr SEC         the textfile editor will check for serverside changes 
+                    every SEC seconds (default: 60)
+  -emp             enable markdown plugins -- neat but dangerous, big XSS 
+                    risk (default: False)
+  --exp            enable textfile expansion -- replace {{self.ip}} and such; 
+                    see --help-exp (volflag=exp) (default: False)
+  --exp-md V,V,V   comma/space-separated list of placeholders to expand in 
+                    markdown files; add/remove stuff on the default list with 
+                    +hdr_foo or /vf.scan (volflag=exp_md) (default: self.ip 
+                    self.ua self.uname self.host cfg.name cfg.logout vf.scan 
+                    vf.thsize hdr.cf-ipcountry srv.itime srv.htime)
+  --exp-lg V,V,V   comma/space-separated list of placeholders to expand in 
+                    prologue/epilogue files (volflag=exp_lg) (default: 
+                    self.ip self.ua self.uname self.host cfg.name cfg.logout 
+                    vf.scan vf.thsize hdr.cf-ipcountry srv.itime srv.htime)
+  --ua-nodoc PTN   regex of user-agents to reject from viewing documents 
+                    through ?doc=[...]; disable with [no] or blank (default: 
+                    Barkrowler|bingbot|BLEXBot|Googlebot|GoogleOther|GPTBot|Pe-
+                    talBot|SeekportBot|SemrushBot|YandexBot)
+
+tailing options (realtime streaming of a growing file):
+  --tail-who LVL   who can tail? [0]=nobody, [1]=admins, 
+                    [2]=authenticated-with-read-access, 
+                    [3]=everyone-with-read-access (volflag=tail_who) 
+                    (default: 2)
+  --tail-cmax N    do not allow starting a new tail if more than N active 
+                    downloads (default: 64)
+  --tail-tmax SEC  terminate connection after SEC seconds; [0]=never 
+                    (volflag=tail_tmax) (default: 0)
+  --tail-rate SEC  check for new data every SEC seconds (volflag=tail_rate) 
+                    (default: 0.2)
+  --tail-ka SEC    send a zerobyte if connection is idle for SEC seconds to 
+                    prevent disconnect (default: 3.0)
+  --tail-fd SEC    check if file was replaced (new fd) if idle for SEC 
+                    seconds (volflag=tail_fd) (default: 1.0)
+
+og / open graph / discord-embed options:
+  --og             disable hotlinking and return an html document instead; 
+                    this is required by open-graph, but can also be useful on 
+                    its own (volflag=og) (default: False)
+  --og-ua RE       only disable hotlinking / engage OG behavior if the 
+                    useragent matches regex RE (volflag=og_ua) (default: )
+  --og-tpl PATH    do not return the regular copyparty html, but instead load 
+                    the jinja2 template at PATH (if path contains 'EXT' then 
+                    EXT will be replaced with the requested file's extension) 
+                    (volflag=og_tpl) (default: )
+  --og-no-head     do not automatically add OG entries into <head> (useful if 
+                    you're doing this yourself in a template or such) 
+                    (volflag=og_no_head) (default: False)
+  --og-th FMT      thumbnail format; j=jpeg, jf=jpeg-uncropped, 
+                    jf3=jpeg-uncropped-large, w=webm, ... (volflag=og_th) 
+                    (default: jf3)
+  --og-title TXT   fallback title if there is nothing in the -e2t database 
+                    (volflag=og_title) (default: )
+  --og-title-a T   audio title format; takes any metadata key 
+                    (volflag=og_title_a) (default: 🎵 {{ artist }} - {{ title 
+                    }})
+  --og-title-v T   video title format; takes any metadata key 
+                    (volflag=og_title_v) (default: {{ title }})
+  --og-title-i T   image title format; takes any metadata key 
+                    (volflag=og_title_i) (default: {{ title }})
+  --og-s-title     force default title; do not read from tags 
+                    (volflag=og_s_title) (default: False)
+  --og-desc TXT    description text; same for all files, disable with [-] 
+                    (volflag=og_desc) (default: )
+  --og-site TXT    sitename; defaults to --name, disable with [-] 
+                    (volflag=og_site) (default: )
+  --tcolor RGB     accent color (3 or 6 hex digits); may also affect safari 
+                    and/or android-chrome (volflag=tcolor) (default: 333)
+  --uqe            query-string parceling; translate a request for 
+                    /foo/.uqe/BASE64 into /foo?TEXT, or /foo/?TEXT if the 
+                    first character in TEXT is a slash. Automatically enabled 
+                    for --og (default: False)
+
+ui options:
+  --grid           show grid/thumbnails by default (volflag=grid) (default: 
+                    False)
+  --gsel           select files in grid by ctrl-click (volflag=gsel) 
+                    (default: False)
+  --localtime      default to local timezone instead of UTC (default: False)
+  --ui-filesz FMT  default filesize format; one of these: 0, 1, 2, 2c, 3, 3c, 
+                    4, 4c, 5, 5c, fuzzy (see UI) (default: 1)
+  --rcm TXT        rightclick-menu; two yes/no options: 1st y/n is 
+                    enable-custom-menu, 2nd y/n is enable-double (default: yy)
+  --lang LANG      language, for example eng / nor / ... (default: eng)
+  --theme NUM      default theme to use (0..9) (default: 0)
+  --themes NUM     number of themes installed (default: 10)
+  --au-vol 0-100   default audio/video volume percent (default: 50)
+  --sort C,C,C     default sort order, comma-separated column IDs (see header 
+                    tooltips), prefix with '-' for descending. Examples: href 
+                    -href ext sz ts tags/Album tags/.tn (volflag=sort) 
+                    (default: href)
+  --nsort          default-enable natural sort of filenames with leading 
+                    numbers (volflag=nsort) (default: False)
+  --hsortn N       number of sorting rules to include in media URLs by 
+                    default (volflag=hsortn) (default: 2)
+  --see-dots       default-enable seeing dotfiles; only takes effect if user 
+                    has the necessary permissions (default: False)
+  --qdel LVL       number of confirmations to show when deleting files 
+                    (2/1/0) (default: 2)
+  --dlni           force download (don't show inline) when files are clicked 
+                    (volflag:dlni) (default: False)
+  --unlist REGEX   don't show files/folders matching REGEX in file list. 
+                    WARNING: Purely cosmetic! Does not affect API calls, just 
+                    the browser. Example: [\.(js|css)$] (volflag=unlist) 
+                    (default: )
+  --favico TXT     favicon-text [ foreground [ background ] ], set blank to 
+                    disable (default: 🎉 000 none)
+  --ufavico TXT    URL to .ico/png/gif/svg file; --favico takes precedence 
+                    unless disabled (volflag=ufavico) (default: )
+  --ext-th E=VP    REPEATABLE: use thumbnail-image VP for file-extension E, 
+                    example: [exe=/.res/exe.png] (volflag=ext_th) (default: 
+                    None)
+  --notooltips     tooltips disabled as default (default: False)
+  --spinner TXT    emoji or emoji,css Example: [🥖,padding:0] (default: 🌲)
+  --css-browser L  URL to additional CSS to include in the filebrowser html 
+                    (default: )
+  --js-browser L   URL to additional JS to include in the filebrowser html 
+                    (default: )
+  --js-other L     URL to additional JS to include in all other pages 
+                    (default: )
+  --html-head TXT  text to append to the <head> of all HTML pages (except for 
+                    basic-browser); can be @PATH to send the contents of a 
+                    file at PATH, and/or begin with % to render as jinja2 
+                    template (volflag=html_head) (default: )
+  --html-head-s T  text to append to the <head> of all HTML pages (except for 
+                    basic-browser); similar to (and can be combined with) 
+                    --html-head but only accepts static text 
+                    (volflag=html_head_s) (default: )
+  --ih             if a folder contains index.html, show that instead of the 
+                    directory listing by default (can be changed in the 
+                    client settings UI, or add ?v to URL for override) 
+                    (default: False)
+  --textfiles CSV  file extensions to present as plaintext (default: txt,nfo,
+                    diz,cue,readme)
+  --txt-max KiB    max size of embedded textfiles on ?doc= (anything bigger 
+                    will be lazy-loaded by JS) (default: 64)
+  --prologues T,T  comma-sep. list of filenames to scan for and use as 
+                    prologues (embed above/before directory listing) 
+                    (volflag=prologues) (default: .prologue.html)
+  --epilogues T,T  comma-sep. list of filenames to scan for and use as 
+                    epilogues (embed below/after directory listing) 
+                    (volflag=epilogues) (default: .epilogue.html)
+  --preadmes T,T   comma-sep. list of filenames to scan for and use as 
+                    preadmes (embed above/before directory listing) 
+                    (volflag=preadmes) (default: preadme.md,PREADME.md)
+  --readmes T,T    comma-sep. list of filenames to scan for and use as 
+                    readmes (embed below/after directory listing) 
+                    (volflag=readmes) (default: readme.md,README.md)
+  --doctitle TXT   title / service-name to show in html documents (default: 
+                    copyparty @ --name)
+  --bname TXT      server name (displayed in filebrowser document title) 
+                    (default: --name)
+  --pb-url URL     powered-by link; disable with -nb (default: 
+                    https://github.com/9001/copyparty)
+  --ver            show version on the control panel (incompatible with -nb). 
+                    This is the same as --ver-who all (default: False)
+  --ver-who TXT    only show version for: [a]=admin-permission-anywhere, 
+                    [auth]=authenticated, [all]=anyone (default: no)
+  --du-who TXT     only show disk usage for: [no]=nobody, 
+                    [a]=admin-permission, [rw]=read-write, [w]=write, 
+                    [auth]=authenticated, [all]=anyone (volflag=du_who) 
+                    (default: all)
+  --k304 NUM       configure the option to enable/disable k304 on the 
+                    controlpanel (workaround for buggy reverse-proxies); [0] 
+                    = hidden and default-off, [1] = visible and default-off, 
+                    [2] = visible and default-on (default: 0)
+  --no304 NUM      configure the option to enable/disable no304 on the 
+                    controlpanel (workaround for buggy caching in browsers); 
+                    [0] = hidden and default-off, [1] = visible and 
+                    default-off, [2] = visible and default-on (default: 0)
+  --ctl-re SEC     the controlpanel Refresh-button will autorefresh every 
+                    SEC; [0] = just once (default: 1)
+  --md-sbf FLAGS   list of capabilities to allow in the iframe 'sandbox' 
+                    attribute for README.md docs (volflag=md_sbf); see 
+                    https://developer.mozilla.org/en-US/docs/Web/HTML/Element/-
+                    iframe#sandbox (default: downloads forms popups scripts 
+                    top-navigation-by-user-activation)
+  --lg-sbf FLAGS   list of capabilities to allow in the iframe 'sandbox' 
+                    attribute for prologue/epilogue docs (volflag=lg_sbf) 
+                    (default: downloads forms popups scripts 
+                    top-navigation-by-user-activation)
+  --md-sba TXT     the value of the iframe 'allow' attribute for README.md 
+                    docs, for example [fullscreen] (volflag=md_sba) (default: 
+                    )
+  --lg-sba TXT     the value of the iframe 'allow' attribute for 
+                    prologue/epilogue docs (volflag=lg_sba); see 
+                    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/-
+                    Permissions-Policy#iframes (default: )
+  --no-sb-md       don't sandbox README/PREADME.md documents (volflags: 
+                    no_sb_md | sb_md) (default: False)
+  --no-sb-lg       don't sandbox prologue/epilogue docs (volflags: no_sb_lg | 
+                    sb_lg); enables non-js support (default: False)
+  --ui-nombar      hide top-menu in the UI (volflag=ui_nombar) (default: 
+                    False)
+  --ui-noacci      hide account-info in the UI (volflag=ui_noacci) (default: 
+                    False)
+  --ui-nosrvi      hide server-info in the UI (volflag=ui_nosrvi) (default: 
+                    False)
+  --ui-nonav       hide navpane+breadcrumbs (volflag=ui_nonav) (default: 
+                    False)
+  --ui-notree      hide navpane in the UI (volflag=ui_notree) (default: False)
+  --ui-nocpla      hide cpanel-link in the UI (volflag=ui_nocpla) (default: 
+                    False)
+  --ui-nolbar      hide link-bar in the UI (volflag=ui_nolbar) (default: 
+                    False)
+  --ui-noctxb      hide context-buttons in the UI (volflag=ui_noctxb) 
+                    (default: False)
+  --ui-norepl      hide repl-button in the UI (volflag=ui_norepl) (default: 
+                    False)
+
+admin panel options:
+  --no-reload      disable ?reload=cfg (reload users/volumes/volflags from 
+                    config file) (default: False)
+  --no-rescan      disable ?scan (volume reindexing) (default: False)
+  --no-stack       disable ?stack (list all stacks); same as --stack-who=no 
+                    (default: False)
+  --no-ups-page    disable ?ru (list of recent uploads) (default: False)
+  --no-up-list     don't show list of incoming files in controlpanel 
+                    (default: False)
+  --dl-list LVL    who can see active downloads in the controlpanel? 
+                    [0]=nobody, [1]=admins, [2]=everyone (default: 2)
+  --ups-who LVL    who can see recent uploads on the ?ru page? [0]=nobody, 
+                    [1]=admins, [2]=everyone (volflag=ups_who) (default: 2)
+  --ups-when       let everyone see upload timestamps on the ?ru page, not 
+                    just admins (default: False)
+  --stack-who LVL  who can see the ?stack page (list of threads)? [no]=nobody,
+                     [a]=admins, [rw]=read+write, [all]=everyone (default: a)
+  --stack-v        verbose ?stack (default: False)
+
+logging options:
+  -q               quiet; disable most STDOUT messages (default: False)
+  -lo PATH         logfile; use .txt for plaintext or .xz for compressed. 
+                    Example: cpp-%Y-%m%d-%H%M%S.txt.xz (NB: some errors may 
+                    appear on STDOUT only) (default: )
+  --flo N          log format for -lo; [1]=classic/colors, [2]=no-color 
+                    (default: 1)
+  --no-ansi        disable colors; same as environment-variable NO_COLOR 
+                    (default: True)
+  --ansi           force colors; overrides environment-variable NO_COLOR 
+                    (default: False)
+  --no-logflush    don't flush the logfile after each write; tiny bit faster 
+                    (default: False)
+  --no-voldump     do not list volumes and permissions on startup (default: 
+                    False)
+  --log-utc        do not use local timezone; assume the TZ env-var is UTC 
+                    (tiny bit faster) (default: False)
+  --log-tdec N     timestamp resolution / number of timestamp decimals 
+                    (default: 3)
+  --log-date TXT   date-format, for example [%Y-%m-%d] (default is disabled; 
+                    no date, just HH:MM:SS) (default: )
+  --log-badpwd N   log failed login attempt passwords: 0=terse, 1=plaintext, 
+                    2=hashed (default: 2)
+  --log-badxml     log any invalid XML received from a client (default: False)
+  --log-conn       debug: print tcp-server msgs (default: False)
+  --log-htp        debug: print http-server threadpool scaling (default: 
+                    False)
+  --ihead HEADER   print request HEADER; [*]=all (default: None)
+  --ohead HEADER   print response HEADER; [*]=all (default: None)
+  --lf-url RE      dont log URLs matching regex RE (default: 
+                    ^/\.cpr/|[?&]th=[xwjp]|/\.(_|ql_|DS_Store$|localized$))
+  --scan-st-r SEC  fs-indexing: wait SEC between each status-message 
+                    (default: 0.1)
+  --scan-pr-r SEC  fs-indexing: wait SEC between each 'progress:' message 
+                    (default: 10)
+  --scan-pr-s MiB  fs-indexing: say 'file: <name>' when a file larger than 
+                    MiB is about to be hashed (default: 1)
+
+debug options:
+  --vc             verbose config file parser (explain config) (default: 
+                    False)
+  --cgen           generate config file from current config (best-effort; 
+                    probably buggy) (default: False)
+  --deps           list information about detected optional dependencies 
+                    (default: False)
+  --no-poll        kernel-bug workaround: disable poll; use select instead 
+                    (limits max num clients to ~700) (default: False)
+  --no-sendfile    kernel-bug workaround: disable sendfile; do a safe and 
+                    slow read-send-loop instead (default: False)
+  --no-scandir     kernel-bug workaround: disable scandir; do a listdir + 
+                    stat on each file instead (default: False)
+  --no-fastboot    wait for initial filesystem indexing before accepting 
+                    client requests (default: False)
+  --no-htp         disable httpserver threadpool, create threads as-needed 
+                    instead (default: False)
+  --rm-sck         when listening on unix-sockets, do a basic delete+bind 
+                    instead of the default atomic bind (default: False)
+  --srch-dbg       explain search processing, and do some extra expensive 
+                    sanity checks (default: False)
+  --rclone-mdns    use mdns-domain instead of server-ip on /?hc (default: 
+                    False)
+  --stackmon P,S   write stacktrace to Path every S second, for example 
+                    --stackmon=./st/%Y-%m/%d/%H%M.xz,60 (default: )
+  --log-thrs SEC   list active threads every SEC (default: 0.0)
+  --log-fk REGEX   log filekey params for files where path matches REGEX; [.] 
+                    (a single dot) = all files (default: )
+  --bak-flips      [up2k] if a client uploads a bitflipped/corrupted chunk, 
+                    store a copy according to --bf-nc and --bf-dir (default: 
+                    False)
+  --bf-nc NUM      bak-flips: stop if there's more than NUM files at --kf-dir 
+                    already; default: 6.3 GiB max (200*32M) (default: 200)
+  --bf-dir PATH    bak-flips: store corrupted chunks at PATH; default: folder 
+                    named 'bf' wherever copyparty was started (default: bf)
+  --bf-log PATH    bak-flips: log corruption info to a textfile at PATH 
+                    (default: )
+
+help sections:
+  --help-bind      configure listening (default: False)
+  --help-accounts  accounts and volumes (default: False)
+  --help-auth      how to login from a client (default: False)
+  --help-auth-ord  authentication precedence (default: False)
+  --help-flags     list of volflags (default: False)
+  --help-handlers  use plugins to handle certain events (default: False)
+  --help-hooks     execute commands before/after various events (default: 
+                    False)
+  --help-idp       replacing the login system with fancy middleware (default: 
+                    False)
+  --help-urlform   how to handle url-form POSTs (default: False)
+  --help-exp       text expansion (default: False)
+  --help-ls        volume inspection (default: False)
+  --help-dbd       database durability profiles (default: False)
+  --help-chmod     file/folder permissions (default: False)
+  --help-pwhash    password hashing (default: False)
+  --help-zm        mDNS debugging (default: False)

@@ -1,0 +1,25 @@
+copyparty v1.20.10 "sftp is fine too" (2026-02-25)
+  CPython v3.13.12 on Darwin64 25.3.0 [Clang 21.1.8 ]
+   sqlite 3.51.2*1 | jinja 3.1.6 | pyftpd 2.1.0 | tftp (None) | miko (None)
+
+# auth help page (how to login from a client)
+
+different ways to provide the password so you become authenticated:
+
+login with the ui:
+  go to http://127.0.0.1:3923/?h and login there
+
+send the password in the 'PW' http-header:
+  PW: hunter2
+or if you have --usernames enabled,
+  PW: ed:hunter2
+
+send the password in the URL itself:
+  http://127.0.0.1:3923/?pw=hunter2
+or if you have --usernames enabled,
+  http://127.0.0.1:3923/?pw=ed:hunter2
+
+use basic-authentication:
+  http://ed:hunter2@127.0.0.1:3923/
+which should be the same as this header:
+  Authorization: Basic ZWQ6aHVudGVyMg==

@@ -1,0 +1,34 @@
+copyparty --help-idp
+copyparty v1.20.10 "sftp is fine too" (2026-02-25)
+  CPython v3.12.12 on Linux64  [GCC 15.2.0]
+   sqlite 3.51.2*1 | jinja 3.1.6 | pyftpd 1.5.10 | tftp 0.4.0 | miko 4.0.0
+
+# idp help page (replacing the login system with fancy middleware)
+
+if you already have a centralized service which handles
+user-authentication for other services already, you can
+integrate copyparty with that for automatic login
+
+if the middleware is providing the username in an http-header
+named 'theUsername' then do this: --idp-h-usr theUsername
+
+if the middleware is providing a list of groups in the header
+named 'theGroups' then do this: --idp-h-grp theGroup
+
+if the list of groups is separated by '%' then --idp-gsep %
+
+if the middleware is providing a header named 'Account'
+and the value is 'alice@forest.net' but the username is
+actually 'marisa' then do this for each user:
+--idp-hm-usr ^Account^alice@forest.net^marisa
+(the separator '^' can be any character)
+
+make ABSOLUTELY SURE that the header can only be set by your
+middleware and not by clients! and, as an extra precaution,
+send a header named 'finalmasterspark' (a secret keyword)
+and then --idp-h-key finalmasterspark to require that
+
+the login/logout links/buttons can be replaced with links
+going to your IdP's UI; --idp-login /login/?redir={dst}
+will expand {dst} to the URL of the current page, so
+the IdP can redirect the user back to where they were

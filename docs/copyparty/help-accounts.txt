@@ -1,0 +1,53 @@
+copyparty v1.20.10 "sftp is fine too" (2026-02-25)
+  CPython v3.13.12 on Darwin64 25.3.0 [Clang 21.1.8 ]
+   sqlite 3.51.2*1 | jinja 3.1.6 | pyftpd 2.1.0 | tftp (None) | miko (None)
+
+# accounts help page (accounts and volumes)
+
+-a takes username:password,
+-v takes src:dst:perm1:perm2:permN:volflag1:volflag2:volflagN:...
+    * "perm" is "permissions,username1,username2,..."
+    * "volflag" is config flags to set on this volume
+
+--grp takes groupname:username1,username2,...
+and groupnames can be used instead of usernames in -v
+by prefixing the groupname with @
+
+list of permissions:
+  "r" (read):   list folder contents, download files
+  "w" (write):  upload files; need "r" to see the uploads
+  "m" (move):   move files and folders; need "w" at destination
+  "d" (delete): permanently delete files and folders
+  "g" (get):    download files, but cannot see folder contents
+  "G" (upget):  "get", but can see filekeys of their own uploads
+  "h" (html):   "get", but folders return their index.html
+  "." (dots):   user can ask to show dotfiles in listings
+  "a" (admin):  can see uploader IPs, config-reload
+  "A" ("all"):  same as "rwmda." (read/write/move/delete/admin/dotfiles)
+
+too many volflags to list here, see --help-flags
+
+example:
+  -a ed:hunter2 -v .::r:rw,ed -v ../inc:dump:w:rw,ed:c,nodupe  
+  mount current directory at "/" with
+   * r (read-only) for everyone
+   * rw (read+write) for ed
+  mount ../inc at "/dump" with
+   * w (write-only) for everyone
+   * rw (read+write) for ed
+   * reject duplicate files  
+
+if no accounts or volumes are configured,
+current folder will be read/write for everyone
+
+the group @acct will always have every user with an account
+(the name of that group can be changed with --grp-all)
+
+to hide a volume from authenticated users, specify *,-@acct
+to subtract @acct from * (can subtract users from groups too)
+
+consider the config file for more flexible account/volume management,
+including dynamic reload at runtime (and being more readable w)
+
+see --help-auth for ways to provide the password in requests;
+see --help-idp for replacing it with SSO and auth-middlewares
