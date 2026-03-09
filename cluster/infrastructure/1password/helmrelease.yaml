@@ -24,11 +24,10 @@ spec:
   values:
     connect:
       credentialsName: 1password-credentials
-      credentialsKey: password
+      credentialsKey: 1password-credentials.json
     operator:
       create: true
       autoRestart: true
       token:
         name: 1password-token
         key: password
-
