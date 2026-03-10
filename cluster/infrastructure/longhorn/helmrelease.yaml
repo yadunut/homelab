@@ -21,4 +21,9 @@ spec:
   upgrade:
     remediation:
       retries: 3
-
+  values:
+    metrics:
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+          release: kube-prometheus-stack
