@@ -13,8 +13,10 @@ data:
 
       idp-h-usr: X-Auth-Request-Preferred-Username
       idp-h-grp: x-Auth-Request-Groups
+      idp-chsub: |@_|
       xff-src: lan
       rproxy: 1
+      idp-logout: /oauth2/sign_out?rd=https%3A%2F%2Fidm.yadunut.dev%2Fui%2Flogout
 
       idp-store: 3
 
@@ -23,13 +25,13 @@ data:
       /data/u
       accs:
         r: @acct
-        rwmda: @drive_admin@idm.yadunut.dev
+        rwmda: @drive_admin_idm.yadunut.dev
 
     # per-user home: /u/${u}
     [/u/${u}]
       /data/u/${u}
       accs:
-        rwmda: ${u}, @drive_admin@idm.yadunut.dev
+        rwmda: ${u}, @drive_admin_idm.yadunut.dev
 
     # shared root (kept static; ${u} cannot be used at [/])
     [/]
