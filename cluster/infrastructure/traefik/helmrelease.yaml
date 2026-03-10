@@ -80,6 +80,14 @@ spec:
         level: INFO
       access:
         enabled: true
+    metrics:
+      prometheus:
+        service:
+          enabled: true
+        serviceMonitor:
+          enabled: true
+          additionalLabels:
+            release: kube-prometheus-stack
     global:
       checkNewVersion: false
       sendAnonymousUsage: false

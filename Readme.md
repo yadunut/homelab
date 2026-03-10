@@ -47,7 +47,7 @@ flux get kustomizations
 - [x] immich
 - [ ] pastebin of some kind
 - [ ] kanidm operator
-- [ ] some action runner thingie
+- [x] woodpecker
 - [ ] monitoring
 - [ ] website
 - [ ] figure out why metrics not being reported in lens

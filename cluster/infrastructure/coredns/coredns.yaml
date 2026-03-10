@@ -39,6 +39,7 @@ data:
   Corefile: |
     .:53 {
         errors
+        prometheus :9153
         health {
             lameduck 5s
         }
@@ -182,4 +183,3 @@ spec:
       port: 9153
       protocol: TCP
       targetPort: 9153
-
