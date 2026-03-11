@@ -22,6 +22,12 @@ spec:
     remediation:
       retries: 3
   values:
+    runtimeClassName: nvidia
+    resources:
+      limits:
+        nvidia.com/gpu.shared: "1"
+    nodeSelector:
+      kubernetes.io/hostname: penguin
     persistence:
       cache:
         enabled: true
@@ -84,4 +90,3 @@ spec:
           value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
         - name: NO_PROXY
           value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
-

@@ -68,8 +68,8 @@ env:
 ### 6) Storage
 - Storage classes in use:
   - `longhorn`: default replicated storage (3 replicas)
-  - `longhorn-local-1r`: non-replicated strict-local storage (pod/volume stay on same node)
-- Prefer `longhorn-local-1r` for node-local stateful workloads that do not need replication.
+  - `longhorn-local-1r`: non-replicated storage with `dataLocality: best-effort`
+- Prefer `longhorn-local-1r` for workloads that benefit from local volume access when possible and do not need replication.
 - Canonical operational detail and capacity notes: `docs/storage.md`
 - Caveat: on `nut-gc2`, `/srv` is shared by Longhorn and Garage; do not double-count capacity.
 

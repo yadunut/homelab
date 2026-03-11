@@ -3,6 +3,16 @@
 This document summarizes total storage capacity by node and storage system.
 All numbers are totals or configured allocations, not current usage.
 
+## Storage classes
+
+The cluster uses these Longhorn-backed storage classes:
+
+- `longhorn`: the default replicated class.
+- `longhorn-local-1r`: a single-replica class with `dataLocality: best-effort`.
+
+`longhorn-local-1r` prefers keeping the workload and its volume local to the
+same node when possible, but it is not strict-local storage.
+
 ## Nodes
 
 | Node | Roles | Root filesystem size (GiB) | Root filesystem size (TiB) |
