@@ -1,0 +1,14 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: forgejo-nbconvert
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: forgejo-nbconvert
+  filterTags:
+    pattern: '^(?P<version>\d+\.\d+\.\d+)-rootless-(?P<revision>\d+)$'
+    extract: '$version-$revision'
+  policy:
+    semver:
+      range: '>=14.0.0-0 <14.1.0'

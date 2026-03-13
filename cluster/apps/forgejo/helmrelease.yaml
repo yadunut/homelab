@@ -24,6 +24,10 @@ spec:
   values:
     replicaCount: 1
 
+    image:
+      fullOverride: harbor.yadunut.dev/yadunut/forgejo-nbconvert:14.0.3-rootless-1 # {"$imagepolicy": "flux-system:forgejo-nbconvert"}
+      rootless: true
+
     persistence:
       enabled: true
 
@@ -78,6 +82,14 @@ spec:
 
         indexer:
           REPO_INDEXER_ENABLED: true
+
+        markup.jupyter:
+          ENABLED: true
+          NEED_POSTPROCESS: false
+          FILE_EXTENSIONS: .ipynb
+          RENDER_COMMAND: "/opt/nbconvert/bin/jupyter nbconvert --stdout --to html --template lab"
+          IS_INPUT_FILE: true
+          RENDER_CONTENT_MODE: iframe
 
       additionalConfigFromEnvs:
         - name: FORGEJO__DATABASE__PASSWD

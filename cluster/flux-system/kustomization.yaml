@@ -3,6 +3,8 @@ kind: Kustomization
 resources:
 - gotk-components.yaml
 - gotk-sync.yaml
+- onepassworditem-flux-harbor.yaml
+
 patches:
   # HTTP proxy for source-controller to reach IPv4-only services (e.g., GitHub)
   # Required because the cluster is IPv6-only

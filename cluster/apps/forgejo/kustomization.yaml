@@ -3,6 +3,9 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - helmrepo.yaml
+  - image-repository.yaml
+  - image-policy.yaml
+  - image-update-automation.yaml
   - helmrelease.yaml
   - database.yaml
   - onepassworditem.yaml
