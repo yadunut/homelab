@@ -24,7 +24,7 @@ spec:
   values:
     replicaCount: 1
     image:
-      fullOverride: harbor.yadunut.dev/yadunut/forgejo-nbconvert:14.0.3-rootless-7 # {"$imagepolicy": "flux-system:forgejo-nbconvert"}
+      fullOverride: harbor.yadunut.dev/yadunut/forgejo-nbconvert:14.0.3-rootless-8 # {"$imagepolicy": "flux-system:forgejo-nbconvert"}
       rootless: true
     imagePullSecrets:
       - name: forgejo-harbor
