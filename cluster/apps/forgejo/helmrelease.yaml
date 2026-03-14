@@ -78,9 +78,10 @@ spec:
           ENABLED: true
           NEED_POSTPROCESS: false
           FILE_EXTENSIONS: .ipynb
-          RENDER_COMMAND: "/opt/nbconvert/bin/jupyter nbconvert --stdout --to html --template lab"
+          RENDER_COMMAND: "/opt/nbconvert/bin/jupyter nbconvert --stdout --to html --template forgejo-auto-theme"
           IS_INPUT_FILE: true
-          RENDER_CONTENT_MODE: iframe
+          RENDER_CONTENT_MODE: no-sanitizer
+
       additionalConfigFromEnvs:
         - name: FORGEJO__DATABASE__PASSWD
           valueFrom:
