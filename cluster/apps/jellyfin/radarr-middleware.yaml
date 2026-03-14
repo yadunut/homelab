@@ -1,0 +1,30 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: radarr-oauth-auth-redirect
+  namespace: jellyfin
+spec:
+  forwardAuth:
+    address: http://radarr-oauth2-proxy.jellyfin.svc.k8s.internal/
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-Auth-Request-Access-Token
+      - X-Auth-Request-User
+      - Authorization
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: radarr-auth-headers
+  namespace: jellyfin
+spec:
+  headers:
+    sslRedirect: true
+    stsSeconds: 315360000
+    browserXssFilter: true
+    contentTypeNosniff: true
+    forceSTSHeader: true
+    sslHost: radarr.yadunut.dev
+    stsIncludeSubdomains: true
+    stsPreload: true
+    frameDeny: true

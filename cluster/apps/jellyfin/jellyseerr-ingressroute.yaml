@@ -1,0 +1,37 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyseerr
+  namespace: jellyfin
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`jellyseerr.yadunut.dev`)
+      kind: Rule
+      middlewares:
+        - name: jellyseerr-oauth-auth-redirect
+      services:
+        - name: jellyseerr
+          port: 5055
+  tls:
+    secretName: jellyseerr-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyseerr-oauth2-proxy
+  namespace: jellyfin
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`jellyseerr.yadunut.dev`) && PathPrefix(`/oauth2/`)
+      kind: Rule
+      middlewares:
+        - name: jellyseerr-auth-headers
+      services:
+        - name: jellyseerr-oauth2-proxy
+          port: http
+  tls:
+    secretName: jellyseerr-tls

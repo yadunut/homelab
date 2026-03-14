@@ -10,4 +10,81 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - "media.yadunut.dev"
-
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: copyparty-tls
+  namespace: jellyfin
+spec:
+  secretName: copyparty-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "media-upload.yadunut.dev"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sonarr-tls
+  namespace: jellyfin
+spec:
+  secretName: sonarr-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "sonarr.yadunut.dev"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jellyseerr-tls
+  namespace: jellyfin
+spec:
+  secretName: jellyseerr-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "jellyseerr.yadunut.dev"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: radarr-tls
+  namespace: jellyfin
+spec:
+  secretName: radarr-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "radarr.yadunut.dev"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prowlarr-tls
+  namespace: jellyfin
+spec:
+  secretName: prowlarr-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "prowlarr.yadunut.dev"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: qbittorrent-tls
+  namespace: jellyfin
+spec:
+  secretName: qbittorrent-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "qbittorrent.yadunut.dev"

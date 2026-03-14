@@ -4,13 +4,31 @@ resources:
   - namespace.yaml
   - helmrepo.yaml
   - certificate.yaml
-  - media-pvc.yaml
+  - pvc.yaml
+  - service.yaml
+  - onepassworditem.yaml
   - helmrelease.yaml
+  - jellyseerr-deployment.yaml
+  - jellyseerr-oauth2-proxy-helmrelease.yaml
+  - jellyseerr-middleware.yaml
+  - jellyseerr-ingressroute.yaml
+  - sonarr-deployment.yaml
+  - sonarr-oauth2-proxy-helmrelease.yaml
+  - sonarr-middleware.yaml
+  - sonarr-ingressroute.yaml
+  - radarr-deployment.yaml
+  - radarr-oauth2-proxy-helmrelease.yaml
+  - radarr-middleware.yaml
+  - radarr-ingressroute.yaml
+  - prowlarr-deployment.yaml
+  - prowlarr-oauth2-proxy-helmrelease.yaml
+  - prowlarr-middleware.yaml
+  - prowlarr-ingressroute.yaml
+  - qbittorrent-deployment.yaml
+  - qbittorrent-oauth2-proxy-helmrelease.yaml
+  - qbittorrent-middleware.yaml
+  - qbittorrent-ingressroute.yaml
   - copyparty-deployment.yaml
-  - copyparty-service.yaml
-  - copyparty-oauth2-proxy-onepassworditem.yaml
   - copyparty-oauth2-proxy-helmrelease.yaml
   - copyparty-middleware.yaml
-  - copyparty-certificate.yaml
   - copyparty-ingressroute.yaml
-
