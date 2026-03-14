@@ -28,6 +28,9 @@ spec:
       fullOverride: harbor.yadunut.dev/yadunut/forgejo-nbconvert:14.0.3-rootless-1 # {"$imagepolicy": "flux-system:forgejo-nbconvert"}
       rootless: true
 
+    imagePullSecrets:
+      - name: forgejo-harbor
+
     persistence:
       enabled: true
 
