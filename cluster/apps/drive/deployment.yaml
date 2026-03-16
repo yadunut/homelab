@@ -7,6 +7,8 @@ metadata:
     app: copyparty
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: copyparty
@@ -15,6 +17,15 @@ spec:
       labels:
         app: copyparty
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - nut-gc2
       containers:
         - name: copyparty
           image: copyparty/ac
