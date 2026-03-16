@@ -88,11 +88,11 @@ spec:
             - name: config
               mountPath: /config
             - name: shared-media
-              mountPath: /media/movies
-              subPath: media/movies
+              mountPath: /media
+              subPath: media
             - name: shared-media
-              mountPath: /downloads/movies
-              subPath: downloads/movies
+              mountPath: /downloads
+              subPath: downloads
       volumes:
         - name: config
           persistentVolumeClaim:
