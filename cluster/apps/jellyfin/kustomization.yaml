@@ -16,6 +16,10 @@ resources:
   - sonarr-oauth2-proxy-helmrelease.yaml
   - sonarr-middleware.yaml
   - sonarr-ingressroute.yaml
+  - bazarr-deployment.yaml
+  - bazarr-oauth2-proxy-helmrelease.yaml
+  - bazarr-middleware.yaml
+  - bazarr-ingressroute.yaml
   - radarr-deployment.yaml
   - radarr-oauth2-proxy-helmrelease.yaml
   - radarr-middleware.yaml

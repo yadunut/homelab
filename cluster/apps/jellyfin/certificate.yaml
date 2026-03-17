@@ -88,3 +88,16 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - "qbittorrent.yadunut.dev"
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bazarr-tls
+  namespace: jellyfin
+spec:
+  secretName: bazarr-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - "bazarr.yadunut.dev"
