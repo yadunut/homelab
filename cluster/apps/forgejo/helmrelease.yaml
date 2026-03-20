@@ -74,6 +74,8 @@ spec:
           ENABLE_PUSH_CREATE_USER: true
         indexer:
           REPO_INDEXER_ENABLED: true
+        actions:
+          ENABLED: false
         markup.jupyter:
           ENABLED: true
           NEED_POSTPROCESS: false
