@@ -22,6 +22,8 @@ spec:
     remediation:
       retries: 3
   values:
+    strategy:
+      type: Recreate
     config:
       existingSecret: radarr-oauth
       cookieName: radarr-oauth2-proxy

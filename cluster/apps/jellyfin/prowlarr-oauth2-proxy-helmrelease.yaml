@@ -22,6 +22,8 @@ spec:
     remediation:
       retries: 3
   values:
+    strategy:
+      type: Recreate
     config:
       existingSecret: prowlarr-oauth
       cookieName: prowlarr-oauth2-proxy

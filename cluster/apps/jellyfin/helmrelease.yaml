@@ -26,6 +26,8 @@ spec:
     resources:
       limits:
         nvidia.com/gpu.shared: "1"
+    deploymentStrategy:
+      type: Recreate
     nodeSelector:
       kubernetes.io/hostname: penguin
     persistence:

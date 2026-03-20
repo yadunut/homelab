@@ -22,6 +22,8 @@ spec:
     remediation:
       retries: 3
   values:
+    strategy:
+      type: Recreate
     config:
       existingSecret: sonarr-oauth
       cookieName: sonarr-oauth2-proxy
