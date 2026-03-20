@@ -17,17 +17,6 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: penguin
-      initContainers:
-        - name: init-download-layout
-          image: busybox:1.37
-          command:
-            - sh
-            - -c
-            - |
-              mkdir -p /shared/downloads/tv /shared/downloads/movies
-          volumeMounts:
-            - name: shared-media
-              mountPath: /shared
       containers:
         - name: qbittorrent
           image: lscr.io/linuxserver/qbittorrent:latest
@@ -66,8 +55,8 @@ spec:
             - name: config
               mountPath: /config
             - name: shared-media
-              mountPath: /downloads
-              subPath: downloads
+              mountPath: /data/torrents
+              subPath: torrents
       volumes:
         - name: config
           persistentVolumeClaim:

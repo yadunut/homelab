@@ -18,16 +18,6 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: penguin
       initContainers:
-        - name: init-media-layout
-          image: busybox:1.37
-          command:
-            - sh
-            - -c
-            - |
-              mkdir -p /shared/media/tv /shared/downloads/tv
-          volumeMounts:
-            - name: shared-media
-              mountPath: /shared
         - name: init-auth-config
           image: busybox:1.37
           command:
@@ -88,11 +78,7 @@ spec:
             - name: config
               mountPath: /config
             - name: shared-media
-              mountPath: /media
-              subPath: media
-            - name: shared-media
-              mountPath: /downloads
-              subPath: downloads
+              mountPath: /data
       volumes:
         - name: config
           persistentVolumeClaim:

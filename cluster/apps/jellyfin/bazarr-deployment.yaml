@@ -17,17 +17,6 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/hostname: penguin
-      initContainers:
-        - name: init-media-layout
-          image: busybox:1.37
-          command:
-            - sh
-            - -c
-            - |
-              mkdir -p /shared/media/movies /shared/media/tv
-          volumeMounts:
-            - name: shared-media
-              mountPath: /shared
       containers:
         - name: bazarr
           image: lscr.io/linuxserver/bazarr:latest
@@ -66,11 +55,8 @@ spec:
             - name: config
               mountPath: /config
             - name: shared-media
-              mountPath: /movies
-              subPath: media/movies
-            - name: shared-media
-              mountPath: /tv
-              subPath: media/tv
+              mountPath: /data/media
+              subPath: media
       volumes:
         - name: config
           persistentVolumeClaim:
