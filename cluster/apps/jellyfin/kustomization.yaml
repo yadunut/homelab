@@ -9,8 +9,6 @@ resources:
   - onepassworditem.yaml
   - helmrelease.yaml
   - jellyseerr-deployment.yaml
-  - jellyseerr-oauth2-proxy-helmrelease.yaml
-  - jellyseerr-middleware.yaml
   - jellyseerr-ingressroute.yaml
   - sonarr-deployment.yaml
   - sonarr-oauth2-proxy-helmrelease.yaml
