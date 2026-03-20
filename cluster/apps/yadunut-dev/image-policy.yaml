@@ -11,4 +11,5 @@ spec:
   filterTags:
     pattern: "^main$"
   policy:
-    alphabetical: {}
+    alphabetical:
+      order: asc
