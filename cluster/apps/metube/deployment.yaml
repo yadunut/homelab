@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metube
+  namespace: metube
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: metube
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: metube
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: penguin
+      containers:
+        - name: metube
+          image: ghcr.io/alexta69/metube:2026.03.20 # {"$imagepolicy": "flux-system:metube"}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Asia/Singapore
+            - name: HOST
+              value: "0.0.0.0"
+            - name: PORT
+              value: "8081"
+            - name: DOWNLOAD_DIR
+              value: /downloads
+            - name: STATE_DIR
+              value: /state
+            - name: TEMP_DIR
+              value: /tmp
+            - name: DELETE_FILE_ON_TRASHCAN
+              value: "true"
+            - name: CLEAR_COMPLETED_AFTER
+              value: "300"
+            - name: HTTP_PROXY
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: HTTPS_PROXY
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: NO_PROXY
+              value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
+            - name: http_proxy
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: https_proxy
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: no_proxy
+              value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
+          readinessProbe:
+            tcpSocket:
+              host: 127.0.0.1
+              port: http
+          livenessProbe:
+            tcpSocket:
+              host: 127.0.0.1
+              port: http
+          volumeMounts:
+            - name: downloads
+              mountPath: /downloads
+            - name: state
+              mountPath: /state
+      volumes:
+        - name: downloads
+          emptyDir: {}
+        - name: state
+          emptyDir: {}

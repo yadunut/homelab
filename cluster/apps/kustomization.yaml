@@ -4,5 +4,6 @@ resources:
   - forgejo.yaml
   - immich.yaml
   - jellyfin.yaml
+  - metube.yaml
   - woodpecker.yaml
   - drive.yaml

@@ -1,0 +1,14 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: metube
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: metube
+  filterTags:
+    pattern: "^(?P<date>\\d{4}\\.\\d{2}\\.\\d{2})$"
+    extract: "$date"
+  policy:
+    alphabetical:
+      order: asc
