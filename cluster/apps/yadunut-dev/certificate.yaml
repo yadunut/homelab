@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: yadunut-dev-tls
+  namespace: yadunut-dev
+spec:
+  secretName: yadunut-dev-tls
+  issuerRef:
+    name: cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+    - yadunut.dev

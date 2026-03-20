@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yadunut-dev
+  namespace: yadunut-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: yadunut-dev
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: yadunut-dev
+    spec:
+      imagePullSecrets:
+        - name: yadunut-dev-harbor
+      containers:
+        - name: yadunut-dev
+          image: harbor.yadunut.dev/yadunut/yadunut.dev:main@sha256:de34409373b438c84380b92db9e4ea630d7688b41eb04ffcf3bc0bc286048d4e # {"$imagepolicy": "flux-system:yadunut-dev"}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http

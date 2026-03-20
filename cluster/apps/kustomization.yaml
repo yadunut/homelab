@@ -7,3 +7,4 @@ resources:
   - metube.yaml
   - woodpecker.yaml
   - drive.yaml
+  - yadunut-dev.yaml
