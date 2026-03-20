@@ -22,6 +22,7 @@ spec:
     remediation:
       retries: 3
   values:
+    revisionHistoryLimit: 2
     config:
       existingSecret: longhorn-oauth
       cookieName: longhorn-oauth2-proxy

@@ -22,6 +22,7 @@ spec:
     remediation:
       retries: 3
   values:
+    revisionHistoryLimit: 2
     config:
       existingSecret: traefik-oauth
       cookieName: traefik-oauth2-proxy

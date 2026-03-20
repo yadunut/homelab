@@ -22,6 +22,7 @@ spec:
     remediation:
       retries: 3
   values:
+    revisionHistoryLimit: 2
     config:
       existingSecret: drive-oauth
       cookieName: drive-oauth2-proxy
@@ -45,4 +46,3 @@ spec:
       set-authorization-header: "true"
     ingress:
       enabled: false
-
