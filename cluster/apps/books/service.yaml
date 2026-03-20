@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: books
+  namespace: books
+spec:
+  selector:
+    app.kubernetes.io/name: books
+  ports:
+    - name: http
+      port: 8083
+      targetPort: http
+      protocol: TCP
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv6

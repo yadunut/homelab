@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: books
+  namespace: books
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: books
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: books
+    spec:
+      containers:
+        - name: calibre-web-automated
+          image: crocodilestick/calibre-web-automated:v4.0.6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8083
+              protocol: TCP
+          env:
+            - name: TZ
+              value: Asia/Singapore
+            - name: PUID
+              value: "0"
+            - name: PGID
+              value: "0"
+            - name: TRUSTED_PROXY_COUNT
+              value: "1"
+            - name: HTTPS_PROXY
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: HTTP_PROXY
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: NO_PROXY
+              value: ".k8s.internal,.svc,localhost,127.0.0.1"
+            - name: https_proxy
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: http_proxy
+              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
+            - name: no_proxy
+              value: ".k8s.internal,.svc,localhost,127.0.0.1"
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 2
+              memory: 2Gi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: library
+              mountPath: /calibre-library
+            - name: ingest
+              mountPath: /cwa-book-ingest
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: books-config
+        - name: library
+          persistentVolumeClaim:
+            claimName: books-library
+        - name: ingest
+          persistentVolumeClaim:
+            claimName: books-ingest
