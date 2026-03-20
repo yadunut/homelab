@@ -9,7 +9,7 @@ spec:
   storageClassName: longhorn-local-1r
   resources:
     requests:
-      storage: 400Gi
+      storage: 500Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
