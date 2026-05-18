@@ -35,6 +35,8 @@ spec:
         port: 2222
     ingress:
       enabled: true
+      annotations:
+        traefik.ingress.kubernetes.io/router.middlewares: forgejo-forgejo-rate-limit@kubernetescrd
       className: traefik
       hosts:
         - host: git.yadunut.dev
