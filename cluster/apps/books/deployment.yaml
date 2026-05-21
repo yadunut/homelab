@@ -4,6 +4,7 @@ metadata:
   name: books
   namespace: books
 spec:
+  revisionHistoryLimit: 1
   replicas: 1
   strategy:
     type: Recreate
