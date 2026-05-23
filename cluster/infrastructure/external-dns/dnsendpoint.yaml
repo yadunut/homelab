@@ -9,31 +9,25 @@ spec:
       recordTTL: 300
       recordType: AAAA
       targets:
-        # nut-gc2 IP:
-        # - "2a11:8083:11:13d4::a"
-        # nut-gc1 IP:
-        - "2a11:8083:11:1021::a"
+        - "2400:79e0:403:d070:5a47:caff:fe7f:c65d"
     - dnsName: yadunut.dev
       recordTTL: 300
       recordType: A
       targets:
         # nut-gc2 IP:
-        # - "103.149.46.7"
-        # nut-gc1 IP:
+        - "103.149.46.7"
+        # # nut-gc1 IP:
         - "167.253.159.47"
     - dnsName: "*.yadunut.dev"
       recordTTL: 300
       recordType: AAAA
       targets:
-        # nut-gc2 IP:
-        # - "2a11:8083:11:13d4::a"
-        # nut-gc1 IP:
-        - "2a11:8083:11:1021::a"
+        - "2400:79e0:403:d070:5a47:caff:fe7f:c65d"
     - dnsName: "*.yadunut.dev"
       recordTTL: 300
       recordType: A
       targets:
         # nut-gc2 IP:
-        # - "103.149.46.7"
+        - "103.149.46.7"
         # nut-gc1 IP:
         - "167.253.159.47"
