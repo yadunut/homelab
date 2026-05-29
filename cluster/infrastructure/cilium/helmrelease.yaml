@@ -21,12 +21,20 @@ spec:
     remediation:
       retries: 3
   values:
-    autoDirectNodeRoutes: true
+    autoDirectNodeRoutes: false
     bpf:
       masquerade: true
+    bgpControlPlane:
+      enabled: true
+      routerIDAllocation:
+        mode: ip-pool
+        ipPool: 10.255.1.0/24
     cluster:
       name: nut-cluster
+    devices: ens3,enp4s0,nut-+
     enableIPv6Masquerade: true
+    extraConfig:
+      direct-routing-device: en+
     hubble:
       enabled: true
       peerService:
@@ -42,7 +50,7 @@ spec:
     ipv6:
       enabled: true
     ipv6NativeRoutingCIDR: fd00:10:96::/48
-    k8sServiceHost: fd5d:644d:2e43:8ad9:ec99:935d:644d:2e43
+    k8sServiceHost: fd7a:115c:a1e0::1
     k8sServicePort: 6443
     kubeProxyReplacement: true
     operator:
