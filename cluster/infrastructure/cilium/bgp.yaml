@@ -15,6 +15,7 @@ metadata:
 spec:
   transport:
     peerPort: 1179
+    sourceInterface: lo
   gracefulRestart:
     enabled: true
     restartTimeSeconds: 30
@@ -40,36 +41,3 @@ spec:
           peerAddress: "::1"
           peerConfigRef:
             name: local-bird
----
-apiVersion: cilium.io/v2
-kind: CiliumBGPNodeConfigOverride
-metadata:
-  name: nut-gc1
-spec:
-  bgpInstances:
-    - name: pod-routes
-      peers:
-        - name: local-bird
-          localAddress: "fd7a:115c:a1e0::1"
----
-apiVersion: cilium.io/v2
-kind: CiliumBGPNodeConfigOverride
-metadata:
-  name: nut-gc2
-spec:
-  bgpInstances:
-    - name: pod-routes
-      peers:
-        - name: local-bird
-          localAddress: "fd7a:115c:a1e0::2"
----
-apiVersion: cilium.io/v2
-kind: CiliumBGPNodeConfigOverride
-metadata:
-  name: penguin
-spec:
-  bgpInstances:
-    - name: pod-routes
-      peers:
-        - name: local-bird
-          localAddress: "fd7a:115c:a1e0::3"

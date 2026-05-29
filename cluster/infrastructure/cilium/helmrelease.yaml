@@ -36,6 +36,7 @@ spec:
       name: nut-cluster
     devices: ens3,enp4s0,nut-+
     enableIPv6Masquerade: true
+    enableRemoteNodeMasquerade: false
     extraConfig:
       direct-routing-device: en+
     hubble:
