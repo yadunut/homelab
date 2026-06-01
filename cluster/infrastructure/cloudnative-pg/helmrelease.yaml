@@ -8,7 +8,9 @@ spec:
   chart:
     spec:
       chart: cloudnative-pg
-      version: 0.x
+      # 0.28.1+ ships CNPG 1.29.1, which breaks IPv6-only clusters by
+      # generating unbracketed IPv6 instance-manager URLs.
+      version: 0.28.0
       sourceRef:
         kind: HelmRepository
         name: cloudnative-pg
