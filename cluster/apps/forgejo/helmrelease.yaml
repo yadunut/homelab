@@ -30,6 +30,7 @@ spec:
       - name: forgejo-harbor
     persistence:
       enabled: true
+      size: 20Gi
     service:
       ssh:
         port: 2222
