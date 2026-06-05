@@ -4,7 +4,7 @@ metadata:
   name: yadunut-dev
   namespace: flux-system
 spec:
-  image: harbor.yadunut.dev/yadunut/yadunut.dev
+  image: harbor.yadunut.dev/yadunut/gleam_nut-site
   interval: 1m0s
   secretRef:
     name: flux-harbor
