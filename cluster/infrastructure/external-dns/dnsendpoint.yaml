@@ -17,7 +17,7 @@ spec:
         # nut-gc2 IP:
         - "103.149.46.7"
         # # nut-gc1 IP:
-        # - "167.253.159.47"
+        - "167.253.159.47"
     - dnsName: "*.yadunut.dev"
       recordTTL: 300
       recordType: AAAA
@@ -30,4 +30,4 @@ spec:
         # nut-gc2 IP:
         - "103.149.46.7"
         # nut-gc1 IP:
-        # - "167.253.159.47"
+        - "167.253.159.47"
