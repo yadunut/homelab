@@ -34,7 +34,6 @@ spec:
             - name: VPN_TYPE
               value: wireguard
             - name: WIREGUARD_ENDPOINT_IP
-              value: "2a02:6ea0:d101:6221::10"
               valueFrom:
                 secretKeyRef:
                   name: qbittorrent-protonvpn

@@ -3,6 +3,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: jellyfin-media
   namespace: jellyfin
+  labels:
+    recurring-job.longhorn.io/no-backup: enabled
 spec:
   accessModes:
     - ReadWriteOnce
