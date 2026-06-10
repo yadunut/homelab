@@ -9,7 +9,7 @@ spec:
       recordTTL: 300
       recordType: AAAA
       targets:
-        - "2400:79e0:403:d070:5a47:caff:fe7f:c65d"
+        - "2400:79e0:403:b7f0:5a47:caff:fe7f:c65d"
     - dnsName: yadunut.dev
       recordTTL: 300
       recordType: A
@@ -22,7 +22,7 @@ spec:
       recordTTL: 300
       recordType: AAAA
       targets:
-        - "2400:79e0:403:d070:5a47:caff:fe7f:c65d"
+        - "2400:79e0:403:b7f0:5a47:caff:fe7f:c65d"
     - dnsName: "*.yadunut.dev"
       recordTTL: 300
       recordType: A
