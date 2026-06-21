@@ -41,7 +41,7 @@ spec:
                   name: yadunut-dev
                   key: REGION
             - name: BUCKET
-              value: garage
+              value: assets
             - name: IMAGE_PUBLIC_URL
               value: https://assets.web.garage.yadunut.dev
           ports:
