@@ -17,7 +17,7 @@ spec:
         - name: yadunut-dev-harbor
       containers:
         - name: yadunut-dev
-          image: harbor.yadunut.dev/yadunut/gleam_nut-site:main@sha256:250e40b875f9a44c54e09d4f5d9420d757702bc80d0374bc774c391b5efa2480 # {"$imagepolicy": "flux-system:yadunut-dev"}
+          image: harbor.yadunut.dev/yadunut/gleam_nut-site:main@sha256:3f3e0dd848297356c51bd5da9d3452a1479f2e1e44ccf9a5390ad4d1d1e37ecd # {"$imagepolicy": "flux-system:yadunut-dev"}
           imagePullPolicy: IfNotPresent
           env:
             - name: IMAGE_HOST
