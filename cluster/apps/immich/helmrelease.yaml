@@ -81,6 +81,8 @@ spec:
           containers:
             main:
               env:
+                # Gunicorn 25.1's control thread can deadlock the ML worker after fork.
+                GUNICORN_CMD_ARGS: "--no-control-socket"
                 # HTTP proxy for reaching IPv4-only services (e.g., HuggingFace model downloads)
                 # Required because the cluster is IPv6-only
                 HTTP_PROXY: "http://http-proxy.kube-system.svc.k8s.internal:8888"
