@@ -49,6 +49,7 @@ data:
             fallthrough in-addr.arpa ip6.arpa
             ttl 30
         }
+        dns64 64:ff9b::/96
         forward . 2606:4700:4700::1111 2001:4860:4860::8888 {
             max_concurrent 1000
         }

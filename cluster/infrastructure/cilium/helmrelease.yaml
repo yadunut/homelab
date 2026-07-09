@@ -26,7 +26,8 @@ spec:
     upgradeCompatibility: "1.18"
     autoDirectNodeRoutes: false
     bpf:
-      masquerade: true
+      hostLegacyRouting: true
+      masquerade: false
     bgpControlPlane:
       enabled: true
       routerIDAllocation:
