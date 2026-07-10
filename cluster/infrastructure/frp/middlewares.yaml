@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: frp-rate-limit
+  namespace: frp
+spec:
+  rateLimit:
+    average: 20
+    burst: 40
+    period: 1s
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: frp-in-flight
+  namespace: frp
+spec:
+  inFlightReq:
+    amount: 100

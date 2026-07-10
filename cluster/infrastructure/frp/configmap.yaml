@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frp
+  namespace: frp
+data:
+  frps.toml: |
+    bindAddr = "::"
+    bindPort = 7000
+    vhostHTTPPort = 8080
+    subDomainHost = "proxy.yadunut.dev"
+    detailedErrorsToClient = false
+
+    log.to = "console"
+    log.level = "info"
+
+    auth.method = "token"
+    auth.additionalScopes = ["HeartBeats", "NewWorkConns"]
+    auth.tokenSource.type = "file"
+    auth.tokenSource.file.path = "/run/secrets/frp/auth-token"
+
+    sshTunnelGateway.bindPort = 2200
+    sshTunnelGateway.privateKeyFile = "/run/secrets/frp/ssh-host-key"
+    sshTunnelGateway.authorizedKeysFile = "/etc/frp/authorized_keys"
+  authorized_keys: |
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJXOpmWsAnl2RtOuJJMRUx+iJTwf2RWJ1iS3FqXJFzFG yadunut

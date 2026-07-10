@@ -1,0 +1,29 @@
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: frp
+  namespace: frp
+spec:
+  endpoints:
+    - dnsName: "tunnel.proxy.yadunut.dev"
+      recordTTL: 300
+      recordType: AAAA
+      targets:
+        - "2400:79e0:403:b7f0:5a47:caff:fe7f:c65d"
+    - dnsName: "tunnel.proxy.yadunut.dev"
+      recordTTL: 300
+      recordType: A
+      targets:
+        - "103.149.46.7"
+        - "167.253.159.47"
+    - dnsName: "*.proxy.yadunut.dev"
+      recordTTL: 300
+      recordType: AAAA
+      targets:
+        - "2400:79e0:403:b7f0:5a47:caff:fe7f:c65d"
+    - dnsName: "*.proxy.yadunut.dev"
+      recordTTL: 300
+      recordType: A
+      targets:
+        - "103.149.46.7"
+        - "167.253.159.47"

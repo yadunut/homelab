@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frp
+  namespace: frp
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: frp
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - port: 8080
+          protocol: TCP
+        - port: 2200
+          protocol: TCP

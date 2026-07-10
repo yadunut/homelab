@@ -65,6 +65,12 @@ spec:
           default: true
         exposedPort: 2222
         protocol: TCP
+      frp-ssh:
+        port: 2200
+        expose:
+          default: true
+        exposedPort: 2200
+        protocol: TCP
     providers:
       kubernetesIngress:
         enabled: true
