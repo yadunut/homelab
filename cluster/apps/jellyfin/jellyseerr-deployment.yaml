@@ -31,18 +31,6 @@ spec:
               value: "5055"
             - name: TZ
               value: Asia/Singapore
-            - name: HTTPS_PROXY
-              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-            - name: HTTP_PROXY
-              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-            - name: NO_PROXY
-              value: ".k8s.internal,.svc,.themoviedb.org,.tmdb.org,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
-            - name: https_proxy
-              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-            - name: http_proxy
-              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-            - name: no_proxy
-              value: ".k8s.internal,.svc,.themoviedb.org,.tmdb.org,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
           readinessProbe:
             tcpSocket:
               port: http

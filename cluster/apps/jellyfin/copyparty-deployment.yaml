@@ -39,12 +39,6 @@ spec:
             - containerPort: 3923
               protocol: TCP
           env:
-            - name: HTTPS_PROXY
-              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-            - name: HTTP_PROXY
-              value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-            - name: NO_PROXY
-              value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
           volumeMounts:
             - name: media
               mountPath: /media

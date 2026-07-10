@@ -359,6 +359,9 @@ spec:
         retention: 15d
         storageSpec:
           volumeClaimTemplate:
+            metadata:
+              labels:
+                recurring-job.longhorn.io/no-backup: enabled
             spec:
               storageClassName: longhorn
               accessModes:

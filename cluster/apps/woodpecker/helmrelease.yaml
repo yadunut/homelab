@@ -59,12 +59,7 @@ spec:
               name: woodpecker-forgejo-oauth
               key: secret
         WOODPECKER_PLUGINS_PRIVILEGED: woodpeckerci/plugin-docker-buildx:latest
-        WOODPECKER_ENVIRONMENT: PLUGIN_IPV6:true,PLUGIN_CUSTOM_DNS:fd00:10:97::a,PLUGIN_HTTP_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888,PLUGIN_HTTPS_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888,HTTP_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888,HTTPS_PROXY:http://http-proxy.kube-system.svc.k8s.internal:8888
-        PLUGIN_NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev
-        PLUGIN_BUILD_ARGS_FROM_ENV: HTTP_PROXY,HTTPS_PROXY,NO_PROXY
-        HTTP_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
-        HTTPS_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
-        NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev,woodpecker-server,woodpecker-server-headless,woodpecker-server.woodpecker.svc,woodpecker-server.woodpecker.svc.k8s.internal
+        WOODPECKER_ENVIRONMENT: PLUGIN_IPV6:true,PLUGIN_CUSTOM_DNS:fd00:10:97::a
     agent:
       replicaCount: 2
       persistence:
@@ -81,7 +76,3 @@ spec:
         WOODPECKER_BACKEND_K8S_VOLUME_SIZE: 10Gi
         WOODPECKER_BACKEND_K8S_STORAGE_RWX: "false"
         WOODPECKER_BACKEND_K8S_SECCTX_NONROOT: "false"
-        PLUGIN_NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev
-        HTTP_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
-        HTTPS_PROXY: http://http-proxy.kube-system.svc.k8s.internal:8888
-        NO_PROXY: .k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8,harbor.yadunut.dev,woodpecker-server,woodpecker-server-headless,woodpecker-server.woodpecker.svc,woodpecker-server.woodpecker.svc.k8s.internal
