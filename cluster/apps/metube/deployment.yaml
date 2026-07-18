@@ -22,7 +22,7 @@ spec:
         kubernetes.io/hostname: penguin
       containers:
         - name: metube
-          image: ghcr.io/alexta69/metube:2026.07.16 # {"$imagepolicy": "flux-system:metube"}
+          image: ghcr.io/alexta69/metube:2026.07.18 # {"$imagepolicy": "flux-system:metube"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
