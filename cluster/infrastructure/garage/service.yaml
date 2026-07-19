@@ -20,7 +20,7 @@ metadata:
 addressType: IPv6
 endpoints:
   - addresses:
-      - "fd7a:115c:a1e0::2"
+      - "fd5f:97ba:c64d::2"
     conditions:
       ready: true
 ports:
@@ -50,7 +50,7 @@ metadata:
 addressType: IPv6
 endpoints:
   - addresses:
-      - "fd7a:115c:a1e0::2"
+      - "fd5f:97ba:c64d::2"
     conditions:
       ready: true
 ports:
