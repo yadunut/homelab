@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - books.yaml
   - forgejo.yaml
+  - headlamp.yaml
   - immich.yaml
   - jellyfin.yaml
   - metube.yaml
