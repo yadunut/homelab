@@ -5,4 +5,4 @@ metadata:
   namespace: flux-system
 spec:
   image: ghcr.io/alexta69/metube
-  interval: 1h
+  interval: 24h
