@@ -8,7 +8,6 @@ spec:
   chart:
     spec:
       chart: forgejo
-      version: 16.0.*
       sourceRef:
         kind: HelmRepository
         name: forgejo
@@ -23,11 +22,6 @@ spec:
       retries: 3
   values:
     replicaCount: 1
-    image:
-      fullOverride: harbor.yadunut.dev/yadunut/forgejo-nbconvert:14.0.3-rootless-8 # {"$imagepolicy": "flux-system:forgejo-nbconvert"}
-      rootless: true
-    imagePullSecrets:
-      - name: forgejo-harbor
     persistence:
       enabled: true
       size: 20Gi
@@ -79,14 +73,6 @@ spec:
           REPO_INDEXER_ENABLED: true
         actions:
           ENABLED: false
-        markup.jupyter:
-          ENABLED: true
-          NEED_POSTPROCESS: false
-          FILE_EXTENSIONS: .ipynb
-          RENDER_COMMAND: "/opt/nbconvert/bin/jupyter nbconvert --stdout --to html --template forgejo-auto-theme"
-          IS_INPUT_FILE: true
-          RENDER_CONTENT_MODE: no-sanitizer
-
       additionalConfigFromEnvs:
         - name: FORGEJO__DATABASE__PASSWD
           valueFrom:
