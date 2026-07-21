@@ -188,7 +188,7 @@ async function main(): Promise<void> {
         id: "OIDC_SCOPES",
         label: "OIDC_SCOPES",
         type: "STRING",
-        value: "openid,profile,email,groups",
+        value: "profile,email,groups",
       },
       {
         id: "OIDC_USE_PKCE",

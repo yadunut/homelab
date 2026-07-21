@@ -26,14 +26,18 @@ spec:
     config:
       inCluster: true
       unsafeUseServiceAccountToken: false
-      oidc:
-        secret:
-          create: false
-        externalSecret:
-          enabled: true
-          name: headlamp-oidc
-          hasScopes: true
-        usePKCE: true
+      extraArgs:
+        - "-oidc-client-id=headlamp"
+        - "-oidc-idp-issuer-url=https://idm.yadunut.dev/oauth2/openid/headlamp"
+        - "-oidc-callback-url=https://headlamp.yadunut.dev/oidc-callback"
+        - "-oidc-scopes=profile,email,groups"
+        - "-oidc-use-pkce=true"
+    env:
+      - name: HEADLAMP_CONFIG_OIDC_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: headlamp-oidc
+            key: OIDC_CLIENT_SECRET
     automountServiceAccountToken: true
     serviceAccount:
       create: true
