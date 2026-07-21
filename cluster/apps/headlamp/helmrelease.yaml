@@ -21,37 +21,6 @@ spec:
   upgrade:
     remediation:
       retries: 3
-  postRenderers:
-    - kustomize:
-        patches:
-          - target:
-              group: apps
-              version: v1
-              kind: Deployment
-              name: headlamp
-            patch: |
-              - op: replace
-                path: /spec/template/spec/containers/0/args
-                value:
-                  - "-in-cluster"
-                  - "-in-cluster-context-name=main"
-                  - "-plugins-dir=/headlamp/plugins"
-                  - "-session-ttl=86400"
-                  - "-oidc-client-id=headlamp"
-                  - "-oidc-idp-issuer-url=https://idm.yadunut.dev/oauth2/openid/headlamp"
-                  - "-oidc-callback-url=https://headlamp.yadunut.dev/oidc-callback"
-                  - "-oidc-scopes=profile,email,groups"
-                  - "-oidc-use-pkce=true"
-              - op: remove
-                path: /spec/template/spec/containers/0/envFrom
-              - op: add
-                path: /spec/template/spec/containers/0/env
-                value:
-                  - name: HEADLAMP_CONFIG_OIDC_CLIENT_SECRET
-                    valueFrom:
-                      secretKeyRef:
-                        name: headlamp-oidc
-                        key: OIDC_CLIENT_SECRET
   values:
     replicaCount: 1
     config:
