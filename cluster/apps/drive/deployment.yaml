@@ -28,7 +28,7 @@ spec:
                       - nut-gc2
       containers:
         - name: copyparty
-          image: copyparty/ac
+          image: copyparty/ac:1.20.20 # {"$imagepolicy": "flux-system:copyparty"}
           args:
             - "-c"
             - "/config/copyparty.conf"

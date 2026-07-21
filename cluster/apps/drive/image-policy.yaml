@@ -1,0 +1,14 @@
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: copyparty
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: copyparty
+  filterTags:
+    pattern: "^(?P<version>\\d+\\.\\d+\\.\\d+)$"
+    extract: "$version"
+  policy:
+    semver:
+      range: ">=1.0.0"
