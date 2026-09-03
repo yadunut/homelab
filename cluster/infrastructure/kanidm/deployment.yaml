@@ -15,9 +15,11 @@ spec:
       labels:
         app: kanidm
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: nut-gc1
       containers:
         - name: kanidm
-          image: kanidm/server:1.8.5
+          image: kanidm/server:1.11.1
           imagePullPolicy: IfNotPresent
           ports:
             - name: https
