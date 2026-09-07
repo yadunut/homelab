@@ -74,8 +74,10 @@ The seed selects OpenRouter as provider and leaves the model at Hermes's default
 Choose your desired OpenRouter model in the dashboard's Models page before the
 first conversation. Terminal tools run locally in the container under
 `/opt/data/workspace`; no Docker daemon or Kubernetes service-account token is
-mounted. Standard HTTP proxy variables and an explicit Telegram proxy provide
-IPv4 egress. There is no external gateway API service or Telegram webhook ingress.
+mounted. Egress uses direct IPv6 and the cluster's DNS64/NAT64 path. The legacy
+HTTP proxy described in AGENTS.md is absent; do not configure Hermes to use it.
+Telegram, OpenRouter, and Kanidm were verified reachable directly from the pod.
+There is no external gateway API service or Telegram webhook ingress.
 
 ## Validation
 

@@ -75,14 +75,8 @@ spec:
                   key: TELEGRAM_ALLOWED_USERS
             - name: TELEGRAM_ALLOW_ALL_USERS
               value: "false"
-            - name: HTTP_PROXY
-              value: http://http-proxy.kube-system.svc.k8s.internal:8888
-            - name: HTTPS_PROXY
-              value: http://http-proxy.kube-system.svc.k8s.internal:8888
-            - name: TELEGRAM_PROXY
-              value: http://http-proxy.kube-system.svc.k8s.internal:8888
-            - name: NO_PROXY
-              value: ".k8s.internal,.svc,localhost,127.0.0.1,::1,10.0.0.0/8,fd00::/8"
+            # Direct IPv6 / cluster DNS64 egress; the legacy http-proxy
+            # service no longer exists. Telegram and OpenRouter work directly.
           resources:
             requests:
               cpu: 250m
