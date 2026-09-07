@@ -53,6 +53,11 @@ CiliumInternalIP. If these addresses change, update `trusted_proxies` in
 `bootstrap-config.yaml`; the init container reconciles that setting on startup.
 Only these exact node addresses are trusted, not the entire pod network.
 
+`HERMES_DASHBOARD_WS_HOST=::1` makes the embedded TUI reach the dashboard gateway
+over IPv6 loopback. Without it Hermes maps the wildcard `::` listener to
+`127.0.0.1`, which refuses connections and produces repeated WebSocket 1006
+errors and a "gateway exited" message in dashboard chat.
+
 The official image is pinned by multi-architecture digest in both the init and
 main containers. Update both references together. Its s6 entrypoint starts and
 supervises the dashboard and gateway and drops application processes to the
@@ -78,6 +83,10 @@ first conversation. Terminal tools run locally in the container under
 mounted. Egress uses direct IPv6 and the cluster's DNS64/NAT64 path. The legacy
 HTTP proxy described in AGENTS.md is absent; do not configure Hermes to use it.
 Telegram, OpenRouter, and Kanidm were verified reachable directly from the pod.
+`HERMES_TELEGRAM_DISABLE_FALLBACK_IPS=true` selects the standard Telegram HTTP
+transport. Hermes's custom fallback transport prioritizes IPv4 literals, which
+bypass DNS64 and cannot connect from this IPv6-only pod; it also showed repeated
+polling and delivery failures while standard hostname requests succeeded.
 There is no external gateway API service or Telegram webhook ingress.
 
 ## Validation

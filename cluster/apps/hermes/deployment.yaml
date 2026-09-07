@@ -64,6 +64,9 @@ spec:
               value: "1"
             - name: HERMES_DASHBOARD_HOST
               value: "::"
+            # The embedded TUI otherwise maps the wildcard bind to IPv4 loopback.
+            - name: HERMES_DASHBOARD_WS_HOST
+              value: "::1"
             - name: HERMES_DASHBOARD_PUBLIC_URL
               value: https://hermes.yadunut.dev
             - name: HERMES_DASHBOARD_OIDC_ISSUER
@@ -89,6 +92,10 @@ spec:
                   key: TELEGRAM_ALLOWED_USERS
             - name: TELEGRAM_ALLOW_ALL_USERS
               value: "false"
+            # IPv4 literals bypass DNS64 and fail in an IPv6-only pod.
+            # Use PTB's standard hostname transport instead of Hermes's fallback.
+            - name: HERMES_TELEGRAM_DISABLE_FALLBACK_IPS
+              value: "true"
             # Direct IPv6 / cluster DNS64 egress; the legacy http-proxy
             # service no longer exists. Telegram and OpenRouter work directly.
           resources:
