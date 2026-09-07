@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hermes
+  namespace: hermes
+spec:
+  revisionHistoryLimit: 2
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: hermes
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: hermes
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 60
+      initContainers:
+        - name: bootstrap
+          image: nousresearch/hermes-agent@sha256:e6558e46731d67061e994fad00575489a07c543f58cfc34d23d4082382e26466
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              if [ ! -e /opt/data/config.yaml ]; then
+                cp /bootstrap/config.yaml /opt/data/config.yaml
+              fi
+              install -d -o hermes -g hermes /opt/data/workspace
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+      containers:
+        - name: hermes
+          image: nousresearch/hermes-agent@sha256:e6558e46731d67061e994fad00575489a07c543f58cfc34d23d4082382e26466
+          # Preserve the image entrypoint: s6 supervises gateway and dashboard
+          # and drops application processes to the hermes runtime user.
+          args: ["gateway", "run"]
+          ports:
+            - name: dashboard
+              containerPort: 9119
+          env:
+            - name: TZ
+              value: Asia/Singapore
+            - name: HERMES_DASHBOARD
+              value: "1"
+            - name: HERMES_DASHBOARD_HOST
+              value: "::"
+            - name: HERMES_DASHBOARD_PUBLIC_URL
+              value: https://hermes.yadunut.dev
+            - name: HERMES_DASHBOARD_OIDC_ISSUER
+              value: https://idm.yadunut.dev/oauth2/openid/hermes
+            - name: HERMES_DASHBOARD_OIDC_CLIENT_ID
+              value: hermes
+            - name: HERMES_DASHBOARD_OIDC_SCOPES
+              value: "openid profile email"
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes
+                  key: OPENROUTER_API_KEY
+            - name: TELEGRAM_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hermes
+                  key: TELEGRAM_BOT_TOKEN
+            - name: TELEGRAM_ALLOWED_USERS
+              valueFrom:
+                secretKeyRef:
+                  name: hermes
+                  key: TELEGRAM_ALLOWED_USERS
+            - name: TELEGRAM_ALLOW_ALL_USERS
+              value: "false"
+            - name: HTTP_PROXY
+              value: http://http-proxy.kube-system.svc.k8s.internal:8888
+            - name: HTTPS_PROXY
+              value: http://http-proxy.kube-system.svc.k8s.internal:8888
+            - name: TELEGRAM_PROXY
+              value: http://http-proxy.kube-system.svc.k8s.internal:8888
+            - name: NO_PROXY
+              value: ".k8s.internal,.svc,localhost,127.0.0.1,::1,10.0.0.0/8,fd00::/8"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          startupProbe:
+            httpGet:
+              path: /api/status
+              port: dashboard
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: dashboard
+            periodSeconds: 10
+          # s6 restarts failed gateway/dashboard processes independently.
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hermes-data
+        - name: bootstrap
+          configMap:
+            name: hermes-bootstrap

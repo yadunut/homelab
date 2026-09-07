@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hermes
+  namespace: hermes
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`hermes.yadunut.dev`)
+      kind: Rule
+      services:
+        - name: hermes
+          port: dashboard
+  tls:
+    secretName: hermes-tls

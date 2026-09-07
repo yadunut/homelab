@@ -1,0 +1,13 @@
+# Seeded once so subsequent dashboard configuration survives restarts.
+model:
+  provider: openrouter
+terminal:
+  backend: local
+  cwd: /opt/data/workspace
+dashboard:
+  public_url: https://hermes.yadunut.dev
+  trusted_proxies:
+    # Traefik uses host networking on these three ingress nodes.
+    - "fd5f:97ba:c64d::1"
+    - "fd5f:97ba:c64d::2"
+    - "fd5f:97ba:c64d::3"

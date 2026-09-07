@@ -4,6 +4,7 @@ resources:
   - books.yaml
   - forgejo.yaml
   - headlamp.yaml
+  - hermes.yaml
   - immich.yaml
   - jellyfin.yaml
   - metube.yaml
