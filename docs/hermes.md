@@ -47,11 +47,11 @@ confidential client, while Hermes requires a public PKCE client.
 terminates TLS using a dedicated cert-manager certificate.
 
 The dashboard listens on IPv6 port 9119. Its proxy trust list contains the
-internal addresses of the three ingress nodes, whose Traefik pods use host
-networking. Update the persisted dashboard `trusted_proxies` setting if those
-addresses change. Confirm secure cookies during the initial login test; if
-traffic is SNATed to a different address, verify the observed source before
-adding that exact address to the trust list.
+internal and CiliumInternalIP addresses of the three ingress nodes, whose Traefik
+pods use host networking. Host-to-pod traffic was observed arriving from the
+CiliumInternalIP. If these addresses change, update `trusted_proxies` in
+`bootstrap-config.yaml`; the init container reconciles that setting on startup.
+Only these exact node addresses are trusted, not the entire pod network.
 
 The official image is pinned by multi-architecture digest in both the init and
 main containers. Update both references together. Its s6 entrypoint starts and
@@ -64,11 +64,12 @@ sessions, skills, configuration, and workspace. The single replica uses Recreate
 updates to avoid concurrent gateway writers. Do not scale this Deployment above
 one replica. Longhorn replication is not a backup.
 
-`bootstrap-config.yaml` is copied only when `/opt/data/config.yaml` does not
-exist. Dashboard edits therefore persist across restarts. Changes to this seed
-file do not update an existing installation: apply subsequent settings through
-the dashboard or `hermes config set`. OIDC issuer/client/scopes and the public URL
-are supplied through environment overrides on each start.
+`bootstrap-config.yaml` seeds `/opt/data/config.yaml` on the first start. The init
+container reconciles only `dashboard.trusted_proxies` on later starts, preserving
+other dashboard edits. Changes to other seed settings do not update an existing
+installation: apply subsequent settings through the dashboard or
+`hermes config set`. OIDC issuer/client/scopes and the public URL are supplied
+through environment overrides on each start.
 
 The seed selects OpenRouter as provider and leaves the model at Hermes's default.
 Choose your desired OpenRouter model in the dashboard's Models page before the

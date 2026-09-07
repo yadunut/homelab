@@ -1,4 +1,4 @@
-# Seeded once so subsequent dashboard configuration survives restarts.
+# Seeded once; trusted_proxies is reconciled on each start.
 model:
   provider: openrouter
 terminal:
@@ -11,3 +11,7 @@ dashboard:
     - "fd5f:97ba:c64d::1"
     - "fd5f:97ba:c64d::2"
     - "fd5f:97ba:c64d::3"
+    # Host-to-pod connections use the ingress nodes' CiliumInternalIP.
+    - "fd00:10:96::3d2a"
+    - "fd00:10:96:1::428e"
+    - "fd00:10:96:2::b0ed"

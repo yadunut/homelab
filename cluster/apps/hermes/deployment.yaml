@@ -21,13 +21,27 @@ spec:
       initContainers:
         - name: bootstrap
           image: nousresearch/hermes-agent@sha256:e6558e46731d67061e994fad00575489a07c543f58cfc34d23d4082382e26466
-          command: ["/bin/sh", "-ec"]
+          command: ["/opt/hermes/.venv/bin/python", "-c"]
           args:
             - |
-              if [ ! -e /opt/data/config.yaml ]; then
-                cp /bootstrap/config.yaml /opt/data/config.yaml
-              fi
-              install -d -o hermes -g hermes /opt/data/workspace
+              import os
+              import pwd
+              from pathlib import Path
+              import yaml
+
+              seed = yaml.safe_load(Path("/bootstrap/config.yaml").read_text())
+              path = Path("/opt/data/config.yaml")
+              config = yaml.safe_load(path.read_text()) if path.exists() else seed
+              config.setdefault("dashboard", {})["trusted_proxies"] = seed["dashboard"]["trusted_proxies"]
+              user = pwd.getpwnam("hermes")
+              temporary = path.with_suffix(".yaml.tmp")
+              temporary.write_text(yaml.safe_dump(config, sort_keys=False))
+              temporary.chmod(0o640)
+              os.chown(temporary, user.pw_uid, user.pw_gid)
+              temporary.replace(path)
+              workspace = Path("/opt/data/workspace")
+              workspace.mkdir(exist_ok=True)
+              os.chown(workspace, user.pw_uid, user.pw_gid)
           volumeMounts:
             - name: data
               mountPath: /opt/data
