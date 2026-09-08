@@ -70,6 +70,9 @@ spec:
     initContainers:
       - name: backup-before-jellyfin-12
         image: docker.io/jellyfin/jellyfin:10.11.5
+        env:
+          - name: NVIDIA_VISIBLE_DEVICES
+            value: void
         command:
           - sh
           - -ec
