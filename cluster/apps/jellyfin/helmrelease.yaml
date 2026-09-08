@@ -68,29 +68,6 @@ spec:
             - media.yadunut.dev
 
     initContainers:
-      - name: backup-before-jellyfin-12
-        image: docker.io/jellyfin/jellyfin:10.11.5
-        env:
-          - name: NVIDIA_VISIBLE_DEVICES
-            value: void
-        command:
-          - sh
-          - -ec
-          - |
-            umask 077
-            mkdir -p /config/backups
-            cd /config/backups
-            archive=jellyfin-10.11.5-before-12.0-20260908.tar.gz
-            if [ ! -f "$archive.sha256" ]; then
-              tar --exclude=./backups --exclude=./lost+found -czf "$archive.partial" -C /config .
-              tar -tzf "$archive.partial" >/dev/null
-              mv "$archive.partial" "$archive"
-              sha256sum "$archive" > "$archive.sha256"
-            fi
-            sha256sum -c "$archive.sha256"
-        volumeMounts:
-          - name: config
-            mountPath: /config
       - name: init-network-config
         image: busybox:1.37
         command:
