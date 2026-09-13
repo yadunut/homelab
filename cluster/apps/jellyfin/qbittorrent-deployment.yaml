@@ -15,6 +15,11 @@ spec:
       labels:
         app.kubernetes.io/name: qbittorrent
     spec:
+      dnsConfig:
+        options:
+          # Resolve public tracker names before Kubernetes search domains.
+          - name: ndots
+            value: "1"
       nodeSelector:
         kubernetes.io/hostname: penguin
       initContainers:
