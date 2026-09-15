@@ -3,14 +3,8 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - onepassworditem.yaml
-  - llama-onepassworditem.yaml
   - pvc.yaml
   - deployment.yaml
   - service.yaml
   - certificate.yaml
   - ingressroute.yaml
-configMapGenerator:
-  - name: hermes-bootstrap
-    namespace: hermes
-    files:
-      - config.yaml=bootstrap-config.yaml

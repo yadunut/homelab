@@ -1,7 +1,9 @@
 # Hermes Agent
 
 Hermes runs one gateway with Telegram and a dashboard at
-https://hermes.yadunut.dev. OpenRouter supplies inference. The dashboard uses
+https://hermes.yadunut.dev. The local llama service supplies inference;
+OpenRouter remains available as an alternative. See `docs/llama.md` for the
+model endpoint, token provisioning, and validation. The dashboard uses
 native OIDC with Kanidm; no oauth2-proxy is needed. Its public PKCE client uses
 ES256 verification and does not require a client secret.
 
@@ -70,15 +72,18 @@ updates to avoid concurrent gateway writers. Do not scale this Deployment above
 one replica. Longhorn replication is not a backup.
 
 `bootstrap-config.yaml` seeds `/opt/data/config.yaml` on the first start. The init
-container reconciles only `dashboard.trusted_proxies` on later starts, preserving
+container reconciles `dashboard.trusted_proxies` and `providers.llama` on later starts, preserving
 other dashboard edits. Changes to other seed settings do not update an existing
 installation: apply subsequent settings through the dashboard or
 `hermes config set`. OIDC issuer/client/scopes and the public URL are supplied
 through environment overrides on each start.
 
-The seed selects OpenRouter as provider and leaves the model at Hermes's default.
-Choose your desired OpenRouter model in the dashboard's Models page before the
-first conversation. Terminal tools run locally in the container under
+The seed selects `custom:llama` and `qwen3.8-27b`. Existing installations need an
+explicit provider/model switch because the seed does not overwrite their default.
+The named provider declares the server's 16K context and reads the first token
+from `/llama-auth/api-keys` through `key_cmd`. A separate OnePasswordItem in the
+Hermes namespace syncs the same `cluster/llama` item; no token is written to the
+persisted configuration. Terminal tools run locally in the container under
 `/opt/data/workspace`; no Docker daemon or Kubernetes service-account token is
 mounted. Egress uses direct IPv6 and the cluster's DNS64/NAT64 path. The legacy
 HTTP proxy described in AGENTS.md is absent; do not configure Hermes to use it.

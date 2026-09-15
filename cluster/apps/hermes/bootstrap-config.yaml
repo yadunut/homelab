@@ -1,6 +1,18 @@
-# Seeded once; trusted_proxies is reconciled on each start.
+# Seeded once; trusted_proxies and providers.llama are reconciled on each start.
 model:
-  provider: openrouter
+  provider: custom:llama
+  default: qwen3.8-27b
+providers:
+  llama:
+    base_url: http://llama.llama.svc.k8s.internal:8080/v1
+    default_model: qwen3.8-27b
+    api_mode: chat_completions
+    models:
+      qwen3.8-27b:
+        context_length: 16384
+        max_output_tokens: 4096
+    # Read the Hermes token (first line) without persisting it in config.yaml.
+    key_cmd: head -n 1 /llama-auth/api-keys
 terminal:
   backend: local
   cwd: /opt/data/workspace

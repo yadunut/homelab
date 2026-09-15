@@ -33,6 +33,7 @@ spec:
               path = Path("/opt/data/config.yaml")
               config = yaml.safe_load(path.read_text()) if path.exists() else seed
               config.setdefault("dashboard", {})["trusted_proxies"] = seed["dashboard"]["trusted_proxies"]
+              config.setdefault("providers", {})["llama"] = seed["providers"]["llama"]
               user = pwd.getpwnam("hermes")
               temporary = path.with_suffix(".yaml.tmp")
               temporary.write_text(yaml.safe_dump(config, sort_keys=False))
@@ -120,6 +121,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /opt/data
+            - name: llama-auth
+              mountPath: /llama-auth
+              readOnly: true
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -127,3 +131,10 @@ spec:
         - name: bootstrap
           configMap:
             name: hermes-bootstrap
+        - name: llama-auth
+          secret:
+            secretName: llama
+            defaultMode: 0444
+            items:
+              - key: API_KEYS
+                path: api-keys

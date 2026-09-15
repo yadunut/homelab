@@ -1,0 +1,17 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: llama
+  namespace: llama
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # llama-server checks bearer tokens. Keep health, UI and admin paths private.
+    - match: Host(`llm.yadunut.dev`) && (Path(`/v1/models`) || Path(`/v1/chat/completions`) || Path(`/v1/completions`))
+      kind: Rule
+      services:
+        - name: llama
+          port: http
+  tls:
+    secretName: llama-tls

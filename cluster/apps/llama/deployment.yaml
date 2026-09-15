@@ -1,0 +1,149 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama
+  namespace: llama
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llama
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: llama
+    spec:
+      automountServiceAccountToken: false
+      runtimeClassName: nvidia
+      nodeSelector:
+        kubernetes.io/hostname: penguin
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: download-model
+          # curlimages/curl:8.16.0
+          image: curlimages/curl@sha256:463eaf6072688fe96ac64fa623fe73e1dbe25d8ad6c34404a669ad3ce1f104b6
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              cd /models
+              if [ -f "$MODEL_FILE" ] && echo "$MODEL_SHA256  $MODEL_FILE" | sha256sum -c -; then
+                exit 0
+              fi
+              curl --fail --location --retry 5 --retry-delay 10 \
+                --connect-timeout 30 --continue-at - \
+                --output "$MODEL_FILE.partial" "$MODEL_URL"
+              echo "$MODEL_SHA256  $MODEL_FILE.partial" | sha256sum -c - || {
+                rm -f "$MODEL_FILE.partial"
+                exit 1
+              }
+              mv "$MODEL_FILE.partial" "$MODEL_FILE"
+          env:
+            - name: MODEL_FILE
+              value: Qwen3.8-27B-GSQ-RCO-IQ3_XXS.gguf
+            - name: MODEL_URL
+              value: https://huggingface.co/ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF/resolve/d562806dbafae37109975e970aae91b43e73b440/Qwen3.8-27B-GSQ-RCO-IQ3_XXS.gguf
+            - name: MODEL_SHA256
+              value: fdfcb6a29b11188956dfbfd904223588a6c1b77eb250c3e8a36e1bd269df91f7
+          # Direct IPv6 / DNS64 egress; the legacy http-proxy Service is absent.
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      containers:
+        - name: llama
+          # Upstream server-cuda, pinned for the initial local validation.
+          image: ghcr.io/ggml-org/llama.cpp@sha256:5268283a8d6510d167364f19aee93e98180d8eb0cac4b7edb20af7e3edf40c17
+          # Refuse an empty/comment-only key file instead of starting without auth.
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              awk 'NF && $1 !~ /^#/ { found=1 } END { exit !found }' /auth/api-keys
+              exec /app/llama-server "$@"
+            - llama-server
+            - --model
+            - /models/Qwen3.8-27B-GSQ-RCO-IQ3_XXS.gguf
+            - --alias
+            - qwen3.8-27b
+            - --host
+            - "::"
+            - --port
+            - "8080"
+            - --n-gpu-layers
+            - "99"
+            - --ctx-size
+            - "16384"
+            - --parallel
+            - "1"
+            - --flash-attn
+            - "on"
+            - --jinja
+            - --api-key-file
+            - /auth/api-keys
+            - --no-webui
+            - --no-slots
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              cpu: "2"
+              memory: 12Gi
+              nvidia.com/gpu.shared: "1"
+            limits:
+              memory: 24Gi
+              # A time slice shares the entire GPU; it does not reserve VRAM.
+              nvidia.com/gpu.shared: "1"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 90
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: models
+              mountPath: /models
+              readOnly: true
+            - name: auth
+              mountPath: /auth
+              readOnly: true
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: llama-models
+        - name: auth
+          secret:
+            secretName: llama
+            defaultMode: 0440
+            items:
+              - key: API_KEYS
+                path: api-keys
