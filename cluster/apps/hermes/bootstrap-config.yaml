@@ -9,7 +9,7 @@ providers:
     api_mode: chat_completions
     models:
       qwen3.8-27b:
-        context_length: 16384
+        context_length: 65536
         max_output_tokens: 4096
     # Read the Hermes token (first line) without persisting it in config.yaml.
     key_cmd: head -n 1 /llama-auth/api-keys

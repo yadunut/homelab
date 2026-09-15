@@ -80,7 +80,7 @@ through environment overrides on each start.
 
 The seed selects `custom:llama` and `qwen3.8-27b`. Existing installations need an
 explicit provider/model switch because the seed does not overwrite their default.
-The named provider declares the server's 16K context and reads the first token
+The named provider declares the server's 64K context and reads the first token
 from `/llama-auth/api-keys` through `key_cmd`. A separate OnePasswordItem in the
 Hermes namespace syncs the same `cluster/llama` item; no token is written to the
 persisted configuration. Terminal tools run locally in the container under

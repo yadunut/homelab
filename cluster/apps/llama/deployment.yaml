@@ -90,7 +90,7 @@ spec:
             - --n-gpu-layers
             - "99"
             - --ctx-size
-            - "16384"
+            - "65536"
             - --parallel
             - "1"
             - --flash-attn

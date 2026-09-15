@@ -9,7 +9,8 @@ validation followed by Flux adoption.
 - Internal base URL: `http://llama.llama.svc.k8s.internal:8080/v1`
 - Public base URL: `https://llm.yadunut.dev/v1`
 - Model alias: `qwen3.8-27b`
-- One replica on `penguin`, one inference slot, 16,384 tokens of context.
+- One replica on `penguin`, one inference slot, 65,536 tokens of context.
+  Hermes enforces a minimum 64,000-token context at agent startup.
 - Full GPU layer offload, default cache precision, flash attention and Jinja enabled.
 - A 30 GiB `longhorn-local-1r` PVC caches the approximately 10.1 GB model.
   The downloader pins the upstream revision, resumes partial downloads, verifies
@@ -89,7 +90,7 @@ Repeat authentication and streaming checks over HTTPS; check that `/health`,
 ## Hermes cutover
 
 The Hermes manifests register `providers.llama` with `api_mode: chat_completions`,
-the internal base URL, a 16K context, and a 4096-token output limit. Its
+the internal base URL, a 64K context, and a 4096-token output limit. Its
 `key_cmd` reads the first line of `/llama-auth/api-keys`. A OnePasswordItem in
 the Hermes namespace syncs the same item and mounts the `API_KEYS` field.
 Both tokens are present in that mount; the configured provider uses only the
@@ -124,6 +125,14 @@ Hermes's cron provider/model drift guard.
   playback/transcode pipeline. Benchmark requests disabled thinking.
 - The same uncached request with the GPU otherwise idle processed at 359.2
   prompt tokens/sec and generated at 10.40 tokens/sec (44.2 seconds total).
+- The final server context is 64K because Hermes rejects a declared context
+  below 64,000 tokens. At 64K, startup VRAM use was 13,802 MiB and about
+  14,000 MiB during the agent test; free memory was roughly 1.9 GiB.
+  The earlier 16K benchmark figures above are retained for comparison.
+- At the final 64K setting, the same 7,022-token uncached benchmark processed
+  at 341.2 prompt tokens/sec and generated 256 tokens at 8.89 tokens/sec,
+  taking 49.6 seconds total. A default reasoning-enabled Hermes terminal-tool
+  round trip completed successfully in 63.9 seconds over two requests.
 
 ## Flux handover
 
