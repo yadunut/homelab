@@ -7,7 +7,8 @@ validation followed by Flux adoption.
 ## Configuration
 
 - Internal base URL: `http://llama.llama.svc.k8s.internal:8080/v1`
-- Public base URL: `https://llm.yadunut.dev/v1`
+- Public access: through LiteLLM at `https://llm.yadunut.dev/v1`, using the
+  LiteLLM gateway key and model `qwen3.8-27b`. llama has no direct public route.
 - Model alias: `qwen3.8-27b`
 - One replica on `penguin`, one inference slot, 65,536 tokens of context.
   Hermes enforces a minimum 64,000-token context at agent startup.
@@ -37,17 +38,17 @@ tokens, one per line: one for Hermes, one for personal clients. Use at least
 32 random bytes per token, encoded as hex. Never commit the values.
 
 The operator creates the `llama` Secret. Only `API_KEYS` is mounted into the
-server, which refuses to start with an empty or comment-only file. Both internal
-and external inference calls require `Authorization: Bearer <token>`.
+server, which refuses to start with an empty or comment-only file. Internal
+inference calls require `Authorization: Bearer <token>`.
 These are static keys with equal access, not scoped OAuth tokens or per-user quotas.
 After rotating keys in 1Password and observing both namespaces' Secret updates,
 restart llama and update the affected client. The server reads keys at startup;
-Hermes reads its mounted token through the provider's `key_cmd`.
+LiteLLM reads the mounted token when its container starts.
 
-Traefik terminates HTTPS and forwards only `/v1/models`, `/v1/chat/completions`,
-and `/v1/completions`. The built-in UI is disabled. Health and administration
-paths are not exposed by this route. The existing wildcard DNSEndpoint provides
-both A and AAAA records; cert-manager issues the dedicated certificate.
+LiteLLM connects directly to the private Kubernetes Service and supplies a llama
+token. Public clients use the LiteLLM key instead; see `docs/litellm.md`.
+The built-in llama UI is disabled. The llama IngressRoute and Certificate have
+been removed from these manifests.
 
 ## Review, then local validation
 
@@ -81,18 +82,21 @@ tool-result continuation. Confirm IPv6 Service access from Hermes as well.
 Check GPU memory and latency with a representative Hermes prompt and with
 Jellyfin transcoding. A ready health probe does not prove inference works.
 
-Once internal tests pass, apply the public route and certificate:
+Public authentication and streaming checks go through LiteLLM, following
+`docs/litellm.md`. Do not recreate a direct public llama route.
 
-```sh
-kubectl apply -f cluster/apps/llama/certificate.yaml
-kubectl -n llama wait --for=condition=Ready certificate/llama-tls --timeout=5m
-kubectl apply -f cluster/apps/llama/ingressroute.yaml
-```
+During the manual 2026-09-22 cutover, the live Flux `llama` Kustomization was
+suspended and annotated `kustomize.toolkit.fluxcd.io/reconcile: disabled` so the
+parent assembly cannot undo suspension and recreate Git's old route. Remove that
+annotation and resume it only after Flux's source
+contains the removal of the llama IngressRoute and Certificate. The running
+Deployment and Service continue serving traffic while reconciliation is suspended.
 
-Repeat authentication and streaming checks over HTTPS; check that `/health`,
-`/props`, `/slots`, and `/` are not routed to llama. Test both issued tokens.
+## Original direct Hermes cutover (superseded)
 
-## Hermes cutover
+Hermes now connects through LiteLLM with a dedicated virtual key; see
+`docs/hermes.md`. The direct provider and credential mount described below were
+removed. These notes record the original local-model validation.
 
 The Hermes manifests register `providers.llama` with `api_mode: chat_completions`,
 the internal base URL, a 64K context, and a 4096-token output limit. Its

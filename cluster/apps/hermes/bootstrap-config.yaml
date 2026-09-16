@@ -1,18 +1,12 @@
-# Seeded once; trusted_proxies and providers.llama are reconciled on each start.
+# Select the model in the UI; reconcile the LiteLLM connection and trusted proxies.
 model:
-  provider: custom:llama
-  default: qwen3.8-27b
+  provider: custom:litellm
 providers:
-  llama:
-    base_url: http://llama.llama.svc.k8s.internal:8080/v1
-    default_model: qwen3.8-27b
+  litellm:
+    base_url: http://litellm.litellm.svc.k8s.internal:4000/v1
     api_mode: chat_completions
-    models:
-      qwen3.8-27b:
-        context_length: 65536
-        max_output_tokens: 4096
-    # Read the Hermes token (first line) without persisting it in config.yaml.
-    key_cmd: head -n 1 /llama-auth/api-keys
+    key_env: LITELLM_API_KEY
+    discover_models: true
 terminal:
   backend: local
   cwd: /opt/data/workspace

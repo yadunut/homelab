@@ -1,0 +1,6 @@
+# Full assembly for eventual Flux adoption, after manual verification.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - internal
+  - exposure

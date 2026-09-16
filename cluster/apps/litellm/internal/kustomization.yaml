@@ -3,13 +3,15 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - onepassworditem.yaml
+  - llama-onepassworditem.yaml
+  - database-onepassworditem.yaml
+  - database.yaml
   - pvc.yaml
   - deployment.yaml
   - service.yaml
-  - certificate.yaml
-  - ingressroute.yaml
 configMapGenerator:
-  - name: hermes-bootstrap
-    namespace: hermes
+  - name: litellm-config
+    namespace: litellm
     files:
-      - config.yaml=bootstrap-config.yaml
+      - config.yaml
+      - patch-chatgpt.py

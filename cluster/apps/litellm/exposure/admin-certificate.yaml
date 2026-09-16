@@ -1,12 +1,12 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: llama-tls
-  namespace: llama
+  name: litellm-admin-tls
+  namespace: litellm
 spec:
-  secretName: llama-tls
+  secretName: litellm-admin-tls
   issuerRef:
     name: cloudflare
     kind: ClusterIssuer
   dnsNames:
-    - llm.yadunut.dev
+    - litellm.yadunut.dev

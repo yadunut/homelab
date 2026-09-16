@@ -1,0 +1,38 @@
+# Client-facing names are independent of the provider-specific model IDs.
+model_list:
+  - model_name: qwen3.8-27b
+    litellm_params:
+      model: openai/qwen3.8-27b
+      api_base: http://llama.llama.svc.k8s.internal:8080/v1
+      api_key: os.environ/LLAMA_API_KEY
+    model_info:
+      mode: chat
+  # Clients send openrouter/<provider>/<model> without per-model config entries.
+  - model_name: "openrouter/*"
+    litellm_params:
+      model: "openrouter/*"
+      api_key: os.environ/OPENROUTER_API_KEY
+  # Requested subscription model; verify connector compatibility during testing.
+  - model_name: codex
+    litellm_params:
+      model: chatgpt/gpt-6-astra
+    model_info:
+      mode: responses
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  # PostgreSQL persists virtual keys, users, and usage records.
+  disable_spend_logs: false
+  disable_env_credential_login: true
+  disable_password_login_when_sso_enabled: true
+  database_connection_pool_limit: 5
+  background_health_checks: false
+
+litellm_settings:
+  # Avoid logging prompt/response bodies through LiteLLM's logging callbacks.
+  turn_off_message_logging: true
+
+router_settings:
+  # Explicit selection only: do not silently move local requests to the cloud.
+  num_retries: 0
+  timeout: 600

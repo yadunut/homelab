@@ -1,0 +1,24 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: litellm-postgres
+  namespace: litellm
+spec:
+  # PostgreSQL supplies replication; each instance uses a local Longhorn volume.
+  instances: 3
+  storage:
+    size: 5Gi
+    storageClass: longhorn-local-1r
+  bootstrap:
+    initdb:
+      database: litellm
+      owner: litellm
+      secret:
+        name: litellm-postgres
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi

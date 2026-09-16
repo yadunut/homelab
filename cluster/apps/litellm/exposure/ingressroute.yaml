@@ -1,0 +1,18 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: litellm
+  namespace: litellm
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    # Only inference and model discovery. LiteLLM validates bearer tokens.
+    # Admin, UI, configuration, and health routes remain internal.
+    - match: Host(`llm.yadunut.dev`) && (Path(`/v1/models`) || Path(`/v1/chat/completions`) || Path(`/v1/responses`))
+      kind: Rule
+      services:
+        - name: litellm
+          port: http
+  tls:
+    secretName: litellm-tls

@@ -1,0 +1,201 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litellm
+  namespace: litellm
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  # One worker owns the persisted OAuth refresh token; avoid concurrent writers.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: litellm
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: litellm
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 60
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: patch-chatgpt
+          # Must match the main image; the patch checks the expected source.
+          image: ghcr.io/berriai/litellm@sha256:d295634e09c648dcdb72c4cc2dd226f5fb87823a73e88cbbed6f205e4deb044b
+          command: ["python", "/config/patch-chatgpt.py"]
+          env:
+            - name: HOME
+              value: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: patched
+              mountPath: /patched
+      containers:
+        - name: litellm
+          # v1.101.0, pinned to the registry digest for review and rollback.
+          image: ghcr.io/berriai/litellm@sha256:d295634e09c648dcdb72c4cc2dd226f5fb87823a73e88cbbed6f205e4deb044b
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              umask 077
+              mkdir -p "$HOME" "$CHATGPT_TOKEN_DIR"
+              chmod 700 "$CHATGPT_TOKEN_DIR"
+              export LLAMA_API_KEY="$(head -n 1 /llama-auth/api-keys)"
+              test -n "$LLAMA_API_KEY" || { echo "Missing llama API key" >&2; exit 1; }
+              case "$LITELLM_MASTER_KEY" in
+                sk-?*) ;;
+                *) echo "LITELLM_MASTER_KEY must start with sk- and be nonempty" >&2; exit 1 ;;
+              esac
+              test -n "$OPENROUTER_API_KEY" || { echo "Missing OpenRouter API key" >&2; exit 1; }
+              exec litellm --config /config/config.yaml --host :: --port 4000 --num_workers 1 --telemetry False --use_v2_migration_resolver --enforce_prisma_migration_check
+          ports:
+            - name: http
+              containerPort: 4000
+          env:
+            - name: HOME
+              value: /tmp/litellm
+            - name: CHATGPT_TOKEN_DIR
+              value: /auth/chatgpt
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: LITELLM_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm
+                  key: LITELLM_MASTER_KEY
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm
+                  key: OPENROUTER_API_KEY
+            - name: DATABASE_HOST
+              value: litellm-postgres-rw.litellm.svc.k8s.internal:5432
+            - name: DATABASE_NAME
+              value: litellm
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-postgres
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-postgres
+                  key: password
+            - name: LITELLM_SALT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm
+                  key: LITELLM_SALT_KEY
+            - name: PROXY_BASE_URL
+              value: https://litellm.yadunut.dev
+            - name: PROXY_ADMIN_ID
+              value: yadunut
+            - name: GENERIC_CLIENT_ID
+              value: litellm
+            - name: GENERIC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: litellm
+                  key: GENERIC_CLIENT_SECRET
+            - name: GENERIC_AUTHORIZATION_ENDPOINT
+              value: https://idm.yadunut.dev/ui/oauth2
+            - name: GENERIC_TOKEN_ENDPOINT
+              value: https://idm.yadunut.dev/oauth2/token
+            - name: GENERIC_USERINFO_ENDPOINT
+              value: https://idm.yadunut.dev/oauth2/openid/litellm/userinfo
+            - name: GENERIC_SCOPE
+              value: openid profile email
+            - name: GENERIC_USER_ID_ATTRIBUTE
+              value: preferred_username
+            - name: GENERIC_USER_DISPLAY_NAME_ATTRIBUTE
+              value: name
+            - name: GENERIC_CLIENT_USE_PKCE
+              value: "true"
+            - name: GENERIC_INCLUDE_CLIENT_ID
+              value: "false"
+            # Direct IPv6 / DNS64 egress, matching llama and Hermes.
+            # The legacy http-proxy service in AGENTS.md no longer exists.
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /health/liveliness
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 5
+            # First boot waits for the user to complete ChatGPT device login.
+            failureThreshold: 360
+          readinessProbe:
+            httpGet:
+              path: /health/readiness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health/liveliness
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          volumeMounts:
+            - name: patched
+              mountPath: /app/.venv/lib/python3.13/site-packages/litellm/llms/custom_httpx/llm_http_handler.py
+              subPath: llm_http_handler.py
+              readOnly: true
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: auth
+              mountPath: /auth
+            - name: llama-auth
+              mountPath: /llama-auth
+              readOnly: true
+      volumes:
+        - name: patched
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: litellm-config
+        - name: auth
+          persistentVolumeClaim:
+            claimName: litellm-auth
+        - name: llama-auth
+          secret:
+            secretName: llama
+            defaultMode: 0440
+            items:
+              - key: API_KEYS
+                path: api-keys

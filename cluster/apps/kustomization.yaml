@@ -8,6 +8,7 @@ resources:
   - immich.yaml
   - jellyfin.yaml
   - llama.yaml
+  - litellm.yaml
   - metube.yaml
   - woodpecker.yaml
   - drive.yaml

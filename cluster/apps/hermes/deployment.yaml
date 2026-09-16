@@ -28,12 +28,31 @@ spec:
               import pwd
               from pathlib import Path
               import yaml
+              from dotenv import unset_key
 
               seed = yaml.safe_load(Path("/bootstrap/config.yaml").read_text())
               path = Path("/opt/data/config.yaml")
               config = yaml.safe_load(path.read_text()) if path.exists() else seed
               config.setdefault("dashboard", {})["trusted_proxies"] = seed["dashboard"]["trusted_proxies"]
-              config.setdefault("providers", {})["llama"] = seed["providers"]["llama"]
+              providers = config.setdefault("providers", {})
+              providers["litellm"] = seed["providers"]["litellm"]
+              model = config.setdefault("model", dict(seed["model"]))
+              # Migrate the old direct providers once; preserve later UI selections.
+              if model.get("provider") in ("openrouter", "custom:llama"):
+                  if model["provider"] == "openrouter" and model.get("default"):
+                      name = model["default"]
+                      model["default"] = name if name.startswith("openrouter/") else "openrouter/" + name
+                  model["provider"] = "custom:litellm"
+                  for field in ("base_url", "api_key", "api_mode"):
+                      model.pop(field, None)
+              if providers.get("llama", {}).get("key_cmd") == "head -n 1 /llama-auth/api-keys":
+                  providers.pop("llama")
+              env_file = Path("/opt/data/.env")
+              if env_file.exists():
+                  env_stat = env_file.stat()
+                  unset_key(str(env_file), "OPENROUTER_API_KEY")
+                  env_file.chmod(env_stat.st_mode & 0o777)
+                  os.chown(env_file, env_stat.st_uid, env_stat.st_gid)
               user = pwd.getpwnam("hermes")
               temporary = path.with_suffix(".yaml.tmp")
               temporary.write_text(yaml.safe_dump(config, sort_keys=False))
@@ -76,16 +95,16 @@ spec:
               value: hermes
             - name: HERMES_DASHBOARD_OIDC_SCOPES
               value: "openid profile email"
-            - name: OPENROUTER_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: hermes
-                  key: OPENROUTER_API_KEY
             - name: TELEGRAM_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: hermes
                   key: TELEGRAM_BOT_TOKEN
+            - name: LITELLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes
+                  key: LITELLM_API_KEY
             - name: TELEGRAM_ALLOWED_USERS
               valueFrom:
                 secretKeyRef:
@@ -98,7 +117,7 @@ spec:
             - name: HERMES_TELEGRAM_DISABLE_FALLBACK_IPS
               value: "true"
             # Direct IPv6 / cluster DNS64 egress; the legacy http-proxy
-            # service no longer exists. Telegram and OpenRouter work directly.
+            # service no longer exists. Telegram works directly.
           resources:
             requests:
               cpu: 250m
@@ -121,9 +140,6 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /opt/data
-            - name: llama-auth
-              mountPath: /llama-auth
-              readOnly: true
       volumes:
         - name: data
           persistentVolumeClaim:
@@ -131,10 +147,3 @@ spec:
         - name: bootstrap
           configMap:
             name: hermes-bootstrap
-        - name: llama-auth
-          secret:
-            secretName: llama
-            defaultMode: 0444
-            items:
-              - key: API_KEYS
-                path: api-keys

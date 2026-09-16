@@ -1,9 +1,10 @@
 # Hermes Agent
 
 Hermes runs one gateway with Telegram and a dashboard at
-https://hermes.yadunut.dev. The local llama service supplies inference;
-OpenRouter remains available as an alternative. See `docs/llama.md` for the
-model endpoint, token provisioning, and validation. The dashboard uses
+https://hermes.yadunut.dev. Inference uses the named `custom:litellm` provider at
+`http://litellm.litellm.svc.k8s.internal:4000/v1`. A dedicated virtual key is
+injected from 1Password. No default model is set in the manifests; select the
+model through the UI. Saved UI selections persist across restarts. The dashboard uses
 native OIDC with Kanidm; no oauth2-proxy is needed. Its public PKCE client uses
 ES256 verification and does not require a client secret.
 
@@ -14,14 +15,18 @@ custom fields (field labels must match exactly):
 
 | Field | Value |
 | --- | --- |
-| `OPENROUTER_API_KEY` | API key from https://openrouter.ai/settings/keys; use a concealed field |
+| `LITELLM_API_KEY` | Dedicated LiteLLM virtual key; use a concealed field |
 | `TELEGRAM_BOT_TOKEN` | Token issued by Telegram's `@BotFather` when creating the bot; use a concealed field |
 | `TELEGRAM_ALLOWED_USERS` | Your numeric Telegram user ID, or comma-separated numeric IDs; not usernames or group/chat IDs |
 
 The operator creates the `hermes` Kubernetes Secret. All three keys are required
 by the Deployment. An empty user allowlist is not a substitute for configuring
-your ID. Keep keys in 1Password rather than putting them in dashboard settings
-or committing them to Git. Environment-injected secrets take precedence over
+your ID. Keep a copy of provider keys in 1Password and never commit them to Git.
+The LiteLLM provider reads `LITELLM_API_KEY` through `key_env`, which supports
+both inference and model-picker discovery. `discover_models: true` loads the
+gateway's available catalog instead of limiting the picker to the active model.
+The key is not written into the provider configuration.
+Environment-injected secrets take precedence over
 the persisted `.env`. Restart the Deployment after secret rotations.
 
 As a Kanidm administrator, register the application and its access group:
@@ -44,7 +49,7 @@ confidential client, while Hermes requires a public PKCE client.
 
 ## Deployment and storage
 
-`cluster/apps/hermes.yaml` depends on infrastructure. The existing wildcard
+`cluster/apps/hermes.yaml` depends on infrastructure and LiteLLM. The existing wildcard
 `DNSEndpoint` already supplies A and AAAA records for this hostname. Traefik
 terminates TLS using a dedicated cert-manager certificate.
 
@@ -72,18 +77,19 @@ updates to avoid concurrent gateway writers. Do not scale this Deployment above
 one replica. Longhorn replication is not a backup.
 
 `bootstrap-config.yaml` seeds `/opt/data/config.yaml` on the first start. The init
-container reconciles `dashboard.trusted_proxies` and `providers.llama` on later starts, preserving
+container reconciles `dashboard.trusted_proxies` and `providers.litellm` on later starts, preserving
 other dashboard edits. Changes to other seed settings do not update an existing
 installation: apply subsequent settings through the dashboard or
 `hermes config set`. OIDC issuer/client/scopes and the public URL are supplied
 through environment overrides on each start.
 
-The seed selects `custom:llama` and `qwen3.8-27b`. Existing installations need an
-explicit provider/model switch because the seed does not overwrite their default.
-The named provider declares the server's 64K context and reads the first token
-from `/llama-auth/api-keys` through `key_cmd`. A separate OnePasswordItem in the
-Hermes namespace syncs the same `cluster/llama` item; no token is written to the
-persisted configuration. Terminal tools run locally in the container under
+The seed selects the `custom:litellm` provider without a default model. The init
+container migrates legacy direct OpenRouter/llama selections to LiteLLM, adding
+the `openrouter/` prefix to an existing OpenRouter model. It removes the obsolete
+managed llama provider and the saved `OPENROUTER_API_KEY` from `.env`, preserving
+that file's permissions and ownership. Later model choices under LiteLLM persist
+across restarts. The deployment neither injects an OpenRouter key nor mounts the
+direct llama credential. Terminal tools run locally in the container under
 `/opt/data/workspace`; no Docker daemon or Kubernetes service-account token is
 mounted. Egress uses direct IPv6 and the cluster's DNS64/NAT64 path. The legacy
 HTTP proxy described in AGENTS.md is absent; do not configure Hermes to use it.
@@ -94,7 +100,18 @@ bypass DNS64 and cannot connect from this IPv6-only pod; it also showed repeated
 polling and delivery failures while standard hostname requests succeeded.
 There is no external gateway API service or Telegram webhook ingress.
 
+## Flux management
+
+Flux manages Hermes after LiteLLM is ready. The manual rollout used temporary
+suspension and a `kustomize.toolkit.fluxcd.io/reconcile: disabled` annotation;
+adoption removes both holds after the new source revision is available.
+
 ## Validation
+
+The manual LiteLLM migration verified Hermes's runtime provider resolution,
+1Password virtual-key lookup, non-streaming and streaming GLM inference, and
+dashboard readiness. The old OpenRouter key is absent from both the container
+environment and saved `.env`. Telegram end-to-end delivery was not retested.
 
 Render before committing:
 

@@ -1,15 +1,17 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: hermes
+  name: litellm
   namespace: flux-system
 spec:
   dependsOn:
     - name: infrastructure
-    - name: litellm
+    - name: llama
   interval: 10m0s
-  path: ./cluster/apps/hermes
+  path: ./cluster/apps/litellm
   prune: true
+  wait: true
+  timeout: 10m0s
   sourceRef:
     kind: GitRepository
     name: flux-system
