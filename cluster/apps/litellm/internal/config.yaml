@@ -23,14 +23,15 @@ general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
   # PostgreSQL persists virtual keys, users, and usage records.
   disable_spend_logs: false
+  store_prompts_in_spend_logs: true
   disable_env_credential_login: true
   disable_password_login_when_sso_enabled: true
   database_connection_pool_limit: 5
   background_health_checks: false
 
 litellm_settings:
-  # Avoid logging prompt/response bodies through LiteLLM's logging callbacks.
-  turn_off_message_logging: true
+  # Preserve request/response bodies for the admin UI spend logs.
+  turn_off_message_logging: false
 
 router_settings:
   # Explicit selection only: do not silently move local requests to the cloud.

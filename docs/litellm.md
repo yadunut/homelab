@@ -79,8 +79,11 @@ The inference hostname permits only model listing, Chat Completions, and
 Responses creation. Use PostgreSQL-backed virtual keys for individual apps;
 reserve the master key for administration. The separate admin hostname exposes
 the UI and management API, with native Kanidm OIDC for UI sign-in and LiteLLM
-authentication for management requests. Prompt/response body logging is disabled;
-usage records are enabled. Do not enable debug logging for private requests.
+authentication for management requests. Usage records include request/response
+bodies in PostgreSQL, enabled by `general_settings.store_prompts_in_spend_logs`
+with `litellm_settings.turn_off_message_logging: false`. After the configuration
+rolls out, new requests show their content on the admin UI Logs page; older logs
+are not backfilled. Do not enable debug logging for private requests.
 
 OAuth tokens are written by LiteLLM into `/auth/chatgpt/auth.json` on the PVC,
 under UID 1000 with a private directory and file-creation umask. They are mutable
