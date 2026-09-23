@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 60
       initContainers:
         - name: bootstrap
-          image: nousresearch/hermes-agent@sha256:e6558e46731d67061e994fad00575489a07c543f58cfc34d23d4082382e26466
+          image: nousresearch/hermes-agent@sha256:b27ce2c14a6bf47070c562f80b0950a9808bdee1baec42d68f0e5a013d385290
           command: ["/opt/hermes/.venv/bin/python", "-c"]
           args:
             - |
@@ -29,11 +29,19 @@ spec:
               from pathlib import Path
               import yaml
               from dotenv import unset_key
+              from hermes_cli.tools_config import _get_platform_tools
 
               seed = yaml.safe_load(Path("/bootstrap/config.yaml").read_text())
               path = Path("/opt/data/config.yaml")
               config = yaml.safe_load(path.read_text()) if path.exists() else seed
               config.setdefault("dashboard", {})["trusted_proxies"] = seed["dashboard"]["trusted_proxies"]
+              config.setdefault("bot_desktop", {}).update(seed["bot_desktop"])
+              config.setdefault("browser", {})["headed"] = seed["browser"]["headed"]
+              # Keep existing tool choices; enable desktop and browser on both surfaces.
+              for platform in ("cli", "telegram"):
+                  existing = config.get("platform_toolsets", {}).get(platform)
+                  enabled = set(existing) if isinstance(existing, list) else _get_platform_tools(config, platform, include_default_mcp_servers=False)
+                  config.setdefault("platform_toolsets", {})[platform] = sorted(enabled | {"computer_use", "browser"})
               providers = config.setdefault("providers", {})
               providers["litellm"] = seed["providers"]["litellm"]
               model = config.setdefault("model", dict(seed["model"]))
@@ -68,9 +76,41 @@ spec:
             - name: bootstrap
               mountPath: /bootstrap
               readOnly: true
+        - name: computer-use-driver
+          image: nousresearch/hermes-agent@sha256:b27ce2c14a6bf47070c562f80b0950a9808bdee1baec42d68f0e5a013d385290
+          command: ["/opt/hermes/.venv/bin/python", "-c"]
+          args:
+            - |
+              import hashlib
+              import io
+              import platform
+              import tarfile
+              import urllib.request
+              from pathlib import Path
+
+              # Pin the driver independently: this Hermes release's installer
+              # otherwise fetches a moving upstream release at runtime.
+              artifacts = {
+                  "x86_64": ("x86_64", "a1d99fd04bb4927ef5ffdbe60eb91ed8b51a2bab60e10fc604a75bd59ce69c3e"),
+                  "aarch64": ("arm64", "55e8a32839a4ac369a773df4dac87b345bd4567779221ade4a5e39223a45a2e8"),
+              }
+              arch, checksum = artifacts[platform.machine()]
+              url = f"https://github.com/trycua/cua/releases/download/cua-driver-rs-v0.28.2/cua-driver-rs-0.28.2-linux-{arch}-binary.tar.gz"
+              with urllib.request.urlopen(url, timeout=120) as response:
+                  archive = response.read()
+              if hashlib.sha256(archive).hexdigest() != checksum:
+                  raise RuntimeError("cua-driver archive checksum mismatch")
+              with tarfile.open(fileobj=io.BytesIO(archive), mode="r:gz") as bundle:
+                  binary = Path("/computer-use/cua-driver")
+                  binary.write_bytes(bundle.extractfile("cua-driver").read())
+                  binary.chmod(0o755)
+          volumeMounts:
+            - name: computer-use
+              mountPath: /computer-use
       containers:
         - name: hermes
-          image: nousresearch/hermes-agent@sha256:e6558e46731d67061e994fad00575489a07c543f58cfc34d23d4082382e26466
+          # Official desktop variant includes TigerVNC, Xfce and Chromium.
+          image: nousresearch/hermes-agent@sha256:b27ce2c14a6bf47070c562f80b0950a9808bdee1baec42d68f0e5a013d385290
           # Preserve the image entrypoint: s6 supervises gateway and dashboard
           # and drops application processes to the hermes runtime user.
           args: ["gateway", "run"]
@@ -80,6 +120,8 @@ spec:
           env:
             - name: TZ
               value: Asia/Singapore
+            - name: HERMES_CUA_DRIVER_CMD
+              value: /computer-use/cua-driver
             - name: HERMES_DASHBOARD
               value: "1"
             - name: HERMES_DASHBOARD_HOST
@@ -121,7 +163,7 @@ spec:
           resources:
             requests:
               cpu: 250m
-              memory: 512Mi
+              memory: 2Gi
             limits:
               cpu: "2"
               memory: 4Gi
@@ -140,7 +182,18 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /opt/data
+            - name: shm
+              mountPath: /dev/shm
+            - name: computer-use
+              mountPath: /computer-use
+              readOnly: true
       volumes:
+        - name: computer-use
+          emptyDir: {}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 512Mi
         - name: data
           persistentVolumeClaim:
             claimName: hermes-data

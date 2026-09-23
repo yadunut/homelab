@@ -10,6 +10,12 @@ providers:
 terminal:
   backend: local
   cwd: /opt/data/workspace
+bot_desktop:
+  auto_start: true
+  idle_stop_minutes: 30
+  geometry: "1440x900"
+browser:
+  headed: true
 dashboard:
   public_url: https://hermes.yadunut.dev
   trusted_proxies:
