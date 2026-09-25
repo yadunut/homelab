@@ -29,6 +29,18 @@ spec:
               from pathlib import Path
               import yaml
               from dotenv import unset_key
+
+              # Config helpers create backups on import; run them as Hermes.
+              user = pwd.getpwnam("hermes")
+              data = Path("/opt/data")
+              os.chown(data, user.pw_uid, user.pw_gid)
+              # Repair backup directories created by the previous root bootstrap.
+              for directory in (data / "backups", data / "backups/config"):
+                  if directory.is_dir() and not directory.is_symlink():
+                      os.chown(directory, user.pw_uid, user.pw_gid)
+              os.setgroups([])
+              os.setgid(user.pw_gid)
+              os.setuid(user.pw_uid)
               from hermes_cli.tools_config import _get_platform_tools
 
               seed = yaml.safe_load(Path("/bootstrap/config.yaml").read_text())
