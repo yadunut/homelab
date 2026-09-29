@@ -5,6 +5,7 @@ resources:
   - configmap.yaml
   - pvc.yaml
   - certificate.yaml
+  - reloader.yaml
   - deployment.yaml
   - service.yaml
   - ingressroute.yaml

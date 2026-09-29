@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: kanidm
   namespace: kanidm
+  annotations:
+    secret.reloader.stakater.com/reload: kanidm-tls
 spec:
   replicas: 1
   strategy:
@@ -33,13 +35,10 @@ spec:
               mountPath: /data/server.toml
               subPath: server.toml
               readOnly: true
+            # Directory projection receives Secret updates; Reloader restarts
+            # Kanidm so its in-memory TLS acceptor loads the renewed certificate.
             - name: tls-secret
-              mountPath: /data/tls.crt
-              subPath: tls.crt
-              readOnly: true
-            - name: tls-secret
-              mountPath: /data/tls.key
-              subPath: tls.key
+              mountPath: /data/tls
               readOnly: true
           resources:
             requests:
