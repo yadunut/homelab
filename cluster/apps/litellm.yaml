@@ -6,7 +6,6 @@ metadata:
 spec:
   dependsOn:
     - name: infrastructure
-    - name: llama
   interval: 10m0s
   path: ./cluster/apps/litellm
   prune: true
