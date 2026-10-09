@@ -21,7 +21,7 @@ there is no automatic cloud fallback.
   holds renewable ChatGPT OAuth credentials. The original `litellm-auth` PVC
   is preserved and is not mounted by the gateway.
   Loss of this non-replicated volume requires a new device login.
-- PostgreSQL: three CloudNativePG instances, each with a 5 GiB
+- PostgreSQL: two CloudNativePG instances while `penguin` is offline, each with a 5 GiB
   `longhorn-local-1r` volume. PostgreSQL provides replication for keys, users,
   configuration, and usage records. Replication is not a database backup.
 - Direct IPv6/DNS64 egress, matching the current llama and Hermes deployments.
@@ -324,6 +324,27 @@ completion and successful mounting were checked. The saved ChatGPT token may
 still require renewal; restored file integrity does not establish provider login
 validity. The third PostgreSQL instance's separate offline volume is outside
 this auth-volume recovery.
+
+### PostgreSQL topology during penguin's outage — 2026-10-09
+
+The desired count is two: primary `litellm-postgres-2` on `nut-gc1` and standby
+`litellm-postgres-1` on `nut-gc2`. The standby streams asynchronously; failover
+does not guarantee zero data loss. The failed instance `litellm-postgres-3` is
+retired with CloudNativePG's `destroy --keep-pvc` operation, preserving its PVC
+and backing PV/Longhorn volume `pvc-63077ef0-b8ff-47be-ab97-1f42ccc3dabb`.
+Its sole storage replica remains on the offline node; do not delete that claim.
+
+Retirement requires a brief pause of the Cluster's reconciliation loop to avoid
+reattachment races. Remove `cnpg.io/reconciliationLoop=disabled` immediately
+after the failed pod is gone, its PVC is detached from Cluster ownership, and
+the live desired count is two. Do not use a naive scale-down or leave the
+operator paused: scaling can choose the healthy standby and delete its PVC.
+
+When a third instance is useful again, increase `instances` to three through
+Git and let CloudNativePG clone a fresh standby from the current primary.
+Keep the archived instance-3 storage; do not automatically reattach or promote
+its stale contents. Verify the primary, standby streaming, database readiness,
+and LiteLLM/Hermes health after each topology change.
 
 To return to the original volume after `penguin` and that volume are healthy,
 change only the Deployment's auth `claimName` back to `litellm-auth` through Git
