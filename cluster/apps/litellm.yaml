@@ -8,6 +8,7 @@ spec:
     - name: infrastructure
     - name: llama
   interval: 10m0s
+  suspend: true
   path: ./cluster/apps/litellm
   prune: true
   wait: true
