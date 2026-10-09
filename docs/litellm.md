@@ -1,8 +1,11 @@
 # LiteLLM gateway
 
 Initially validated with kubectl on 2026-09-22, then registered in
-`cluster/apps/kustomization.yaml` for Flux management. LiteLLM depends on
-infrastructure and llama; Hermes depends on LiteLLM.
+`cluster/apps/kustomization.yaml` for Flux management. LiteLLM's Flux
+Kustomization depends on infrastructure; Hermes depends on LiteLLM. The local
+llama.cpp backend is optional for gateway readiness: OpenRouter and ChatGPT
+requests do not require it. Local Qwen requests fail while that backend is down;
+there is no automatic cloud fallback.
 
 ## Configuration
 
@@ -293,8 +296,16 @@ Avoid deleting the namespace or PVC unless discarding the OAuth state is intende
 
 The Flux Kustomization uses `./cluster/apps/litellm`, assembling internal resources
 and exposure. It adopts the resources validated manually, preserving the PVCs,
-database, and saved subscription login. Reconcile the root and then llama,
-LiteLLM, and Hermes in dependency order.
+database, and saved subscription login. Reconcile the root and infrastructure,
+then LiteLLM and Hermes in dependency order. The llama Kustomization reconciles
+independently after infrastructure.
+
+Removing the llama dependency does not remove LiteLLM's own storage requirements.
+The auth PVC must attach before the pod can start. Its single Longhorn replica
+was on `penguin` when that node went offline on 2026-09-28; preserve the volume
+and saved login state when assessing recovery. The database primary and at least
+one replica remain available, but the third instance's volume is also on
+`penguin`.
 
 The manual trial used temporary suspension and
 `kustomize.toolkit.fluxcd.io/reconcile: disabled` annotations on llama and Hermes.
