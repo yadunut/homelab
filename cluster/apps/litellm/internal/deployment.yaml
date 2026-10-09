@@ -191,7 +191,7 @@ spec:
             name: litellm-config
         - name: auth
           persistentVolumeClaim:
-            claimName: litellm-auth
+            claimName: litellm-auth-restored-20260927
         - name: llama-auth
           secret:
             secretName: llama

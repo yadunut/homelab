@@ -17,7 +17,9 @@ there is no automatic cloud fallback.
   Kubernetes Service. Hermes uses LiteLLM through its private Kubernetes Service.
 - One replica and one worker, with `Recreate` updates to avoid OAuth token writers
   sharing the same file. Updates briefly interrupt the gateway.
-- A 1 GiB `longhorn-local-1r` PVC holds renewable ChatGPT OAuth credentials.
+- The 1 GiB `litellm-auth-restored-20260927` PVC, using `longhorn-local-1r`,
+  holds renewable ChatGPT OAuth credentials. The original `litellm-auth` PVC
+  is preserved and is not mounted by the gateway.
   Loss of this non-replicated volume requires a new device login.
 - PostgreSQL: three CloudNativePG instances, each with a 5 GiB
   `longhorn-local-1r` volume. PostgreSQL provides replication for keys, users,
@@ -306,6 +308,27 @@ was on `penguin` when that node went offline on 2026-09-28; preserve the volume
 and saved login state when assessing recovery. The database primary and at least
 one replica remain available, but the third instance's volume is also on
 `penguin`.
+
+### Auth volume recovery — 2026-10-09
+
+With user approval, backup `backup-b87180ca768b4472` from 2026-09-27 was restored
+into the new Longhorn volume `litellm-auth-restored-20260927`. The source volume
+`pvc-4cd7b8e2-14a8-47d1-b916-8b92ef22c929`, its PV, and the original
+`litellm-auth` PVC were not modified or deleted. The new PV uses `Retain`; its
+PVC has the same 1 GiB capacity, access mode, filesystem, and storage class.
+
+Before changing the Deployment, a read-only Job mounted the restored claim and
+confirmed the saved auth JSON parsed and contained access and refresh tokens.
+No auth contents were printed. The Longhorn replica is on `nut-gc2`, and restore
+completion and successful mounting were checked. The saved ChatGPT token may
+still require renewal; restored file integrity does not establish provider login
+validity. The third PostgreSQL instance's separate offline volume is outside
+this auth-volume recovery.
+
+To return to the original volume after `penguin` and that volume are healthy,
+change only the Deployment's auth `claimName` back to `litellm-auth` through Git
+and reconcile LiteLLM. Preserve both PVCs and the retained restored PV during
+rollback; do not remove the restored-storage resource as part of that change.
 
 The manual trial used temporary suspension and
 `kustomize.toolkit.fluxcd.io/reconcile: disabled` annotations on llama and Hermes.

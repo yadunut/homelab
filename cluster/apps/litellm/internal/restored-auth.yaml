@@ -1,0 +1,36 @@
+# Restored from backup-b87180ca768b4472 (2026-09-27) into a new Longhorn volume.
+# The original litellm-auth PVC and its source volume are preserved separately.
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: litellm-auth-restored-20260927
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: longhorn-local-1r
+  persistentVolumeReclaimPolicy: Retain
+  claimRef:
+    namespace: litellm
+    name: litellm-auth-restored-20260927
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeHandle: litellm-auth-restored-20260927
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: litellm-auth-restored-20260927
+  namespace: litellm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  storageClassName: longhorn-local-1r
+  volumeName: litellm-auth-restored-20260927
+  resources:
+    requests:
+      storage: 1Gi
