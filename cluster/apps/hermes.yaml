@@ -8,6 +8,7 @@ spec:
     - name: infrastructure
     - name: litellm
   interval: 10m0s
+  suspend: true
   path: ./cluster/apps/hermes
   prune: true
   sourceRef:
