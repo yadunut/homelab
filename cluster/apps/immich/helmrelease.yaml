@@ -27,7 +27,7 @@ spec:
         containers:
           main:
             image:
-              tag: v3.3.4 # {"$imagepolicy": "flux-system:immich:tag"}
+              tag: v3.3.5 # {"$imagepolicy": "flux-system:immich:tag"}
             env:
               - name: REDIS_HOSTNAME
                 value: immich-valkey
