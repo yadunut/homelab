@@ -93,8 +93,9 @@ managed llama provider and the saved `OPENROUTER_API_KEY` from `.env`, preservin
 that file's permissions and ownership. Later model choices under LiteLLM persist
 across restarts. The deployment neither injects an OpenRouter key nor mounts the
 direct llama credential. Terminal tools run locally in the container under
-`/opt/data/workspace`; no Docker daemon or Kubernetes service-account token is
-mounted. Egress uses direct IPv6 and the cluster's DNS64/NAT64 path. The legacy
+`/opt/data/workspace`; no Docker daemon is mounted. Kubernetes diagnostics use
+an explicitly scoped service account and projected credentials as described below.
+Egress uses direct IPv6 and the cluster's DNS64/NAT64 path. The legacy
 HTTP proxy described in AGENTS.md is absent; do not configure Hermes to use it.
 Telegram, OpenRouter, and Kanidm were verified reachable directly from the pod.
 `HERMES_TELEGRAM_DISABLE_FALLBACK_IPS=true` selects the standard Telegram HTTP
@@ -147,6 +148,107 @@ The image, bootstrap preservation/idempotency, driver checksum/download, and
 1440×900 desktop capture and foreground terminal input were verified in a
 disposable pod without production
 credentials. This does not verify production inference or the Desktop viewer.
+
+## Read-only Kubernetes diagnostics
+
+The dedicated `hermes/hermes` ServiceAccount is bound to the explicit
+`hermes-diagnostics` ClusterRole. It allows cluster-wide `get`, `list`, and
+`watch` on pods, nodes, namespaces, events (core and `events.k8s.io`), Deployments,
+ReplicaSets, StatefulSets, DaemonSets, Jobs, CronJobs, and these Flux resources:
+GitRepositories, HelmRepositories, HelmCharts, Buckets, OCIRepositories,
+Kustomizations, and HelmReleases. Pod logs have `get` only.
+
+There are no wildcard rules, Secret or ConfigMap API reads, writes, exec,
+attach, port-forward, proxy, impersonation, or RBAC management permissions.
+Services, endpoints, storage, metrics, other custom resources, and Flux image
+or notification resources are deliberately outside this initial scope.
+Commands such as `kubectl describe` can report permission errors when they try
+related resources beyond the allowlist; prefer targeted `get -o yaml` and logs.
+Flux reconciliation and deployment must still be performed by an operator;
+Hermes can inspect Flux objects using kubectl, not mutate them.
+
+Both the Pod and ServiceAccount keep `automountServiceAccountToken: false`.
+Only the main `hermes` container mounts `/var/run/hermes-kubernetes`, containing
+an explicitly projected, pod-bound API token (requested lifetime 3600 seconds;
+API-server policy determines the actual lifetime) and `kube-root-ca.crt` CA.
+The audience is omitted deliberately to use the API server's default audience.
+Kubelet rotates the token; the directory is mounted directly, without `subPath`,
+so rotations remain visible. Mode `0444` lets the runtime user read it after s6
+drops privileges. Init containers do not mount the token, CA, or kubeconfig.
+The kubelet supplies the CA ConfigMap projection without granting this service
+account permission to read ConfigMaps through the API.
+
+`KUBECONFIG=/etc/hermes-kubernetes/config` selects a generated, non-secret
+ConfigMap. It references `tokenFile` and the CA file rather than embedding or
+copying credentials, and verifies TLS against
+`https://kubernetes.default.svc.k8s.internal:443`. No kubeconfig or token is
+written to the data PVC. Its default namespace is `hermes`; use `-A` or `-n`
+when inspecting other workloads.
+
+kubectl **v1.35.10** is installed separately at
+`/opt/data/home/.local/bin/kubectl` on the existing data PVC. It survives Pod
+replacement; the Deployment does not download or mount a separate binary.
+Use the absolute path if this directory is not on PATH. A fresh PVC requires
+reinstalling a checksum-verified binary for the node architecture. If scheduling
+moves the Pod between architectures, replace the binary accordingly.
+Before rollout, verify every API server is within one minor version of this
+client; the live server version was not available during implementation.
+
+Read-only is not equivalent to non-sensitive: workload specs, annotations,
+Flux values, events, and logs can contain credentials or private data even when
+Secret API reads are denied. All agent tools and desktop processes inside the
+main container share this access. Do not paste tokens or unredacted sensitive
+logs into chat. This RBAC does not isolate tools within that container or revoke
+credentials the application already receives through other mechanisms.
+
+### Validation and rollout gate
+
+Offline checks (requires kubectl and Python with PyYAML):
+
+```sh
+uv run --with PyYAML==6.0.3 python -m unittest discover -s tests -v
+kubectl kustomize cluster >/dev/null
+kubectl kustomize cluster/apps/hermes >/dev/null
+```
+
+The tests inspect the rendered Hermes resources, enforce the exact RBAC
+allowlist, credential mount isolation and rotation configuration, kubeconfig
+TLS/tokenFile configuration, and absence of a kubectl installer or ephemeral volume. These are offline
+checks, not proof of effective live RBAC, token rotation, or pod startup.
+
+After the operator-approved Flux rollout, run from the main Hermes container
+(or have an operator invoke these commands there using their own exec access):
+
+```sh
+kubectl version --client
+kubectl auth can-i get pods --all-namespaces          # yes
+kubectl auth can-i get pods --subresource=log -A      # yes
+kubectl auth can-i get nodes                         # yes
+kubectl auth can-i get kustomizations.kustomize.toolkit.fluxcd.io -A # yes
+kubectl auth can-i get secrets -A                    # no
+kubectl auth can-i get configmaps -A                 # no
+kubectl auth can-i create pods --subresource=exec -A # no
+kubectl auth can-i get pods --subresource=exec -A    # no
+kubectl auth can-i create pods --subresource=attach -A # no
+kubectl auth can-i create pods --subresource=portforward -A # no
+kubectl auth can-i get nodes --subresource=proxy     # no
+kubectl auth can-i patch deployments.apps -A        # no
+kubectl auth can-i create deployments.apps -A       # no
+kubectl auth can-i delete pods -A                    # no
+kubectl get nodes
+kubectl get pods -A
+kubectl get events -A
+kubectl get kustomizations.kustomize.toolkit.fluxcd.io -A
+kubectl get helmreleases.helm.toolkit.fluxcd.io -A
+kubectl -n hermes logs deployment/hermes -c hermes --tail=20
+```
+
+Confirm the main process can read the token/CA without displaying their contents,
+that no init container has the credential mounts, and that reads still succeed
+after observing a projected-token rotation. If any forbidden `can-i` returns
+`yes`, inspect additional cluster bindings before accepting the rollout. Test
+as the actual runtime user: an operator's successful API read does not validate
+Hermes access. No live verification or deployment was performed for this change.
 
 ## Flux management
 

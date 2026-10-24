@@ -16,6 +16,7 @@ spec:
       labels:
         app.kubernetes.io/name: hermes
     spec:
+      serviceAccountName: hermes
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 60
       initContainers:
@@ -130,6 +131,8 @@ spec:
             - name: dashboard
               containerPort: 9119
           env:
+            - name: KUBECONFIG
+              value: /etc/hermes-kubernetes/config
             - name: TZ
               value: Asia/Singapore
             - name: HERMES_CUA_DRIVER_CMD
@@ -192,6 +195,12 @@ spec:
             periodSeconds: 10
           # s6 restarts failed gateway/dashboard processes independently.
           volumeMounts:
+            - name: kubernetes-api
+              mountPath: /var/run/hermes-kubernetes
+              readOnly: true
+            - name: kubeconfig
+              mountPath: /etc/hermes-kubernetes
+              readOnly: true
             - name: data
               mountPath: /opt/data
             - name: shm
@@ -200,6 +209,23 @@ spec:
               mountPath: /computer-use
               readOnly: true
       volumes:
+        - name: kubernetes-api
+          projected:
+            # s6 drops privileges inside the main container; the runtime user
+            # must read these. No init container mounts this volume.
+            defaultMode: 0444
+            sources:
+              - serviceAccountToken:
+                  path: token
+                  expirationSeconds: 3600
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+        - name: kubeconfig
+          configMap:
+            name: hermes-kubeconfig
         - name: computer-use
           emptyDir: {}
         - name: shm
