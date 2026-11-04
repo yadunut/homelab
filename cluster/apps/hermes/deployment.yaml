@@ -28,7 +28,7 @@ spec:
               import os
               import pwd
               from pathlib import Path
-              import yaml
+              import hermes_yaml as yaml
               from dotenv import unset_key
 
               # Config helpers create backups on import; run them as Hermes.
