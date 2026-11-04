@@ -65,8 +65,12 @@ over IPv6 loopback. Without it Hermes maps the wildcard `::` listener to
 `127.0.0.1`, which refuses connections and produces repeated WebSocket 1006
 errors and a "gateway exited" message in dashboard chat.
 
-The official desktop image (v0.21.5, upstream `749220ef`) is pinned by
-multi-architecture digest in all containers. Update these references together.
+The official desktop image (`v0.22.7-desktop`, upstream `b200f5bc`) is pinned by
+multi-architecture digest in all three containers:
+`sha256:e655ce57374faca9404db91c96893a05df18904e508cb98786d59a9c80ee8ecf`.
+Update these references together. Docker Hub tag metadata and registry manifest
+bytes were independently checked on November 4, 2026; the index includes Linux
+amd64 and arm64. This is the desired image, not a claim that it is deployed.
 Its s6 entrypoint starts and
 supervises the dashboard and gateway and drops application processes to the
 `hermes` user. HTTP probes check dashboard availability; they do not prove that
@@ -116,8 +120,10 @@ A separate init container downloads cua-driver 0.28.2 for the node architecture,
 verifies its SHA-256, and places the executable in a shared ephemeral volume.
 `HERMES_CUA_DRIVER_CMD` selects that binary explicitly. Both amd64 and arm64
 archives are pinned; a replacement pod needs GitHub release-download access.
-This avoids the image's moving upstream driver installer and leaves the Hermes
-data volume free of a managed driver installation.
+This retains the independently pinned driver and leaves the Hermes data volume
+free of a managed driver installation. v0.22.7 now has a PM-managed driver pin
+(0.21.0), rather than the older moving installer; the explicit override still
+wins. Keep 0.28.2 here rather than silently downgrading it with the image upgrade.
 
 Use Hermes Desktop → Settings → Gateways → Remote gateway with
 `https://hermes.yadunut.dev` and the existing Kanidm OIDC login. Open the bot's
@@ -128,7 +134,7 @@ end-to-end check from the user's client after deployment.
 
 The desktop shares the gateway's files, credentials and network access; it is
 not an isolated sandbox. Use a vision-capable model for screenshot-based work.
-The tested upstream image lacks the AT-SPI accessibility bus: `computer-use
+The previously tested v0.21.5 image lacks the AT-SPI accessibility bus: `computer-use
 doctor` reports degraded UI-tree inspection, although X11 screen capture works.
 Use visual coordinates when accessibility elements are unavailable; browser
 tasks can use the browser toolset. Background typing returns
@@ -144,10 +150,83 @@ kubectl -n hermes exec deployment/hermes -c hermes -- hermes computer-use doctor
 kubectl -n hermes exec deployment/hermes -c hermes -- hermes computer-use screen stop
 ```
 
-The image, bootstrap preservation/idempotency, driver checksum/download, and
-1440×900 desktop capture and foreground terminal input were verified in a
-disposable pod without production
-credentials. This does not verify production inference or the Desktop viewer.
+For v0.21.5, the image, bootstrap preservation/idempotency, driver checksum/download,
+and 1440×900 desktop capture and foreground terminal input were verified in a
+disposable pod without production credentials. Those checks do not constitute a
+v0.22.7 runtime test or verify production inference or the Desktop viewer.
+
+## v0.22.7 upgrade gate
+
+This upgrade changes the three image pins only (plus comments, documentation and
+an offline regression test). It leaves storage, bootstrap logic, driver 0.28.2,
+OIDC, IPv6 transport, resource limits and Kubernetes RBAC unchanged.
+
+Compatibility checks against upstream tag `v0.22.7` (`b200f5bc60e31588ba2cb60e288029c4a54ba5fa`):
+
+- Imported `_get_platform_tools` from the fetched source using the existing
+  container's interpreter and a scratch-only `HOME`/`HERMES_HOME`; exercised CLI
+  and Telegram default resolution and explicit browser/computer-use lists with
+  `include_default_mcp_servers=False`. This is not a test of the new image's
+  dependency environment or the full bootstrap against production data.
+- Inspected `Dockerfile`, `docker/main-wrapper.sh`, s6 dashboard service and
+  entrypoint wiring: `/opt/hermes/.venv/bin/python`, the `hermes` user,
+  `/opt/data`, root entrypoint followed by privilege drop, and `gateway run`
+  remain supported. Registry configs for both architectures retain these
+  environment paths and `/opt/hermes/docker/entrypoint-dispatch.sh`.
+- Confirmed source still consumes the dashboard bind/IPv6 WebSocket override,
+  public URL, self-hosted OIDC variables and Telegram fallback-IP disable flag.
+- Checked the existing 0.28.2 binary's `manifest` against v0.22.7's actual driver
+  contract checker: passes. No driver service or new desktop session was started.
+  The source still honors `HERMES_CUA_DRIVER_CMD` before the PM-managed driver.
+- The image-pin regression test failed on the old digest and passed after the
+  update. Both app and root Kustomize renders passed. These are offline checks.
+
+No new-image runtime test was performed: the local Docker daemon is unavailable,
+and this agent's Kubernetes access does not permit creating test pods or exec.
+Before accepting the release, an operator should smoke-test an isolated instance
+with a restored copy of the data and without production bot/provider credentials.
+The image's PM/boot code may refresh dependencies under `/opt/data/installs`;
+existing configuration, plugins and database migrations still require a real
+upgrade test. Do not interpret successful rendering or dashboard HTTP probes as
+proof of OIDC, Telegram, inference or desktop compatibility.
+
+### Backup before push or reconciliation
+
+The patch does not create a backup or change the live cluster. Because Flux may
+auto-reconcile a pushed commit, complete this gate **before pushing to main**:
+
+1. Have an authorized operator pause reconciliation and stop the gateway and all
+   other writers to `hermes-data`, accounting for any named-profile processes.
+   Schedule downtime; never run the old and new gateways against the same PVC.
+2. Take an application-consistent backup of the whole `/opt/data` PVC, including
+   hidden files, SQLite databases and their WAL/SHM files, configuration, profiles,
+   sessions, skills, workspace, browser state and install state. Do not copy a
+   live SQLite database with a plain tar/cp operation and assume it is consistent.
+   Use a supported storage backup after quiescing writers; a Longhorn replica or
+   same-volume snapshot alone is not an independent backup.
+3. Store the backup off-volume in encrypted, access-controlled storage, verify
+   completion/integrity and a restore to a separate volume, and record the backup
+   ID and old image digest. `.env`, OAuth tokens, browser sessions and logs can
+   contain secrets: never attach the archive to chat or commit it to Git.
+4. Only then push/reconcile at the operator's discretion. Confirm bootstrap,
+   gateway and dashboard startup; check authorized/unauthorized OIDC login,
+   streaming inference, Telegram delivery, desktop capture/input and persistence.
+
+Rollback image for **all three** containers:
+`nousresearch/hermes-agent@sha256:b27ce2c14a6bf47070c562f80b0950a9808bdee1baec42d68f0e5a013d385290`
+(v0.21.5). If new code has migrated persisted data, an image-only rollback may
+not be safe: stop writers, restore the verified pre-upgrade backup and old pins
+together, then resume reconciliation. Do not restore over an active gateway.
+
+Repeat the offline checks from the repository root:
+
+```sh
+KUBECTL=/opt/data/home/.local/bin/kubectl \
+  uv run --with PyYAML==6.0.3 python -m unittest discover -s tests -v
+/opt/data/home/.local/bin/kubectl kustomize cluster >/dev/null
+/opt/data/home/.local/bin/kubectl kustomize cluster/apps/hermes >/dev/null
+```
+
 
 ## Read-only Kubernetes diagnostics
 

@@ -21,7 +21,7 @@ spec:
       terminationGracePeriodSeconds: 60
       initContainers:
         - name: bootstrap
-          image: nousresearch/hermes-agent@sha256:b27ce2c14a6bf47070c562f80b0950a9808bdee1baec42d68f0e5a013d385290
+          image: nousresearch/hermes-agent@sha256:e655ce57374faca9404db91c96893a05df18904e508cb98786d59a9c80ee8ecf
           command: ["/opt/hermes/.venv/bin/python", "-c"]
           args:
             - |
@@ -90,7 +90,7 @@ spec:
               mountPath: /bootstrap
               readOnly: true
         - name: computer-use-driver
-          image: nousresearch/hermes-agent@sha256:b27ce2c14a6bf47070c562f80b0950a9808bdee1baec42d68f0e5a013d385290
+          image: nousresearch/hermes-agent@sha256:e655ce57374faca9404db91c96893a05df18904e508cb98786d59a9c80ee8ecf
           command: ["/opt/hermes/.venv/bin/python", "-c"]
           args:
             - |
@@ -101,8 +101,8 @@ spec:
               import urllib.request
               from pathlib import Path
 
-              # Pin the driver independently: this Hermes release's installer
-              # otherwise fetches a moving upstream release at runtime.
+              # Preserve the independently pinned driver across image upgrades;
+              # HERMES_CUA_DRIVER_CMD bypasses the image's managed driver pin.
               artifacts = {
                   "x86_64": ("x86_64", "a1d99fd04bb4927ef5ffdbe60eb91ed8b51a2bab60e10fc604a75bd59ce69c3e"),
                   "aarch64": ("arm64", "55e8a32839a4ac369a773df4dac87b345bd4567779221ade4a5e39223a45a2e8"),
@@ -123,7 +123,7 @@ spec:
       containers:
         - name: hermes
           # Official desktop variant includes TigerVNC, Xfce and Chromium.
-          image: nousresearch/hermes-agent@sha256:b27ce2c14a6bf47070c562f80b0950a9808bdee1baec42d68f0e5a013d385290
+          image: nousresearch/hermes-agent@sha256:e655ce57374faca9404db91c96893a05df18904e508cb98786d59a9c80ee8ecf
           # Preserve the image entrypoint: s6 supervises gateway and dashboard
           # and drops application processes to the hermes runtime user.
           args: ["gateway", "run"]
