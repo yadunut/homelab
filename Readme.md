@@ -23,14 +23,14 @@ flux get kustomizations
 - `cluster/flux-system/`: Flux bootstrap manifests.
 - `cluster/infrastructure/`: service components (each has `helmrepo.yaml`,
   `helmrelease.yaml`, `namespace.yaml`, and `kustomization.yaml`).
-- `docs/`: operational notes, including `docs/http-proxy-guide.md`.
+- `docs/`: operational notes.
 
 ## Notes
 - Secrets are referenced via 1Password items (see
   `cluster/infrastructure/1password/` and
   `cluster/infrastructure/cert-manager/secret.yaml`); do not commit plaintext
   secrets.
-- The cluster is IPv6-only; external access may require the HTTP proxy guide.
+- The cluster is IPv6-only; CoreDNS DNS64 and per-node Jool NAT64 provide access to IPv4-only internet endpoints.
 
 ## Todo
 - [x] traefik

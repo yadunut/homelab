@@ -32,26 +32,17 @@ Common component file names:
 
 ### 2) Networking and DNS
 - Cluster networking is IPv6-only for pods/services.
-- IPv4 is available at ingress nodes and via the in-cluster HTTP proxy.
+- IPv4-only internet endpoints are reached through per-node Jool NAT64 and CoreDNS DNS64.
 - Cluster DNS domain is `k8s.internal` (not `cluster.local`).
 - CoreDNS service IP is intentionally fixed; do not change it casually (`cluster/infrastructure/coredns/coredns.yaml`).
 
-### 3) Proxy for IPv4-only egress
-- Proxy endpoint: `http://http-proxy.kube-system.svc.k8s.internal:8888`
-- Default env pattern:
-
-```yaml
-env:
-  - name: HTTPS_PROXY
-    value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-  - name: HTTP_PROXY
-    value: "http://http-proxy.kube-system.svc.k8s.internal:8888"
-  - name: NO_PROXY
-    value: ".k8s.internal,.svc,localhost,127.0.0.1,10.0.0.0/8,fd00::/8"
-```
-
-- Canonical details: `docs/http-proxy-guide.md`
-- Flux source-controller already receives this proxy config via patch in `cluster/flux-system/kustomization.yaml`.
+### 3) NAT64 for IPv4-only egress
+- CoreDNS synthesizes AAAA records with the NAT64 prefix `64:ff9b::/96`.
+- Each Kubernetes node runs its own Jool stateful NAT64 translator; host configuration lives in the separate NixOS repo under `modules/kubernetes/12-nat64-jool.nix`.
+- Cilium must retain `bpf.hostLegacyRouting: true` and `bpf.masquerade: false` so pod traffic reaches Jool's netfilter hooks.
+- Each node clears Cilium packet marks for `64:ff9b::/96` before Jool processes packets. NAT64 will fail if the `kubernetes-nat64-clear-mark` nftables table is missing.
+- Do not add HTTP proxy environment variables for ordinary IPv4-only egress. Applications using DNS should work transparently through DNS64/NAT64.
+- Direct IPv4 literals, applications that force `AF_INET`, and protocols embedding IPv4 addresses may still require an application-specific workaround.
 
 ### 4) Ingress and exposure patterns
 - Traefik runs on ingress-labeled nodes with `hostNetwork: true`.
@@ -97,7 +88,7 @@ env:
 ## Agent Change Checklist
 Before opening a PR or finalizing a change, verify:
 1. Reconciliation ordering still makes sense (infrastructure before dependent apps).
-2. IPv4-dependent workloads include proxy configuration and correct `NO_PROXY`.
+2. IPv4-dependent workloads resolve through DNS64 and can use NAT64; do not add proxy variables unless NAT64 incompatibility is demonstrated.
 3. DNS updates use `DNSEndpoint` conventions and required A/AAAA records.
 4. Storage class choice matches workload behavior (`longhorn` vs `longhorn-local-1r`).
 5. Secrets are 1Password-backed and no plaintext secret material was added.
