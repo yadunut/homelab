@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Purpose
-This repo is the Flux GitOps source for a Kubernetes homelab. Future agents should treat this file as the first-stop context before changing manifests.
+This repo owns the Kubernetes homelab's NixOS host modules and Flux GitOps configuration. Future agents should treat this file as the first-stop context before changing the cluster.
 
 ## Project Structure
 - Core manifests: `cluster/`
@@ -10,6 +10,8 @@ This repo is the Flux GitOps source for a Kubernetes homelab. Future agents shou
 - Infrastructure components: `cluster/infrastructure/<service>/`
 - Apps: `cluster/apps/`
 - Operational docs: `docs/`
+- Kubernetes host modules: `modules/kubernetes/`
+- Host module export: `flakeModules.kubernetes` via `modules/kubernetes.nix`
 - Dev shell: `flake.nix`
 
 Common component file names:
@@ -27,8 +29,9 @@ Common component file names:
 
 ### 1) Node/Kubernetes source of truth
 - All nodes run NixOS.
-- Host-level Kubernetes definitions live in a separate repo:
-  `https://git.yadunut.dev/yadunut/nix/src/branch/main/modules/kubernetes`
+- Host-level Kubernetes definitions live here in `modules/kubernetes/`.
+- The separate `nix` repo imports `flakeModules.kubernetes` and supplies host metadata, public keys, the secret generator helper, and the machine registry. It owns hardware, encrypted secrets, and Clan deployment.
+- Keep the flake dependency one-way: `nix` imports `homelab`. Do not add a `nix` flake input here.
 
 ### 2) Networking and DNS
 - Cluster networking is IPv6-only for pods/services.
@@ -38,7 +41,7 @@ Common component file names:
 
 ### 3) NAT64 for IPv4-only egress
 - CoreDNS synthesizes AAAA records with the NAT64 prefix `64:ff9b::/96`.
-- Each Kubernetes node runs its own Jool stateful NAT64 translator; host configuration lives in the separate NixOS repo under `modules/kubernetes/12-nat64-jool.nix`.
+- Each Kubernetes node runs its own Jool stateful NAT64 translator; host configuration lives in `modules/kubernetes/12-nat64-jool.nix`.
 - Cilium must retain `bpf.hostLegacyRouting: true` and `bpf.masquerade: false` so pod traffic reaches Jool's netfilter hooks.
 - Each node clears Cilium packet marks for `64:ff9b::/96` before Jool processes packets. NAT64 will fail if the `kubernetes-nat64-clear-mark` nftables table is missing.
 - Do not add HTTP proxy environment variables for ordinary IPv4-only egress. Applications using DNS should work transparently through DNS64/NAT64.
@@ -67,6 +70,7 @@ Common component file names:
 ### 7) Secrets and identity
 - Do not commit plaintext secrets.
 - Secrets are sourced through 1Password operator resources (`OnePasswordItem`) and referenced by workloads.
+- Host certificates and WireGuard keys use nix's agenix-rekey integration; preserve existing generator names and secret storage paths during module changes.
 - OIDC/identity patterns use Kanidm (`idm.yadunut.dev`), with group-based access for protected services.
 
 ### 8) Generated manifests
@@ -81,6 +85,7 @@ Use manifest rendering, static review, and explicitly authorized operational che
 - `kubectl kustomize cluster`
 - `flux reconcile kustomization -n flux-system infrastructure`
 - `flux get kustomizations`
+- For host module changes, evaluate the affected `nixosConfigurations` in the consuming nix repo with a local homelab input override; see `docs/host-modules.md`.
 
 ## Editing Conventions
 - YAML: 2-space indentation.

@@ -297,14 +297,15 @@ of this work.
 
 ### NixOS ingress-node firewall
 
-Update the sibling system configuration repository at `../nix` so the new
-Traefik host port is allowed by the NixOS firewall.
+Update this repository's host module so the new Traefik host port is allowed
+by the NixOS firewall. Publish it, update the homelab input in `../nix`, and
+deploy through Clan from that checkout.
 
 Add port `2200` to `networking.firewall.allowedTCPPorts` in the
 `flake.modules.nixos.kubernetes-common` configuration in:
 
 ```text
-../nix/modules/kubernetes/00-kubernetes.nix
+modules/kubernetes/13-frp.nix
 ```
 
 All three current Kubernetes machines are ingress nodes and import
@@ -409,9 +410,10 @@ registrable domain for demos before deployment.
 5. Build the proposed `frps.toml` and run the exact image, security context,
    mounts, probes, authorized and unauthorized SSH commands locally with
    Apple's `container` command.
-6. In `../nix/modules/kubernetes/00-kubernetes.nix`, allow TCP port `2200` in
+6. In `modules/kubernetes/13-frp.nix`, allow TCP port `2200` in
    the `kubernetes-common` firewall configuration.
-7. In `../nix`, run `jj status` and `jj diff`, validate the flake and every
+7. Publish the host module change, then update the homelab input in `../nix`.
+   In `../nix`, run `jj status` and `jj diff`, validate the flake and every
    Kubernetes machine configuration, commit, advance the bookmark consumed by
    that repo's deployment workflow, explicitly push that bookmark to its
    deployment remote, confirm the remote bookmark moved, and deploy the change
@@ -569,8 +571,9 @@ registrable domain for demos before deployment.
    pruned.
 7. Wait for ExternalDNS and cert-manager cleanup. Do not require DNS failure:
    the parent `*.yadunut.dev` wildcard may resume answering demo names.
-8. In `../nix`, remove port `2200` from `kubernetes-common`, validate all
-   machines, review and commit with `jj`, advance and explicitly push the
+8. Remove port `2200` from `modules/kubernetes/13-frp.nix` here and publish the
+   change. Update the homelab input in `../nix`, validate all machines, review
+   and commit with `jj`, advance and explicitly push the
    consumed bookmark, and deploy the firewall rollback with Clan only after the
    listener is gone.
 9. Confirm port `2200` is closed at every published ingress address and repeat

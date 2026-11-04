@@ -1,5 +1,5 @@
 {
-  description = "Homelab dev shell";
+  description = "Homelab Kubernetes host modules and Flux configuration";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -8,6 +8,8 @@
 
   outputs = inputs:
     inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+      flake.flakeModules.kubernetes = ./modules/kubernetes.nix;
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"

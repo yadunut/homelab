@@ -1,8 +1,9 @@
-# Homelab GitOps
+# Homelab Kubernetes
 
-This repo holds the Flux GitOps configuration for my homelab Kubernetes
-cluster. Core manifests live in `cluster/`, and `cluster/kustomization.yaml`
-assembles the full tree. Infrastructure components are grouped under
+This repo holds the NixOS host modules and Flux GitOps configuration for my
+homelab Kubernetes cluster. Host modules live in `modules/kubernetes/` and are
+imported by the separate nix repository. Core manifests live in `cluster/`,
+and `cluster/kustomization.yaml` assembles the full tree. Infrastructure components are grouped under
 `cluster/infrastructure/<service>/`.
 
 ## Prerequisites
@@ -24,6 +25,13 @@ flux get kustomizations
 - `cluster/infrastructure/`: service components (each has `helmrepo.yaml`,
   `helmrelease.yaml`, `namespace.yaml`, and `kustomization.yaml`).
 - `docs/`: operational notes.
+- `modules/kubernetes/`: Kubernetes services, cluster topology, host networking,
+  storage prerequisites, and GPU integration.
+- `modules/kubernetes.nix`: the `flakeModules.kubernetes` export consumed by nix.
+
+See [host module integration](docs/host-modules.md) for the import contract,
+local validation, and deployment workflow. Hardware, encrypted host secrets,
+and Clan deployment remain in the nix repository.
 
 ## Notes
 - Secrets are referenced via 1Password items (see
