@@ -22,6 +22,9 @@ class HermesImageTest(unittest.TestCase):
         self.assertEqual(len(deployments), 1)
         spec = deployments[0]["spec"]["template"]["spec"]
         containers = spec["initContainers"] + spec["containers"]
+        # Networking sidecars have independent image pins.
+        containers = [c for c in containers if c["name"] in
+                      ("bootstrap", "computer-use-driver", "hermes")]
         self.assertEqual(len(containers), 3)
         self.assertEqual(
             {container["name"]: container["image"] for container in containers},

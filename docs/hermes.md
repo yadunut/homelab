@@ -108,6 +108,15 @@ bypass DNS64 and cannot connect from this IPv6-only pod; it also showed repeated
 polling and delivery failures while standard hostname requests succeeded.
 There is no external gateway API service or Telegram webhook ingress.
 
+## Tailnet access for remote BB
+
+Kernel-networking Tailscale and a loopback split-DNS sidecar provide the shared
+Pod network path for `BB_SERVER_URL=https://yadunut-grep-bb.tail8dce03.ts.net`.
+Public egress still uses cluster DNS64/NAT64. This does not install `bb` or
+change application credentials. Complete the [tailnet prerequisites and merge
+/ rollout gate](hermes-tailscale.md) before merging; enrollment, TUN/nftables,
+ACLs and end-to-end remote CLI access require operator validation.
+
 ## Bot Screen
 
 The desktop image includes TigerVNC, Xfce and headed Chromium. The screen starts
