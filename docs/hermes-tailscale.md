@@ -174,22 +174,15 @@ checked; this deliberately pins the published stable v1.104.4 container, not an
 unresolvable tag. Source inspection uses that exact tag, not HEAD.
 
 ```sh
-# Python environment must provide PyYAML 6.0.3; no cluster API access required.
-python -m unittest discover -s tests -v
 kubectl kustomize cluster/apps/hermes >/dev/null
 kubectl kustomize cluster >/dev/null
 git diff --check
-# Optional: executable extracted from the digest-verified CoreDNS image.
-COREDNS_BINARY=/path/to/coredns python -m unittest discover -s tests -v
 ```
 
-Manifest tests were observed failing before adding their respective features,
-then passed. The optional runtime test was run with the actual pinned CoreDNS
-1.15.0 amd64 executable: real UDP/TCP split forwarding to **local fixture
-upstreams**, answer preservation, suffix-boundary handling, NXDOMAIN and SERVFAIL
-without fail-open all passed. It does not simulate a real tailnet or claim to
-exercise Jool. The Docker daemon is unavailable here; no Tailscale kernel-mode
-container was run, no device enrollment attempted, and nothing was deployed.
+This repository intentionally has no test suite. Validate changes with manifest
+rendering, static review, and explicitly authorized operational checks. The Docker
+daemon is unavailable here; no Tailscale kernel-mode container was run, no device
+enrollment attempted, and nothing was deployed.
 
 ## Official references inspected
 
