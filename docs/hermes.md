@@ -108,15 +108,6 @@ bypass DNS64 and cannot connect from this IPv6-only pod; it also showed repeated
 polling and delivery failures while standard hostname requests succeeded.
 There is no external gateway API service or Telegram webhook ingress.
 
-## Tailnet access for remote BB
-
-Kernel-networking Tailscale and a loopback split-DNS sidecar provide the shared
-Pod network path for `BB_SERVER_URL=https://yadunut-grep-bb.tail8dce03.ts.net`.
-Public egress still uses cluster DNS64/NAT64. This does not install `bb` or
-change application credentials. Complete the [tailnet prerequisites and merge
-/ rollout gate](hermes-tailscale.md) before merging; enrollment, TUN/nftables,
-ACLs and end-to-end remote CLI access require operator validation.
-
 ## Bot Screen
 
 The desktop image includes TigerVNC, Xfce and headed Chromium. The screen starts
@@ -230,6 +221,8 @@ together, then resume reconciliation. Do not restore over an active gateway.
 Repeat the offline checks from the repository root:
 
 ```sh
+KUBECTL=/opt/data/home/.local/bin/kubectl \
+  uv run --with PyYAML==6.0.3 python -m unittest discover -s tests -v
 /opt/data/home/.local/bin/kubectl kustomize cluster >/dev/null
 /opt/data/home/.local/bin/kubectl kustomize cluster/apps/hermes >/dev/null
 ```
@@ -289,16 +282,18 @@ credentials the application already receives through other mechanisms.
 
 ### Validation and rollout gate
 
-Offline checks (requires kubectl):
+Offline checks (requires kubectl and Python with PyYAML):
 
 ```sh
+uv run --with PyYAML==6.0.3 python -m unittest discover -s tests -v
 kubectl kustomize cluster >/dev/null
 kubectl kustomize cluster/apps/hermes >/dev/null
 ```
 
-Review the rendered resources for the exact RBAC allowlist, credential mount
-isolation and rotation, and kubeconfig TLS/tokenFile configuration. Rendering
-and static review do not prove effective live RBAC, token rotation, or pod startup.
+The tests inspect the rendered Hermes resources, enforce the exact RBAC
+allowlist, credential mount isolation and rotation configuration, kubeconfig
+TLS/tokenFile configuration, and absence of a kubectl installer or ephemeral volume. These are offline
+checks, not proof of effective live RBAC, token rotation, or pod startup.
 
 After the operator-approved Flux rollout, run from the main Hermes container
 (or have an operator invoke these commands there using their own exec access):
