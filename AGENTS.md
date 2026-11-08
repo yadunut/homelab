@@ -74,6 +74,9 @@ Common component file names:
 - Do not hand-edit generated `gotk-*` files; use overlays/patches such as `cluster/flux-system/kustomization.yaml`.
 
 ## Build and Validation Commands
+
+This repository intentionally has no tests. Do not add test files or test suites.
+Use manifest rendering, static review, and explicitly authorized operational checks.
 - `nix develop`
 - `kubectl kustomize cluster`
 - `flux reconcile kustomization -n flux-system infrastructure`

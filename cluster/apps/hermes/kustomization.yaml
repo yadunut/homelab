@@ -4,12 +4,18 @@ resources:
   - namespace.yaml
   - rbac.yaml
   - onepassworditem.yaml
+  - tailscale-onepassworditem.yaml
+  - tailscale-pvc.yaml
   - pvc.yaml
   - deployment.yaml
   - service.yaml
   - certificate.yaml
   - ingressroute.yaml
 configMapGenerator:
+  - name: hermes-tailnet-dns
+    namespace: hermes
+    files:
+      - Corefile=tailnet.Corefile
   - name: hermes-kubeconfig
     namespace: hermes
     files:

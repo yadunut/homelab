@@ -1,0 +1,23 @@
+# Only the tailnet suffix goes to the local Tailscale service resolver.
+# No fallback to public/cluster DNS for private names; no DNS64 on this zone.
+tail8dce03.ts.net:53 {
+    bind ::1
+    errors
+    forward . [fd7a:115c:a1e0::53] {
+        health_check 10s domain tail8dce03.ts.net.
+        max_concurrent 100
+    }
+}
+
+# Keep Kubernetes discovery and DNS64/NAT64 on the ORIGINAL cluster resolver.
+# Never forward to /etc/resolv.conf: that points back at this sidecar.
+.:53 {
+    bind ::1
+    errors
+    health [::]:18180
+    ready [::]:18181
+    forward . [fd00:10:97::a] {
+        max_concurrent 100
+    }
+    loop
+}

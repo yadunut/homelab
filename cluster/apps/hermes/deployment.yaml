@@ -19,7 +19,122 @@ spec:
       serviceAccountName: hermes
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 60
+      # A restartable init resolver must be ready before any download init runs.
+      dnsPolicy: None
+      dnsConfig:
+        nameservers: ["::1"]
+        searches: ["hermes.svc.k8s.internal", "svc.k8s.internal", "k8s.internal"]
+        options:
+          - name: ndots
+            value: "1"
       initContainers:
+        - name: tailnet-dns
+          restartPolicy: Always
+          image: coredns/coredns:1.15.0@sha256:0a9d8c8ddf34347eb59aad9a8784f0710de88d6d112726d11d271f9bc6daca26
+          args: ["-conf", "/etc/tailnet-dns/Corefile"]
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_BIND_SERVICE"]
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 18180
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 18181
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 18180
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 20Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            - name: tailnet-dns
+              mountPath: /etc/tailnet-dns
+              readOnly: true
+        - name: tailscale
+          restartPolicy: Always
+          image: tailscale/tailscale:v1.104.4@sha256:ed6480b33c6eb67c9cbd203ed42b9fb57e361986725b6856def71b7a3d9e276c
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              umask 077
+              chmod 0700 /var/lib/tailscale
+              exec /usr/local/bin/containerboot
+          env:
+            - name: TS_USERSPACE
+              value: "false"
+            - name: TS_ACCEPT_DNS
+              value: "false"
+            - name: TS_KUBE_SECRET
+              value: ""
+            - name: TS_STATE_DIR
+              value: /var/lib/tailscale
+            - name: TS_SOCKET
+              value: /var/run/tailscale/tailscaled.sock
+            - name: TS_AUTH_ONCE
+              value: "true"
+            - name: TS_HOSTNAME
+              value: hermes
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: hermes-tailscale
+                  key: TS_AUTHKEY
+            # Native nftables avoids requiring legacy ip6_tables modules on NixOS.
+            - name: TS_DEBUG_FIREWALL_MODE
+              value: nftables
+            - name: TS_EXTRA_ARGS
+              value: "--advertise-tags=tag:hermes --accept-routes=false --netfilter-mode=on --shields-up"
+            - name: TS_ENABLE_HEALTH_CHECK
+              value: "true"
+            - name: TS_LOCAL_ADDR_PORT
+              value: "[::]:19002"
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_ADMIN"]
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 19002
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 19002
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: tailscale-state
+              mountPath: /var/lib/tailscale
+            - name: tailscale-run
+              mountPath: /var/run/tailscale
+            - name: tailscale-tun
+              mountPath: /dev/net/tun
         - name: bootstrap
           image: nousresearch/hermes-agent@sha256:e655ce57374faca9404db91c96893a05df18904e508cb98786d59a9c80ee8ecf
           command: ["/opt/hermes/.venv/bin/python", "-c"]
@@ -131,6 +246,8 @@ spec:
             - name: dashboard
               containerPort: 9119
           env:
+            - name: BB_SERVER_URL
+              value: https://yadunut-grep-bb.tail8dce03.ts.net
             - name: KUBECONFIG
               value: /etc/hermes-kubernetes/config
             - name: TZ
@@ -209,6 +326,18 @@ spec:
               mountPath: /computer-use
               readOnly: true
       volumes:
+        - name: tailscale-state
+          persistentVolumeClaim:
+            claimName: hermes-tailscale
+        - name: tailscale-run
+          emptyDir: {}
+        - name: tailscale-tun
+          hostPath:
+            path: /dev/net/tun
+            type: CharDevice
+        - name: tailnet-dns
+          configMap:
+            name: hermes-tailnet-dns
         - name: kubernetes-api
           projected:
             # s6 drops privileges inside the main container; the runtime user
