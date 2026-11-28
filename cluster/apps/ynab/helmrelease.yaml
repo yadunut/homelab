@@ -20,7 +20,7 @@ spec:
       digest: sha256:205ba6338f6880b84877177fdceef72b544a50401a7bf92259c8462daa01dd90
     app:
       url: https://ynab.yadunut.dev
-      plaidEnv: sandbox
+      plaidEnv: production
     imagePullSecrets:
       - name: ynab-harbor
     secrets:
