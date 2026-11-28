@@ -39,10 +39,9 @@ spec:
             - name: VPN_TYPE
               value: wireguard
             - name: WIREGUARD_ENDPOINT_IP
-              valueFrom:
-                secretKeyRef:
-                  name: qbittorrent-protonvpn
-                  key: WIREGUARD_ENDPOINT_IP
+              # SG#120 / node-sg-30, matching the 1Password-backed peer key.
+              # Use NAT64 while Penguin's uplink has no working native IPv6.
+              value: "64:ff9b::149.50.211.165"
             - name: WIREGUARD_ENDPOINT_PORT
               valueFrom:
                 secretKeyRef:
