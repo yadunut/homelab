@@ -1,0 +1,16 @@
+# Supply the verified release archive as llama-runtime.tar.gz in the build context.
+# See README.md for its immutable release URL and build instructions.
+FROM docker.io/nvidia/cuda@sha256:fcbbd60a5ad3db3a1c7375bf14546b369b54064c513224310b2026df50c7a9bd AS unpack
+COPY llama-runtime.tar.gz /tmp/llama-runtime.tar.gz
+RUN echo '63f031751927fb06894928e18bf46e7f164c555b8807c8ac4e963e6a37c6d42c  /tmp/llama-runtime.tar.gz' | sha256sum -c - \
+    && mkdir -p /opt/llama \
+    && tar -xzf /tmp/llama-runtime.tar.gz -C /opt/llama
+
+FROM docker.io/nvidia/cuda@sha256:fcbbd60a5ad3db3a1c7375bf14546b369b54064c513224310b2026df50c7a9bd
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 libssl3 libcurl4 ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=unpack /opt/llama /opt/llama
+ENV LD_LIBRARY_PATH=/opt/llama:/usr/local/cuda/lib64:/usr/local/nvidia/lib:/usr/local/nvidia/lib64
+ENV CUDA_CACHE_PATH=/tmp/cuda-cache
+WORKDIR /opt/llama
+USER 1000:1000
+ENTRYPOINT ["/opt/llama/llama-server"]

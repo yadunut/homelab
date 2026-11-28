@@ -35,24 +35,35 @@ spec:
           args:
             - |
               cd /models
-              if [ -f "$MODEL_FILE" ] && echo "$MODEL_SHA256  $MODEL_FILE" | sha256sum -c -; then
-                exit 0
-              fi
-              curl --fail --location --retry 5 --retry-delay 10 \
-                --connect-timeout 30 --continue-at - \
-                --output "$MODEL_FILE.partial" "$MODEL_URL"
-              echo "$MODEL_SHA256  $MODEL_FILE.partial" | sha256sum -c - || {
-                rm -f "$MODEL_FILE.partial"
-                exit 1
+              download() {
+                file="$1" url="$2" sha="$3"
+                if [ -f "$file" ] && echo "$sha  $file" | sha256sum -c -; then
+                  return 0
+                fi
+                curl --fail --location --retry 5 --retry-delay 10 \
+                  --connect-timeout 30 --continue-at - \
+                  --output "$file.partial" "$url"
+                echo "$sha  $file.partial" | sha256sum -c - || {
+                  rm -f "$file.partial"
+                  exit 1
+                }
+                mv "$file.partial" "$file"
               }
-              mv "$MODEL_FILE.partial" "$MODEL_FILE"
+              download "$MODEL_FILE" "$MODEL_URL" "$MODEL_SHA256"
+              download "$DRAFT_FILE" "$DRAFT_URL" "$DRAFT_SHA256"
           env:
             - name: MODEL_FILE
-              value: Qwen3.8-27B-GSQ-RCO-IQ3_XXS-mtp.gguf
+              value: Inkling-2-Mini-UD-Q2_K_XL.gguf
             - name: MODEL_URL
-              value: https://huggingface.co/ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF/resolve/d562806dbafae37109975e970aae91b43e73b440/Qwen3.8-27B-GSQ-RCO-IQ3_XXS-mtp.gguf
+              value: https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/resolve/8078d149286eec7193795413b9e0643da6d11fa1/Inkling-2-Mini-UD-Q2_K_XL.gguf
             - name: MODEL_SHA256
-              value: 63f29a2189a6b4cc31f81e093d3856ad293a5583114439f41ae1ed7af4093262
+              value: b42841608ea380ddde5a3f1125081357128a3c71b80d006246de4e31292fc6c1
+            - name: DRAFT_FILE
+              value: dspark-Inkling-2-Mini-Q8_0_Old.gguf
+            - name: DRAFT_URL
+              value: https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/resolve/8078d149286eec7193795413b9e0643da6d11fa1/dspark-Inkling-2-Mini-Q8_0_Old.gguf
+            - name: DRAFT_SHA256
+              value: 2ec78510da837e8fc3be54a14757a0c5fbd2d8d9e85a0d92853fafdf674f3773
           # Direct IPv6 / DNS64 egress; the legacy http-proxy Service is absent.
           resources:
             requests:
@@ -70,19 +81,19 @@ spec:
               mountPath: /models
       containers:
         - name: llama
-          # Upstream server-cuda, pinned for the initial local validation.
-          image: ghcr.io/ggml-org/llama.cpp@sha256:5268283a8d6510d167364f19aee93e98180d8eb0cac4b7edb20af7e3edf40c17
+          # Exact benchmarked Unsloth b12649-mix-c7059d6 runtime; images/llama-inkling.
+          image: harbor.yadunut.dev/library/llama-inkling@sha256:574a4c1478e576f870f68cf2d9d4186a3277d5a2f43e5286718ebbfb61d12e1f
           # Refuse an empty/comment-only key file instead of starting without auth.
           command: ["/bin/sh", "-ec"]
           args:
             - |
               awk 'NF && $1 !~ /^#/ { found=1 } END { exit !found }' /auth/api-keys
-              exec /app/llama-server "$@"
+              exec /opt/llama/llama-server "$@"
             - llama-server
             - --model
-            - /models/Qwen3.8-27B-GSQ-RCO-IQ3_XXS-mtp.gguf
+            - /models/Inkling-2-Mini-UD-Q2_K_XL.gguf
             - --alias
-            - qwen3.8-27b
+            - inkling-2-mini
             - --host
             - "::"
             - --port
@@ -96,9 +107,27 @@ spec:
             - --flash-attn
             - "on"
             - --spec-type
-            - draft-mtp
+            - draft-dspark
+            - --model-draft
+            - /models/dspark-Inkling-2-Mini-Q8_0_Old.gguf
+            - --n-gpu-layers-draft
+            - "99"
             - --spec-draft-n-max
-            - "3"
+            - "2"
+            - --cache-type-k
+            - f16
+            - --cache-type-v
+            - f16
+            - --batch-size
+            - "512"
+            - --ubatch-size
+            - "512"
+            - --threads
+            - "16"
+            - --threads-batch
+            - "16"
+            - --reasoning-effort
+            - none
             - --cache-ram
             - "16384"
             - --jinja

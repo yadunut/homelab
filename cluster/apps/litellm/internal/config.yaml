@@ -1,8 +1,17 @@
 # Client-facing names are independent of the provider-specific model IDs.
 model_list:
+  - model_name: inkling-2-mini
+    litellm_params:
+      model: openai/inkling-2-mini
+      api_base: http://llama.llama.svc.k8s.internal:8080/v1
+      api_key: os.environ/LLAMA_API_KEY
+    model_info:
+      mode: chat
+  # Preserve existing clients and model-scoped virtual keys during the cutover.
+  # This legacy name now serves Inkling, not Qwen.
   - model_name: qwen3.8-27b
     litellm_params:
-      model: openai/qwen3.8-27b
+      model: openai/inkling-2-mini
       api_base: http://llama.llama.svc.k8s.internal:8080/v1
       api_key: os.environ/LLAMA_API_KEY
     model_info:

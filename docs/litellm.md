@@ -4,7 +4,7 @@ Initially validated with kubectl on 2026-09-22, then registered in
 `cluster/apps/kustomization.yaml` for Flux management. LiteLLM's Flux
 Kustomization depends on infrastructure; Hermes depends on LiteLLM. The local
 llama.cpp backend is optional for gateway readiness: OpenRouter and ChatGPT
-requests do not require it. Local Qwen requests fail while that backend is down;
+requests do not require it. Local Inkling requests fail while that backend is down;
 there is no automatic cloud fallback.
 
 ## Configuration
@@ -49,7 +49,8 @@ behavior. The original image itself is unchanged.
 
 | Client model | Upstream | Initial test endpoint |
 | --- | --- | --- |
-| `qwen3.8-27b` | Existing local llama.cpp service | `/v1/chat/completions` |
+| `inkling-2-mini` | Local Inkling Q2_K_XL with DSpark depth 2 | `/v1/chat/completions` |
+| `qwen3.8-27b` | Compatibility alias for the same Inkling backend | `/v1/chat/completions` |
 | `openrouter/<provider>/<model>` | Any available OpenRouter model, e.g. `openrouter/z-ai/glm-5.3-flash` | `/v1/chat/completions` for chat models |
 | `codex` | ChatGPT subscription `gpt-6-astra` | `/v1/responses` |
 

@@ -1,34 +1,47 @@
 # Local inference
 
-The manifests in `cluster/apps/llama` serve Qwen3.8-27B GSQ-RCO IQ3_XXS with
-its MTP head through llama.cpp's CUDA server. The same manifests support initial manual
-validation followed by Flux adoption.
+Latest comparison: [Inkling 2 Mini benchmark, 2026-11-28](inkling-benchmark.md)
+compares the original checkpoint and Unsloth Q2/IQ3 against Qwen at Penguin's
+observed 49 W power limit. Qwen was restored after the experiment; the subsequent
+production cutover selects the fastest tested configuration below.
+
+The manifests in `cluster/apps/llama` serve Unsloth Inkling-2-Mini UD-Q2_K_XL
+with its Q8_0 DSpark drafter through the benchmarked Unsloth llama.cpp CUDA
+runtime. Flux manages the deployment. The immutable runtime image is built
+from [images/llama-inkling](../images/llama-inkling/README.md).
 
 ## Configuration
 
 - Internal base URL: `http://llama.llama.svc.k8s.internal:8080/v1`
 - Public access: through LiteLLM at `https://llm.yadunut.dev/v1`, using the
-  LiteLLM gateway key and model `qwen3.8-27b`. llama has no direct public route.
-- Model alias: `qwen3.8-27b`
+  LiteLLM gateway key and model `inkling-2-mini`. llama has no direct public route.
+- Backend model alias: `inkling-2-mini`. LiteLLM also retains `qwen3.8-27b` as
+  a compatibility alias serving Inkling, so existing clients and model-scoped
+  virtual keys continue working. That name no longer selects Qwen.
 - One replica on `penguin`, one inference slot, 65,536 tokens of context.
   Hermes enforces a minimum 64,000-token context at agent startup.
-- Full GPU layer offload, default cache precision, flash attention and Jinja enabled.
-- MTP speculative decoding with at most three draft tokens per step.
+- Full GPU layer offload for both models, FP16 attention cache, flash attention
+  and Jinja enabled. Batch and microbatch sizes are 512; CPU thread counts are 16.
+- DSpark speculative decoding with at most two draft tokens per step.
+- `--reasoning-effort none` matches the throughput benchmark, but does not
+  guarantee no reasoning: all 512-token benchmark samples exhausted their
+  budget before producing a final answer. Throughput is not a quality score.
 - A 16 GiB host-memory prompt cache (`--cache-ram 16384`) and a 32 GiB
   container memory limit. The cache retains reusable conversation state;
   active model weights and attention state remain on the GPU.
-- A 30 GiB `longhorn-local-1r` PVC caches the approximately 10.4 GB model.
+- The existing 30 GiB `longhorn-local-1r` PVC caches the approximately 9.14 GB
+  model and 0.40 GB drafter, retaining both previous Qwen files for rollback.
   The downloader pins the upstream revision, resumes partial downloads, verifies
-  SHA-256, and only then renames the file. Every startup checks the cached file.
+  SHA-256, and only then renames each file. Every startup checks both cached files.
 - Direct IPv6/DNS64/NAT64 download egress, following the current Hermes setup.
-  The legacy proxy referenced in AGENTS.md no longer exists.
 
 Jellyfin shares the same 16 GiB GPU. `nvidia.com/gpu.shared: 1` is a scheduling
 share, not a VRAM quota. Measure memory while transcoding before increasing
 context or concurrency. System RAM limits do not limit VRAM. If necessary,
 reduce context or test `--no-kv-offload`, measuring the effect on speed.
-The deployment is text-only; no vision projector is loaded. The original
-non-MTP model can remain in the PVC for rollback; both files fit in 30 GiB.
+The deployment is text-only; no vision projector is loaded. The selected
+configuration peaked at 12,276 MiB total GPU memory in the benchmark, versus
+15,184 MiB for Qwen MTP. Leave the retained model files in place.
 
 ## Authentication
 
@@ -50,7 +63,15 @@ token. Public clients use the LiteLLM key instead; see `docs/litellm.md`.
 The built-in llama UI is disabled. The llama IngressRoute and Certificate have
 been removed from these manifests.
 
-## Review, then local validation
+## Deployment and validation
+
+Render `cluster`, `cluster/apps/llama`, and `cluster/apps/litellm/internal`.
+Commit and push the scoped manifests, reconcile `flux-system` with its source,
+then reconcile `llama` and `litellm`. Wait for both Deployments to roll out and
+check authenticated generation, streaming, and tool calls through LiteLLM.
+Keep the existing PVC, authentication, private Service, and public gateway.
+
+## Historical initial manual validation (superseded)
 
 Do not apply until the user has reviewed the manifests. Render locally:
 
@@ -229,7 +250,7 @@ This preserves the existing media PVC and its shared, single-node mounts.
 Jellyfin has not yet been migrated; real playback, tone mapping and encoder
 quality should be checked as part of that change.
 
-## Flux handover
+## Historical Flux handover (completed)
 
 Once local validation and Hermes integration work, commit the finalized manifests
 and documentation, push `main`, and reconcile Flux. `cluster/apps/llama.yaml`
@@ -241,6 +262,8 @@ Do not delete the namespace or PVC during handover.
 
 ## References
 
+- https://huggingface.co/unsloth/Inkling-2-Mini-GGUF/tree/8078d149286eec7193795413b9e0643da6d11fa1
+- https://github.com/unslothai/llama.cpp/releases/tag/b12649-mix-c7059d6
 - https://huggingface.co/ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF
 - https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md
 - https://github.com/ggml-org/llama.cpp/blob/master/docs/function-calling.md
