@@ -63,6 +63,9 @@ spec:
           accessMode: ReadWriteOnce
     server:
       enabled: true
+      defaultPodOptions:
+        nodeSelector:
+          kubernetes.io/hostname: penguin
       ingress:
         main:
           enabled: true
@@ -81,6 +84,9 @@ spec:
             traefik.ingress.kubernetes.io/proxy-body-size: "0"
     machine-learning:
       enabled: true
+      defaultPodOptions:
+        nodeSelector:
+          kubernetes.io/hostname: penguin
       persistence:
         cache:
           enabled: true

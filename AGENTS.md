@@ -61,9 +61,10 @@ Common component file names:
 
 ### 6) Storage
 - Storage classes in use:
-  - `longhorn`: default replicated storage (3 replicas)
+  - `longhorn`: default replicated storage (2 replicas on cloud-tagged nodes)
+  - `longhorn-penguin-1r`: Penguin-only strict-local storage, Retain policy, six-hour offsite backup group
   - `longhorn-local-1r`: non-replicated storage with `dataLocality: best-effort`
-- Prefer `longhorn-local-1r` for workloads that benefit from local volume access when possible and do not need replication.
+- Prefer `longhorn-penguin-1r` for new Penguin workloads that do not need live replication; keep their pods on Penguin. Use `longhorn-local-1r` for other single-copy workloads, including application-replicated database instances.
 - Canonical operational detail and capacity notes: `docs/storage.md`
 - Caveat: on `nut-gc2`, `/srv` is shared by Longhorn and Garage; do not double-count capacity.
 
@@ -98,7 +99,7 @@ Before opening a PR or finalizing a change, verify:
 1. Reconciliation ordering still makes sense (infrastructure before dependent apps).
 2. IPv4-dependent workloads resolve through DNS64 and can use NAT64; do not add proxy variables unless NAT64 incompatibility is demonstrated.
 3. DNS updates use `DNSEndpoint` conventions and required A/AAAA records.
-4. Storage class choice matches workload behavior (`longhorn` vs `longhorn-local-1r`).
+4. Storage class and workload placement match the site and replication requirements (see `docs/storage.md`).
 5. Secrets are 1Password-backed and no plaintext secret material was added.
 6. No direct edits were made to generated `gotk-*` manifests.
 7. `kubectl kustomize cluster` renders successfully.
