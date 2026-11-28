@@ -1,0 +1,17 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: ynab
+  namespace: flux-system
+spec:
+  # Set ref.tag to a published chart version, then unsuspend both source and release.
+  suspend: true
+  interval: 10m
+  url: oci://harbor.yadunut.dev/yadunut/charts/ynab
+  ref:
+    tag: "0.1.0-ci.0"
+  secretRef:
+    name: flux-harbor
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy

@@ -1,0 +1,43 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ynab
+  namespace: ynab
+spec:
+  # Set the published image digest and select the matching OCI chart before unsuspending.
+  suspend: true
+  interval: 10m
+  chartRef:
+    kind: OCIRepository
+    name: ynab
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    image:
+      digest: ""
+    app:
+      url: https://ynab.yadunut.dev
+      plaidEnv: sandbox
+    imagePullSecrets:
+      - name: ynab-harbor
+    secrets:
+      onePassword:
+        enabled: true
+    persistence:
+      storageClass: longhorn-penguin-1r
+      labels:
+        recurring-job.longhorn.io/source: enabled
+        recurring-job-group.longhorn.io/penguin: enabled
+    nodeSelector:
+      kubernetes.io/hostname: penguin
+    ingress:
+      certificate:
+        enabled: true
+    # Longhorn's existing six-hour offsite backup schedule is enabled above.
+    litestream:
+      enabled: false

@@ -13,3 +13,4 @@ resources:
   - woodpecker.yaml
   - drive.yaml
   - yadunut-dev.yaml
+  - ynab.yaml
