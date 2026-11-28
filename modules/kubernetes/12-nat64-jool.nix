@@ -34,17 +34,23 @@
           description = "IPv4 source port/ICMP ID range reserved for Jool pool4 translations.";
         };
         nodeIPv4 = lib.mkOption {
-          type = lib.types.attrsOf lib.types.str;
+          type = lib.types.attrsOf (lib.types.nullOr lib.types.str);
           default = {
             nut-gc1 = "167.253.159.47";
             nut-gc2 = "103.149.46.7";
-            penguin = "10.0.0.10";
+            penguin = null;
           };
-          description = "Primary IPv4 egress address for each Kubernetes node's local NAT64 translator.";
+          description = "Primary IPv4 egress address for each node's NAT64 translator. Null uses Jool's automatic interface address selection for DHCP nodes.";
         };
       };
 
-      config = lib.mkIf (cfg.enable && nodeIPv4 != null) {
+      config = lib.mkIf cfg.enable {
+        assertions = [
+          {
+            assertion = nodeIPv4 != null || cfg.portRange == "61001-65535";
+            message = "Automatic NAT64 IPv4 address selection uses Jool's fixed port range 61001-65535.";
+          }
+        ];
         boot.kernel.sysctl = {
           "net.ipv4.conf.all.forwarding" = 1;
           "net.ipv4.ip_forward" = 1;
@@ -54,11 +60,13 @@
           enable = true;
           nat64.default = {
             global.pool6 = cfg.prefix;
-            pool4 = map mkPool4 [
+            # An empty pool4 follows the outgoing interface's IPv4 address.
+            # Jool reserves ports 61001-65535 in this mode.
+            pool4 = lib.optionals (nodeIPv4 != null) (map mkPool4 [
               "TCP"
               "UDP"
               "ICMP"
-            ];
+            ]);
           };
         };
 
