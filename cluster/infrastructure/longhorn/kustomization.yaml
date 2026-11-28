@@ -6,6 +6,7 @@ resources:
   - helmrelease.yaml
   - storageclass.yaml
   - backup.yaml
+  - storage-sites.yaml
   - oauth2-proxy-onepassworditem.yaml
   - oauth2-proxy-helmrelease.yaml
   - certificate.yaml

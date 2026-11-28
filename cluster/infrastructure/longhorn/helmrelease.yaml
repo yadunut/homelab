@@ -22,6 +22,11 @@ spec:
     remediation:
       retries: 3
   values:
+    persistence:
+      defaultClassReplicaCount: 2
+      defaultNodeSelector:
+        enable: true
+        selector: cloud
     defaultSettings:
       engineReplicaTimeout: '{"v1":"30","v2":"8"}'
       replicaFileSyncHttpClientTimeout: "120"

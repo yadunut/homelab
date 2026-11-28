@@ -53,6 +53,7 @@ spec:
       persistence:
         data:
           enabled: true
+          retain: true
           type: persistentVolumeClaim
           size: 1Gi
           accessMode: ReadWriteOnce

@@ -12,3 +12,23 @@ parameters:
   staleReplicaTimeout: "2880"
   fromBackup: ""
   fsType: "ext4"
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: longhorn-penguin-1r
+provisioner: driver.longhorn.io
+allowVolumeExpansion: true
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  numberOfReplicas: "1"
+  dataLocality: strict-local
+  nodeSelector: penguin
+  staleReplicaTimeout: "2880"
+  fsType: ext4
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: kubernetes.io/hostname
+        values:
+          - penguin

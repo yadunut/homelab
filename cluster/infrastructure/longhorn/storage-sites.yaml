@@ -1,0 +1,44 @@
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: nut-gc1
+  namespace: longhorn-system
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  tags: [cloud]
+---
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: nut-gc2
+  namespace: longhorn-system
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  tags: [cloud]
+---
+apiVersion: longhorn.io/v1beta2
+kind: Node
+metadata:
+  name: penguin
+  namespace: longhorn-system
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+spec:
+  tags: [penguin]
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: penguin-backup
+  namespace: longhorn-system
+spec:
+  name: penguin-backup
+  task: backup
+  cron: "15 */6 * * *"
+  retain: 7
+  concurrency: 1
+  groups: [penguin]
+  labels:
+    backup-site: penguin
