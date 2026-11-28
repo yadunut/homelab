@@ -5,6 +5,7 @@ resources:
   - helmrepo.yaml
   - database.yaml
   - pvc.yaml
+  - valkey-pvc.yaml
   - certificate.yaml
   - helmrelease.yaml
   - image-repository.yaml

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: immich-valkey-penguin
+  namespace: immich
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+  labels:
+    recurring-job-group.longhorn.io/penguin: enabled
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn-penguin-1r
+  resources:
+    requests:
+      storage: 1Gi

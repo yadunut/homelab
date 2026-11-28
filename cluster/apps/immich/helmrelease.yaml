@@ -50,10 +50,14 @@ spec:
           existingClaim: immich-library
     valkey:
       enabled: true
+      defaultPodOptions:
+        nodeSelector:
+          kubernetes.io/hostname: penguin
       persistence:
         data:
           enabled: true
           retain: true
+          existingClaim: immich-valkey-penguin
           type: persistentVolumeClaim
           size: 1Gi
           accessMode: ReadWriteOnce
