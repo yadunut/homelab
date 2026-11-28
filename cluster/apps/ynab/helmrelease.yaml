@@ -4,8 +4,6 @@ metadata:
   name: ynab
   namespace: ynab
 spec:
-  # Set the published image digest and select the matching OCI chart before unsuspending.
-  suspend: true
   interval: 10m
   chartRef:
     kind: OCIRepository
@@ -19,7 +17,7 @@ spec:
       retries: 3
   values:
     image:
-      digest: ""
+      digest: sha256:205ba6338f6880b84877177fdceef72b544a50401a7bf92259c8462daa01dd90
     app:
       url: https://ynab.yadunut.dev
       plaidEnv: sandbox

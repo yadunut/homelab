@@ -4,12 +4,11 @@ metadata:
   name: ynab
   namespace: flux-system
 spec:
-  # Set ref.tag to a published chart version, then unsuspend both source and release.
-  suspend: true
   interval: 10m
   url: oci://harbor.yadunut.dev/yadunut/charts/ynab
   ref:
-    tag: "0.1.0-ci.0"
+    # Chart 0.1.0-ci.4, source commit 05a47bad0585a309ff294d6c86a2cc8279b3e650.
+    digest: sha256:d688a918faccdc9692d3f0c9cfce78a4cdabafc81bd7f94b34206819d0249fc8
   secretRef:
     name: flux-harbor
   layerSelector:
