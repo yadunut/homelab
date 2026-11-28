@@ -41,6 +41,10 @@ spec:
     externalURL: https://harbor.yadunut.dev
     persistence:
       enabled: true
+      persistentVolumeClaim:
+        registry:
+          # CUDA inference images exceed the chart's 5 GiB default.
+          size: 10Gi
     portal:
       affinity: &cloudAffinity
         nodeAffinity:
