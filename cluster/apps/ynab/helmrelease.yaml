@@ -21,6 +21,8 @@ spec:
     app:
       url: https://ynab.yadunut.dev
       plaidEnv: production
+      extraEnv:
+        LLM_ALLOWED_ORIGINS: https://api.openai.com,https://openrouter.ai
     imagePullSecrets:
       - name: ynab-harbor
     secrets:
