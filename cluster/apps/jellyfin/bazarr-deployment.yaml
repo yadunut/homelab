@@ -33,6 +33,12 @@ spec:
               value: "0"
             - name: UMASK
               value: "002"
+          # Startup performs external requests that can wait for network timeouts.
+          startupProbe:
+            tcpSocket:
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
           readinessProbe:
             tcpSocket:
               port: http
