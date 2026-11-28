@@ -37,7 +37,26 @@ metadata:
   namespace: kube-system
 data:
   Corefile: |
+    # Penguin has IPv4 internet access but no usable native IPv6 uplink.
+    # Keep internal names and the cloud nodes on the normal resolver path.
     .:53 {
+        view penguin-public {
+            expr incidr(client_ip(), 'fd00:10:96:2::/64') && !(name() endsWith 'k8s.internal.') && !(name() endsWith 'arpa.')
+        }
+        errors
+        dns64 {
+            prefix 64:ff9b::/96
+            translate_all
+        }
+        forward . 2606:4700:4700::1111 2001:4860:4860::8888 {
+            max_concurrent 1000
+        }
+        cache 30
+    }
+    .:53 {
+        view standard {
+            expr !incidr(client_ip(), 'fd00:10:96:2::/64') || name() endsWith 'k8s.internal.' || name() endsWith 'arpa.'
+        }
         errors
         prometheus :9153
         health {
