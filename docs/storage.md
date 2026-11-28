@@ -72,6 +72,15 @@ instance accepts writes; copy the current RDB back during another quiesced
 window before switching back. Never run two writable instances against one
 data directory.
 
+The new local Valkey volume was backed up to Garage and independently restored
+on Penguin. `valkey-check-rdb` validated the restored checksum; the temporary
+server loaded 49 unexpired keys (the backup contained 57 keys, eight expired).
+The disposable restore-check volume was then removed; the backup and original
+rollback PVC were retained. With Longhorn 1.11.2, a restore using `strict-local`
+initially selected an incompatible node. Restore with `best-effort` and the
+`penguin` replica selector, verify the data, and only change to `strict-local`
+while the restored volume is detached.
+
 Immich library is still rebuilding its local copy as of 2026-11-28 07:00 UTC.
 The temporary `longhorn-system/penguin-finish-library` Job waits for both
 replicas to be healthy and writable, checks the completed offsite backup is
