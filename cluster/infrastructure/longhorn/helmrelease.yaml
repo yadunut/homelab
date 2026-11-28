@@ -25,7 +25,8 @@ spec:
     defaultSettings:
       engineReplicaTimeout: '{"v1":"30","v2":"8"}'
       replicaFileSyncHttpClientTimeout: "120"
-      storageMinimalAvailablePercentage: "20"
+      # Keep ~280 GiB free on Penguin's 2 TB disk while allowing replica rebuilds.
+      storageMinimalAvailablePercentage: "15"
     metrics:
       serviceMonitor:
         enabled: true
