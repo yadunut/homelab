@@ -41,7 +41,29 @@ spec:
     externalURL: https://harbor.yadunut.dev
     persistence:
       enabled: true
+    portal:
+      affinity: &cloudAffinity
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [nut-gc1, nut-gc2]
+    core:
+      affinity: *cloudAffinity
+    jobservice:
+      affinity: *cloudAffinity
+    registry:
+      affinity: *cloudAffinity
+    database:
+      internal:
+        affinity: *cloudAffinity
+    redis:
+      internal:
+        affinity: *cloudAffinity
     trivy:
       enabled: true
+      affinity: *cloudAffinity
     metrics:
       enabled: true

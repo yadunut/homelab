@@ -16,6 +16,14 @@ spec:
       labels:
         app.kubernetes.io/name: books
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [nut-gc1, nut-gc2]
       containers:
         - name: calibre-web-automated
           image: crocodilestick/calibre-web-automated:v4.0.6

@@ -16,6 +16,14 @@ spec:
       labels:
         app.kubernetes.io/name: hermes
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [nut-gc1, nut-gc2]
       serviceAccountName: hermes
       automountServiceAccountToken: false
       terminationGracePeriodSeconds: 60

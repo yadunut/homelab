@@ -25,6 +25,7 @@ parameters:
   numberOfReplicas: "1"
   dataLocality: strict-local
   nodeSelector: penguin
+  recurringJobSelector: '[{"name":"penguin","isGroup":true}]'
   staleReplicaTimeout: "2880"
   fsType: ext4
 allowedTopologies:
