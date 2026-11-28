@@ -4,6 +4,8 @@ metadata:
   name: jellyfin-media
   namespace: jellyfin
   labels:
+    # Sync this explicit exclusion to the volume; do not enroll media in backup groups.
+    recurring-job.longhorn.io/source: enabled
     recurring-job.longhorn.io/no-backup: enabled
 spec:
   accessModes:

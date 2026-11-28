@@ -43,6 +43,13 @@ Penguin, but does not provide a separate geographic site for cloud workloads.
 Credentials remain in the 1Password-backed `longhorn-garage-key` Secret.
 The existing daily default-group backups remain enabled on legacy volumes.
 
+Jellyfin media (`jellyfin-media`) is intentionally excluded from backups;
+the media is replaceable. Its PVC is the recurring-job label source and selects
+only the `no-backup` sentinel, which is not an actual job. Do not add the
+`default` or `penguin` backup groups or manually back up this volume.
+Jellyfin configuration and the other application configuration volumes remain
+backed up.
+
 Six hours is a scheduling interval, not a guaranteed recovery point: the actual
 RPO is the age of the latest **completed** backup. Large initial backups and a
 WAN outage can extend it. Detached volumes are not automatically attached for
@@ -102,9 +109,9 @@ kubectl -n longhorn-system get volumes.longhorn.io \
 kubectl -n longhorn-system get backups.longhorn.io
 ```
 
-The large Jellyfin media backup is also still running at this checkpoint.
-Other migration backup retries completed after the DNS64 fix. Inspect its
-completion before relying on this checkpoint for media recovery.
+The Jellyfin media backup started during migration was subsequently cancelled
+at the owner's request. Media is excluded from future backups. Other migration
+backup retries completed after the DNS64 fix.
 
 Migration inputs, original resources, the quiesced Valkey RDB, and the temporary
 Job definition are kept privately under
